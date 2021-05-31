@@ -28,6 +28,7 @@ def create_app(debug=debug):
     csrf.init_app(app)
     socketio.init_app(app, async_mode=async_mode, manage_session=False)
     login.init_app(app)
+    login.login_view = 'main.login'
     db.init_app(app)
     with app.app_context():
         from app.main import main as main_blueprint

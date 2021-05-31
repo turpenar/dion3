@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 import eventlet
-from flask import Flask, render_template, session, request, \
-    copy_current_request_context
-from flask_socketio import emit, join_room, leave_room, \
-    close_room, rooms, disconnect
-from flask_login import UserMixin, current_user, login_user, \
-    logout_user, login_required
+from flask import Flask, render_template, redirect, url_for, session, request, copy_current_request_context
+from flask_socketio import emit, join_room, leave_room, close_room, rooms, disconnect
+from flask_login import UserMixin, current_user, login_user, logout_user, login_required
 
-from app import socketio, login
+from app import socketio, login, db
 from app.main import main
 from app.main.models import User
+from app.main.forms import LoginForm, SignUpForm
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -35,7 +33,7 @@ def login():
     form = LoginForm()
     
     if form.validate_on_submit():
-        user = datadef.User.query.filter_by(username=form.username.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user:
             if user.check_password(form.password.data):
                 login_user(user, remember=form.remember.data)
@@ -55,9 +53,9 @@ def signup():
     form = SignUpForm()
     
     if form.validate_on_submit():
-        existing_user = datadef.User.query.filter_by(username=form.username.data).first()
+        existing_user = User.query.filter_by(username=form.username.data).first()
         if existing_user == None:
-            new_user = datadef.User(username=form.username.data)
+            new_user = User(username=form.username.data)
             new_user.set_password(form.password.data)
             db.session.add(new_user)
             db.session.commit()
@@ -66,6 +64,7 @@ def signup():
     return render_template('/signup.html', form=form)
 
 @main.route('/')
+@login_required
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 

@@ -1,0 +1,18 @@
+.interface-window {
+	width: 80%;
+	height: 500px;
+	font-family: Courier New, monospace;
+	font-size:  17px;
+	font-weight: 500;
+	background-color: #25274D;
+	overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    white-space: pre-wrap;
+    border: solid;
+    border-style: inset;
+    border-width: thick;
+    border-color: #AAABB8;
+    float: left;
+    list-style-type: none;
+}

@@ -169,8 +169,10 @@ def new_character():
 def my_event(message):
     emit('game_action',
          {'data': message['data']})
-    user = User.query.filter_by(username=current_user.username).first()
-    print(user.character_1)
+    character = User.query.filter_by(username=current_user.username).first().character_1
+
+    if character:
+        
 
     emit('game_event',
         {'data': 'sample game event'})
@@ -253,7 +255,6 @@ def connect():
                             + character.first_name + ' ' + character.last_name 
                             + '<br><br>' 
                             + character.room.intro_text()}) 
-
         emit('game_event', {'data': rooms()}) 
     
     else:

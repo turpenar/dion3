@@ -36,4 +36,9 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+
+class character(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    
         

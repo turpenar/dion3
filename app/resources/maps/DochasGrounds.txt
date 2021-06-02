@@ -1,0 +1,3 @@
+				dochas_grounds_clearing	
+		dochas_grounds_outside_gate		dochas_grounds_tree	dochas_grounds_depression
+dochas_grounds_moat	dochas_grounds_clearing	dochas_grounds_clearing	dochas_grounds_clearing	dochas_grounds_clearing	

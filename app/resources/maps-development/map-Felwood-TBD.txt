@@ -1,0 +1,10 @@
+NaturePath	NaturePath	NaturePath						
+NaturePath		NaturePath						
+NaturePath		NaturePath	NaturePath	NaturePath	NaturePath	NaturePath	NaturePath	NaturePath
+NaturePath								NaturePath
+NaturePath								NaturePath
+NaturePath	NaturePath	NaturePath	Felwood		Felwood	Felwood	NaturePath	NaturePath
+			Felwood	Felwood	Felwood	Felwood		
+			Felwood		Felwood	Felwood		
+			StartingRoom	Felwood	Felwood			
+				Felwood				

@@ -1,0 +1,10 @@
+Profession,strength,constitution,dexterity,agility,intellect,wisdom,logic,spirit
+,ST,CO,DE,AG,IN,WI,LO,SP
+Warrior,2,2,1,1,1,1,1,1
+Rogue,1,1,2,2,1,1,1,1
+Paladin,1,2,1,1,1,2,1,1
+Ranger,1,1,1,2,1,1,1,2
+Enchanter,1,1,1,1,2,2,1,1
+Inyanga,1,1,2,1,1,1,2,1
+Illusionist,1,1,1,1,2,1,1,2
+Clairvoyant,1,1,1,1,1,2,1,2

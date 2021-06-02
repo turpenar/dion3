@@ -1,0 +1,5 @@
+position,attack_factor,defense_factor
+standing,1,1
+kneeling,0.7,0.9
+sitting,0.5,0.7
+lying,0.2,0.4

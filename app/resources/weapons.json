@@ -1,0 +1,37 @@
+{
+	"dagger01": {
+		"name": "a rusty dagger", 
+		"description": "a small, dull dagger covered in rust", 
+		"value": 0, 
+		"handle": ["dagger"], 
+		"adjectives": ["rusty"], 
+		"container": false, 
+		"wearable": false, 
+		"stackable": false,
+		"capacity": false, 
+		"category": "weapon", 
+		"sub_category": "edged",
+		"visibility": "visible",
+		"material": "steel",
+		"enchant": false,
+		"rarity": 10, 
+		"level": 0,
+		"loot": false, 
+		"area": None,
+		"location": ""
+	}, 
+	"sword01": {
+		"name": "some red trousers", 
+		"description": "some simple, active trousers", 
+		"value": 0, 
+		"handle": ["trousers"], 
+		"adjectives": ["red"], 
+		"container": true, 
+		"wearable": true, 
+		"stackable": false, 
+		"category": "clothing", 
+		"rarity": 20, 
+		"loot": false, 
+		"location": ""
+	}
+}

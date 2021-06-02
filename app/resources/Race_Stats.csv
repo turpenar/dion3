@@ -1,0 +1,4 @@
+Race,strength,constitution,dexterity,agility,intellect,wisdom,logic,spirit,,HP_Gain_Rate,Max_HP
+,ST,CO,DE,AG,IN,WI,LO,SP,,HP,HPMAX
+Human,5,5,0,0,0,0,5,0,,6,150
+Other,,,,,,,,,,,

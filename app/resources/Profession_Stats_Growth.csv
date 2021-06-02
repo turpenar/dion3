@@ -1,0 +1,10 @@
+Profession,strength,constitution,dexterity,agility,intellect,wisdom,logic,spirit
+,ST,CO,DE,AG,IN,WI,LO,SP
+Warrior,30,25,25,25,10,20,20,15
+Rogue,25,20,30,25,15,15,25,10
+Paladin,25,30,20,20,25,25,10,15
+Ranger,25,20,20,30,25,15,10,25
+Enchanter,10,15,25,20,25,30,25,20
+Inyanga,15,20,25,10,25,25,30,20
+Illusionist,10,15,20,20,30,25,25,25
+Clairvoyant,20,25,10,15,25,25,20,30

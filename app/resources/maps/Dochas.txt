@@ -1,0 +1,8 @@
+dochas_streets	dochas_streets	dochas_a_small_house	dochas_streets	dochas_north_end	dochas_north_end_outfitters	
+dochas_west_gate			dochas_streets		dochas_streets	dochas_northeast_tower
+dochas_streets		dochas_cul_de_sac	dochas_streets			dochas_streets
+dochas_streets			dochas_streets	dochas_streets	dochas_streets	dochas_streets
+dochas_streets	dochas_streets	dochas_streets	dochas_center			dochas_streets
+dochas_streets			dochas_market_north	dochas_streets	dochas_streets	dochas_streets
+dochas_southwest_tower	dochas_streets		dochas_market_south			dochas_streets
+	dochas_streets	dochas_streets	dochas_south_gate	dochas_streets	dochas_streets	dochas_streets

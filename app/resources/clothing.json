@@ -1,0 +1,30 @@
+{
+	"a red shirt": {
+		"name": "a red shirt", 
+		"description": "a simple shirt with slightly worn shoulders", 
+		"value": 0, 
+		"handle": ["shirt"], 
+		"adjectives": ["red"], 
+		"container": false, 
+		"wearable": true, 
+		"stackable": false, 
+		"category": "clothing", 
+		"rarity": 10, 
+		"loot": true,
+		"location": ""
+	}, 
+	"some red trousers": {
+		"name": "some red trousers", 
+		"description": "some simple, active trousers", 
+		"value": 0, 
+		"handle": ["trousers"], 
+		"adjectives": ["red"], 
+		"container": true, 
+		"wearable": true, 
+		"stackable": false, 
+		"category": "clothing", 
+		"rarity": 20,
+		"loot": true,
+		"location": ""
+	}
+}

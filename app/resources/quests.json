@@ -1,0 +1,45 @@
+{
+	"the_first_quest": {
+		"name": "The First Quest", 
+		"description": "This is the quest that will introduce the character to the game.", 
+		"handle": ["quest01"],
+		"adjectives": [],
+		"quest_giver": "saand_redra",
+		"steps_description": {
+			"step_1": "Find Gander and ASK GANDER ABOUT a JOB.",
+			"step_2": "Return to Gander and GIVE GANDER the HIDE."
+		},
+		"steps_complete": {
+			"step_1": false,
+			"step_2": false,
+			"step_3": false
+		},
+		"quest_complete": false,
+		"quest_complete_text": "Congratulations! You've completed your first quest. Your reward is a set of leather arm greaves.  Enjoy!",
+		"reward": {
+			"item": ["leather_arm_greaves"],
+			"experience": 1000
+		}
+	},
+	"prologue": {
+		"name": "The Prologue", 
+		"description": "This quest is the finish to The Prologue.", 
+		"handle": ["quest02"],
+		"adjectives": [],
+		"quest_giver": "emmeara_sadana",
+		"steps_description": {
+			"step_1": "SEARCH for the message in the field.",
+			"step_2": "Meet Emmeara in the Cul de Sac."
+		},
+		"steps_complete": {
+			"step_1": false,
+			"step_2": false
+		},
+		"quest_complete": false,
+		"quest_complete_text": "Congratulations! You've completed the Prologue!",
+		"reward": {
+			"item": ["leather_arm_greaves"],
+			"experience": 1000
+		}
+	}
+}

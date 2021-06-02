@@ -5,9 +5,9 @@ from flask_socketio import emit, join_room, leave_room, close_room, rooms, disco
 from flask_login import UserMixin, current_user, login_user, logout_user, login_required
 
 from app import socketio, login, db
-from app.main import main
+from app.main import main, config, player, world, actions
 from app.main.models import User
-from app.main.forms import LoginForm, SignUpForm
+from app.main.forms import LoginForm, SignUpForm, NewCharacterForm
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -26,6 +26,13 @@ def background_thread():
 @login.user_loader
 def load_user(id):
     return User(id)
+
+
+@main.route('/')
+@login_required
+def index():
+    return render_template('index.html')
+
 
 @main.route('/login', methods=['POST', 'GET'])
 def login():
@@ -63,17 +70,110 @@ def signup():
         return '<h1>User already exists!</h1>'
     return render_template('/signup.html', form=form)
 
-@main.route('/')
+
+@main.route('/play')
 @login_required
-def index():
-    return render_template('index.html', async_mode=socketio.async_mode)
+def play():
+    return render_template('play.html', async_mode=socketio.async_mode)
+
+
+@main.route('/characters', methods=['POST', 'GET'])
+@login_required
+def characters():
+    
+    characters = []
+    character_names = []
+
+    user = User.query.filter_by(username=current_user.username).first()
+
+    if user:
+    
+        if user.character_1:
+            characters.append(user.character_1)
+        if user.character_2:
+            characters.append(user.character_2)
+        if user.character_3:
+            characters.append(user.character_3)            
+        if user.character_4:
+            characters.append(user.character_4)    
+        if user.character_5:
+            characters.append(user.character_5) 
+            
+        for character in characters:
+            character_names.append(character.first_name)
+
+        if request.method == "POST":
+            return render_template('/play.html', user=current_user.username)
+    
+    return render_template('/characters.html', Characters=character_names)
+
+
+@main.route('/new_character', methods=['POST', 'GET'])
+@login_required
+def new_character():
+    
+    message = ""
+        
+    form = NewCharacterForm()
+    
+    stats = config.get_stats_data_file()
+    
+    stats_initial = {}
+    stats_total = 0
+
+    if form.validate_on_submit():
+        
+        result = request.form
+        first_name = result['first_name']
+        last_name = result['last_name']
+        gender = result['gender']
+        profession = result['profession']  
+        
+        for stat in stats:
+            stats_initial[stat.lower()] = int(result[stat])
+            stats_total += stats_initial[stat.lower()]
+
+        new_character = player.create_character('new_player')
+        
+        new_character.name = first_name
+        new_character.first_name = first_name
+        new_character.last_name = last_name
+        new_character.gender = gender
+        new_character.profession = profession
+        
+        for stat in new_character.stats:
+            new_character.stats[stat] = stats_initial[stat]
+            
+        new_character.set_character_attributes()    
+        new_character.set_gender(new_character.gender)
+        new_character.level_up_skill_points()
+        new_character.room = world.tile_exists(x=new_character.location_x, y=new_character.location_y, area=new_character.area)
+
+        current_user.character_1 = new_character
+        
+        db.session.add(current_user)
+        db.session.commit()
+
+        
+        new_character.room.fill_room(character=new_character)
+        new_character.room.intro_text()
+        new_character.get_status()
+              
+        return '<h1>Character Created! Please close the window and return to the main page.</h1>'
+        
+    return render_template('/new_character.html', form=form, Stats=stats)
+
 
 
 @socketio.event
 def my_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
+    emit('game_action',
+         {'data': message['data']})
+    user = User.query.filter_by(username=current_user.username).first()
+    print(user.character_1)
+
     emit('game_event',
-         {'data': message['data'], 'count': session['receive_count']})
+        {'data': 'sample game event'})
 
 
 @socketio.event
@@ -142,8 +242,22 @@ def my_ping():
 @socketio.event
 def connect():
     thread = eventlet.spawn(background_thread)
-    emit('game_event', {'data': 'Connected', 'count': 0})
+    character = User.query.filter_by(username=current_user.username).first().character_1
 
+    if character:
+        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
+        if not character.room.room_filled:
+            character.room.fill_room(character=character)
+        join_room(character.room.room_number)
+        emit('game_event', {'data': 'You are connected as ' 
+                            + character.first_name + ' ' + character.last_name 
+                            + '<br><br>' 
+                            + character.room.intro_text()}) 
+
+        emit('game_event', {'data': rooms()}) 
+    
+    else:
+        emit('game_event', {'data': 'You have not yet set up a character.'})
 
 @socketio.on('disconnect')
 def test_disconnect():

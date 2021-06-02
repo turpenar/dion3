@@ -1,0 +1,4 @@
+field_glade	field_edge	field_clearing			
+		field_wheat_rows			
+		field_knoll			
+		field_pasture	field_fence	field_town	field_outside_gate

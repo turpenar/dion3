@@ -1,0 +1,31 @@
+{
+	"Strength": {
+		"description": "Strength description. This is a more detailed description."
+	}, 
+	"Constitution": {
+		"description": "Constitution description."
+	}, 
+	"Dexterity": {
+		"description": "Dexterity description."
+	}, 
+	"Agility": {
+		"description": "Agility description."
+	}, 
+	"Intellect": {
+		"description": "Intellect description."
+	}, 
+	"Wisdom": {
+		"description": "Wisdom description."
+	}, 
+	"Logic": {
+		"description": "Logic description."
+	}, 
+	"Spirit": {
+		"description": "Spirit description."
+	}
+}
+
+
+
+
+

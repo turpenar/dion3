@@ -1,0 +1,310 @@
+{
+	"Doors": { 
+		"dochas_leatherworks_door": {
+			"name": "a battered door", 
+			"description": "You see a rickety door, worn by years of use.", 
+			"handle": ["door"],
+			"adjectives": ["battered"],
+			"visibility": 100,
+			"location_1": {
+				"name": "The North End",
+				"area": "Dochas",
+				"x": 4,
+				"y": 0
+			},
+			"location_2": {
+				"name": "Foyer",
+				"area": "DochasLeatherworks",
+				"x": 1,
+				"y": 2
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}, 
+		"dochas_smallhouse_gate": {
+			"name": "a gate", 
+			"description": "You see a small gate leading to the doorstep of the house.", 
+			"handle": ["gate"],
+			"adjectives": [],
+			"visibility": 100,
+			"location_1": {
+				"name": "A Small House",
+				"area": "Dochas",
+				"x": 2,
+				"y": 0
+			},
+			"location_2": {
+				"name": "Doorstep",
+				"area": "DochasSmallHouse",
+				"x": 0,
+				"y": 0
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}, 
+		"dochas_smallhouse_door": {
+			"name": "a door", 
+			"description": "You see a front door of the small house, which fits awkwardly in the doorjam.", 
+			"handle": ["door"],
+			"adjectives": [],
+			"visibility": 100,
+			"location_1": {
+				"name": "Doorstep",
+				"area": "DochasSmallHouse",
+				"x": 0,
+				"y": 0
+			},
+			"location_2": {
+				"name": "Triage",
+				"area": "DochasSmallHouse",
+				"x": 0,
+				"y": 2
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}, 
+		"dochas_south_gate": {
+			"name": "the town gate", 
+			"description": "Standing just over head-high, the Dochas South Gate is a feeble attempt at keeping out intruders.", 
+			"handle": ["gate"],
+			"adjectives": ["town"],
+			"visibility": 100,
+			"location_1": {
+				"name": "South Gate",
+				"area": "Dochas",
+				"x": 3,
+				"y": 7
+			},
+			"location_2": {
+				"name": "Outside Gate",
+				"area": "DochasGrounds",
+				"x": 2,
+				"y": 1
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}, 
+		"dochas_weaponsmith_opening": {
+			"name": "a wide opening", 
+			"description": "The gap in the stores is less of a door, and more of a missing wall. The bustle of the streets blends in with the shops intereior. There does not appear to be a way to close this opening.", 
+			"handle": ["opening"],
+			"adjectives": ["wide"],
+			"visibility": 100,
+			"location_1": {
+				"name": "The North End Outfitters",
+				"area": "Dochas",
+				"x": 5,
+				"y": 0
+			},
+			"location_2": {
+				"name": "Entryway",
+				"area": "DochasWeaponsmith",
+				"x": 0,
+				"y": 0
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		},
+		"dochas_west_gate": {
+			"name": "the town gate", 
+			"description": "Standing just over head-high, the Dochas West Gate is a feeble attempt at keeping out intruders.", 
+			"handle": ["gate"],
+			"adjectives": ["town"],
+			"visibility": 100,
+			"location_1": {
+				"name": "Outside the West Gate",
+				"area": "Field",
+				"x": 5,
+				"y": 3
+			},
+			"location_2": {
+				"name": "West Gate",
+				"area": "Dochas",
+				"x": 0,
+				"y": 1
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}, 
+		"edgwood_forest_path": {
+			"name": "a path", 
+			"description": "You see an unassuming path meant for foot traffic through the woods.", 
+			"handle": ["path"],
+			"adjectives": [],
+			"visibility": 100,
+			"location_1": {
+				"name": "A Depression",
+				"area": "DochasGrounds",
+				"x": 5,
+				"y": 1
+			},
+			"location_2": {
+				"name": "A Forest Path",
+				"area": "EdgewoodForest",
+				"x": 0,
+				"y": 1
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}
+	},
+	"Furniture": {
+		"stool": {
+			"name": "a sturdy stool", 
+			"description": "A small stool sits on the ground.",
+			"handle": ["stool"], 
+			"adjectives": ["sturdy"],
+			"stackable": true,
+			"visibility": 100,
+			"location": "",
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}
+	},
+	"Miscellaneous": {
+			"order_sign": {
+			"name": "a sign", 
+			"description": "The sign reads: if you would like anything, simply ORDER.",
+			"handle": ["sign"], 
+			"adjectives": [],
+			"stackable": false,
+			"visibility": 100,
+			"location": "",
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}
+	},
+	"Corpse": {
+		"kobold_corpse": {
+			"name": "a dead kobold",
+			"description": "The kill looks fresh. You may want to search it for loot before someone else does.",
+			"handle": ["kobold"],
+			"adjectives": ["dead"],
+			"level": 1,
+			"loot": {
+				"drop_rate": 100,
+				"items": ["clothing"],
+				"money": 20
+			},
+			"skin": "",
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		},
+		"goblin_corpse": {
+			"name": "a dead goblin",
+			"description": "The kill looks fresh. You may want to search it for loot before someone else does.",
+			"handle": ["goblin"],
+			"adjectives": ["dead"],
+			"visibility": 100,
+			"level": 1,
+			"loot": {
+				"drop_rate": 100,
+				"items": [],
+				"money": 20
+			},
+			"skin": "",
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		},
+		"wild_boar_corpse": {
+			"name": "a body of a wild boar",
+			"description": "The kill looks fresh. You may want to search it for loot before someone else does.",
+			"handle": ["boar"],
+			"adjectives": ["dead"],
+			"visibility": 100,
+			"level": 0,
+			"loot": {
+				"drop_rate": 100,
+				"items": [],
+				"money": 10
+			},
+			"skin": "boar_hide",
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}
+	}
+}

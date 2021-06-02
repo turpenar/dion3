@@ -1,0 +1,10 @@
+Profession,Strength_Growth,Constitution_Growth,Dexterity_Growth,Agility_Growth,Intellect_Growth,Wisdom_Growth,Logic_Growth,Spirit_Growth,Strength_SkillPoint_Bonus,Constitution_SkillPoint_Bonus,Dexterity_SkillPoint_Bonus,Agility_SkillPoint_Bonus,Intellect_SkillPoint_Bonus,Wisdom_SkillPoint_Bonus,Logic_SkillPoint_Bonus,Spirit_SkillPoint_Bonus
+,ST,CO,DE,AG,IN,WI,LO,SP,ST,CO,DE,AG,IN,WI,LO,SP
+Warrior,30,25,25,25,10,20,20,15,2,2,1,1,1,1,1,1
+Rogue,25,20,30,25,15,15,25,10,1,1,2,2,1,1,1,1
+Paladin,25,30,20,20,25,25,10,15,1,2,1,1,1,2,1,1
+Ranger,25,20,20,30,25,15,10,25,1,1,1,2,1,1,1,2
+Enchanter,10,15,25,20,25,30,25,20,1,1,1,1,2,2,1,1
+Inyanga,15,20,25,10,25,25,30,20,1,1,2,1,1,1,2,1
+Illusionist,10,15,20,20,30,25,25,25,1,1,1,1,2,1,1,2
+Clairvoyant,20,25,10,15,25,25,20,30,1,1,1,1,1,2,1,2

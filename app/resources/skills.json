@@ -1,0 +1,43 @@
+{
+	"Weapons": {
+		"edged_weapons": {
+			"physical_points": 3,
+			"mental_points": 1
+			},
+		"blunt_weapons": {
+			"physical_points": 3,
+			"mental_points": 1
+			},
+		"polearm_weapons": {
+			"physical_points": 3,
+			"mental_points": 1
+			}
+	},
+	"Armor": {
+		"armor": {
+			"physical_points": 2,
+			"mental_points": 1
+			},
+		"shield": {
+			"physical_points": 2,
+			"mental_points": 1
+			}
+	},
+	"Combat": {
+		"dodging": {
+			"physical_points": 1,
+			"mental_points": 2
+			}
+	},
+	"Survival": {
+		"physical_fitness": {
+			"physical_points": 3,
+			"mental_points": 0
+			},
+		"perception": {
+			"physical_points": 1,
+			"mental_points": 3
+			}
+	}		 
+}
+

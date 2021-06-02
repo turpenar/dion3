@@ -1,0 +1,42 @@
+{
+	"wild_boar": {
+		"name": "a wild boar", 
+		"description": "You see a small, stout boar looking for something to eat. Mottled fur covers the boar's backside and one of its tusks is badly chipped. It greedily looks at you.", 
+		"handle": ["boar"], 
+		"adjectives": [],
+		"category": "enemy",
+		"level": 1,
+		"health": 10,
+		"health_max": 10,
+		"attack_strength_base": 20,
+		"defense_strength_base": 5,
+		"position": ["standing"],
+		"stance": ["offensive"],
+		"armor": {
+			"torso": [],
+			"head": [],
+			"neck": [],
+			"right_arm": [],
+			"left_arm": [],
+			"right_leg": [],
+			"left_leg": []
+			},
+		"weapon": "None",
+		"right_hand": "",
+		"left_hand": "",
+		"round_time": {
+			"engage": 5,
+			"attack": 10,
+			"move": 5
+			},
+		"spawn_location": "Wilds",
+		"text": {
+			"entrance_text": "A wild boar has arrived!",
+			"move_out_text": "A wild boar rushes out of the area.",
+			"move_in_text": "A wild boar rushes into the area.",
+			"engage_text": "A wild boar stamps its feet.",
+			"death_text": "A wild boar staggers and eventually slumps to the ground, motionless."
+			},
+		"corpse": "wild_boar_corpse"
+	}
+}

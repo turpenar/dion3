@@ -1,0 +1,4 @@
+	edgwood_forest_wood	edgwood_forest_wood	edgwood_forest_wood		
+edgwood_forest_path	edgwood_forest_hovel		edgwood_forest_wood	edgwood_forest_wood	edgwood_forest_wood
+	edgwood_forest_wood		edgwood_forest_wood		edgwood_forest_wood
+	edgwood_forest_wood	edgwood_forest_wood	edgwood_forest_wood	edgwood_forest_wood	edgwood_forest_wood

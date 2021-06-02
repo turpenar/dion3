@@ -1,0 +1,114 @@
+{
+	"new_player": {
+		"name": "",
+		"first_name": "",
+		"last_name": "", 
+		"gender": "None",
+		"race": "Human",
+		"profession": "None",
+		"category": "player",
+		"position": ["lying"],
+		"stance": ["neutral"],
+		"description": "You seem to be one piece.", 
+		"handle": ["self"], 
+		"adjectives": [],
+		"level": 0,
+		"experience": 0,
+		"stats": {
+			"strength": 0,
+			"constitution": 0,
+			"dexterity": 0,
+			"agility": 0,
+			"intellect": 0,
+			"wisdom": 0,
+			"logic": 0,
+			"spirit": 0
+			},
+		"stats_base": {
+			"strength": 0,
+			"constitution": 0,
+			"dexterity": 0,
+			"agility": 0,
+			"intellect": 0,
+			"wisdom": 0,
+			"logic": 0,
+			"spirit": 0
+			},
+		"stats_bonus": {
+			"strength": 0,
+			"constitution": 0,
+			"dexterity": 0,
+			"agility": 0,
+			"intellect": 0,
+			"wisdom": 0,
+			"logic": 0,
+			"spirit": 0
+			},
+		"training": {
+			"physical_points": 0,
+			"mental_points": 0
+			},
+		"skills": {
+			"edged_weapons": 0,
+			"blunt_weapons": 0,
+			"polearm_weapons": 0,
+			"armor": 0,
+			"shield": 0,
+			"dodging": 0,
+			"physical_fitness": 0,
+			"perception": 0
+			},
+		"skills_base": {
+			"edged_weapons": 0,
+			"blunt_weapons": 0,
+			"polearm_weapons": 0,
+			"armor": 0,
+			"shield": 0,
+			"dodging": 0,
+			"physical_fitness": 0,
+			"perception": 0
+			},
+		"skills_bonus": {
+			"edged_weapons": 0,
+			"blunt_weapons": 0,
+			"polearm_weapons": 0,
+			"armor": 0,
+			"shield": 0,
+			"dodging": 0,
+			"physical_fitness": 0,
+			"perception": 0
+			},
+		"health": 0,
+		"health_max": 0,
+		"mana": 0,
+		"armor": {
+			"torso": ["light_leather"],
+			"head": [],
+			"neck": [],
+			"right_arm": [],
+			"left_arm": [],
+			"right_leg": [],
+			"left_leg": []
+			},
+		"right_hand": {
+			"item_category": [],
+			"item_name": []
+			},
+		"left_hand": {
+			"item_category": [],
+			"item_name": []
+			},
+		"dominance": "",
+		"money": 0,
+		"inventory": {
+			"clothing": ["a_simple_shirt", "some_simple_trousers", "leather_backpack"],
+			"ring": [],
+			"neck": []
+			},
+		"location_x": 0,
+		"location_y": 0,
+		"room": "None",
+		"area": "Field",
+		"quests": []
+	}
+}

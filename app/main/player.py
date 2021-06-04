@@ -116,12 +116,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.target = None
         self.rt_start = 0
         self.rt_end = 0
-
-        self.quests = {}
-
-        for quest in self._player_data['quests']:
-            self.quests[quest] = quests.Quest(quest_name=quest, character=self)
-            self.quests[quest].start()
     
     @property
     def name(self):
@@ -159,12 +153,12 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def possessive_pronoun(self):
             return self._possessive_pronoun
     def set_gender(self, gender):
-            if gender == "female":
-                self._object_pronoun = "She"
-                self._possessive_pronoun = "Her"
-            if gender == "male":
-                self._object_pronoun = "He"
-                self._possessive_pronoun = "His"
+            if gender.lower() == "female":
+                self._object_pronoun = "she"
+                self._possessive_pronoun = "her"
+            if gender.lower() == "male":
+                self._object_pronoun = "she"
+                self._possessive_pronoun = "his"
                 
     @property
     def race(self):
@@ -191,7 +185,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def check_position_to_move(self):
         non_moving_positions = [x for x in positions if x is not 'standing']
         if set([self.position]) & set(non_moving_positions):
-            events.game_event('''You cannot move.  You are {}.'''.format(self.position))
             return False
         else:
             return True
@@ -400,14 +393,15 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             return ""
         else:
             return "Your body falls to the ground with a *slump*. You are dead."
-        
 
     def check_round_time(self):
         round_time = False
         if time.time() < self.rt_end:
-            events.game_event("Remaining round time: " + str(round(self.rt_end - time.time())) + " sec...")
             round_time = True
         return round_time
+
+    def get_round_time(self):
+            return self.rt_end - time.time()
 
     def set_round_time(self, seconds):
         self.rt_start = time.time()
@@ -445,15 +439,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
                 for sub_item in item.items:
                     all_inventory_handles.append(sub_item.handle)
         return all_inventory_handles
-
-    def check_quest(self, quest):
-            for quest_self in self.quests:
-                if self.quests[quest_self].name == quest.name:
-                    return True
-            return False
-
-    def add_quest(self, quest_name, quest):
-            self.quests[quest_name] = quest
         
     @property
     def right_hand_inv(self):
@@ -509,19 +494,10 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         dict.copy() method to avoid modifying the original state."""
         state = self.__dict__.copy()
         del state['room']
-        quests_data = {}
-        for quest in self.quests:
-            quests_data[quest] = self.quests[quest].save()
-        state['quests'] = quests_data
         return state
 
     def __setstate__(self, state):
         """Set the object's state in self.__dict__ which contains all our instance attributes."""
-        for quest in state['quests']:
-            self.quests[quest] = quests.Quest(quest_name=quest, character=self)
-            self.quests[quest].load(state=state['quests'][quest])
-            self.quests[quest].start()
-        del state['quests']
         self.__dict__.update(state)
         
     def move(self, dx, dy):

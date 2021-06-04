@@ -22,25 +22,31 @@ wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
 def do_action(action_input, character=None):
     action_history.insert(0,action_input)
     if not character:
-        events.game_event(game_event_text="No character loaded. You will need to create a new character or load an existing character.")
-        return
+        action_result = {"action_success": False,
+                         "action_error":  "No character loaded. You will need to create a new character or load an existing character."
+        }
+        return action_result
     if len(action_input) == 0:
-        events.game_event("")
-        return
+        action_result = {"action_success": False,
+                         "action_error":  ""
+        }
+        return action_result
     kwargs = command_parser.parser(action_input)
-    return DoActions.do_action(kwargs['action_verb'], character, **kwargs).action_result
+    return DoActions.do_action(kwargs['action_verb'], character, **kwargs)
 
 
 class DoActions:
     def __init__(self, character, **kwargs):
         self.character = character
-        self.action_result = {"room_change": {"room_change_flag":  False,
+        self.action_result = {"action_success": True,
+                              "action_error": None,
+                              "room_change": {"room_change_flag":  False,
                                               "old_room":  None,
                                               "new_room":  None},
                               "character_output":  None,
-                              "room_output":  {},
+                              "room_output":  None,
                               "area_output":  None,
-                              "status_window":  None}
+                              "status_output":  None}
 
     do_actions = {}
 
@@ -56,9 +62,11 @@ class DoActions:
     def do_action(cls, action, character, **kwargs):
         """Method used to initiate an action"""
         if action not in cls.do_actions:
-            events.game_event("I am sorry, I did not understand.")
-            return
-        return cls.do_actions[action](character, **kwargs)
+            cls.action_result = {"action_success":  False,
+                             "action_error":  "I am sorry, I did not understand."
+            }
+            return cls.action_result
+        return cls.do_actions[action](character, **kwargs).action_result
     
     def update_room(self, old_room_number, new_room_number):
         self.action_result['room_change']['room_change_flag'] = True
@@ -76,7 +84,7 @@ class DoActions:
         self.action_result['area_output'] = area_output_text
     
     def update_status(self, status_text):
-        self.action_result['status_window'] = status_text
+        self.action_result['status_output'] = status_text
         
 
 
@@ -247,22 +255,27 @@ class East(DoActions):
         DoActions.__init__(self, character, **kwargs)     
         
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
             return
         if not character.check_position_to_move():
+            self.update_character_output("You cannot move.  You are {}.".format(character.position))
             return
-        if world.tile_exists(x=self.character.location_x + 1, y=self.character.location_y, area=self.character.area):
+        if world.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
                     character.room.shop.exit_shop()
             old_room = self.character.room.room_number             
             self.character.move_east()
+            self.update_character_output(character.room.intro_text())
             self.update_room(old_room_number=old_room, new_room_number=self.character.room.room_number)
+            self.update_room_output("{} enters the room.".format(character.first_name))
             self.update_status(character.get_status())
             return
         else:
-            events.game_event("You cannot find a way to move in that direction.")
+            self.update_character_output("You cannot find a way to move in that direction.")
             return
             
             
@@ -954,17 +967,20 @@ class Sit(DoActions):
         DoActions.__init__(self, character, **kwargs)
 
         if character.check_round_time():
-            return 
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            return
         if character.is_dead():
-            return 
+            self.update_character_output(character_output_text="You're dead!")
+            return
         if character.position == 'sitting':
-            events.game_event('You seem to already be sitting.')
-            character.print_status()
-            return 
+            self.update_character_output(character_output_text="You seem to already be sitting.")
+            self.update_status(status_text=character.get_status())
+            return
         else:
-            character.position = 'sitting'
-            events.game_event('You move yourself to a sitting position.')
-            character.print_status()
+            self.character.position = 'sitting'
+            self.update_character_output(character_output_text="You move yourself to a sitting position.")
+            self.update_room_output(room_output_text="{} moves {}self to a sitting position.".format(character.first_name, character.possessive_pronoun))
+            self.update_status(status_text=character.get_status())
             return
 
 
@@ -1119,17 +1135,19 @@ class Stand(DoActions):
         
     def stand(self, character):
         if self.character.check_round_time():
-            return 
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            return
         if self.character.is_dead():
-            return 
+            self.update_character_output(character_output_text="You're dead!")
+            return
         if self.character.position == 'standing':
             self.update_character_output(character_output_text="You seem to already be standing.")
             self.update_status(status_text=character.get_status())
-            return 
+            return
         else:
             self.character.position = 'standing'
             self.update_character_output(character_output_text="You raise yourself to a standing position.")
-            self.update_room_output(room_output_text={character.room.room_number: "{} raises {}self to a standing position".format(character.first_name, character.possessive_pronoun)})
+            self.update_room_output(room_output_text="{} raises {}self to a standing position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
             return
 

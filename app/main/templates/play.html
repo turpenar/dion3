@@ -25,10 +25,14 @@
             });
 
             socket.on('game_event', function(msg, cb) {
-                $('#log').append('<br><br>' + '<div>' + msg.data + '</div>');
+                $('#log').append('<br>' + '<div>' + msg.data + '</div>');
                 if (cb)
                     cb();
             });
+
+            socket.on('status_update', function(msg, cb) {
+                $('#status-window-id').html(msg['data'])
+            })
 
             // Interval function that tests message latency by sending a "ping"
             // message. The server then responds with a "pong" message and the

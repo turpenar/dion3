@@ -88,16 +88,8 @@ def characters():
 
     if user:
     
-        if user.character_1:
-            characters.append(user.character_1)
-        if user.character_2:
-            characters.append(user.character_2)
-        if user.character_3:
-            characters.append(user.character_3)            
-        if user.character_4:
-            characters.append(user.character_4)    
-        if user.character_5:
-            characters.append(user.character_5) 
+        if user.character:
+            characters.append(user.character)
             
         for character in characters:
             character_names.append(character.first_name)
@@ -149,7 +141,7 @@ def new_character():
         new_character.level_up_skill_points()
         new_character.room = world.tile_exists(x=new_character.location_x, y=new_character.location_y, area=new_character.area)
 
-        current_user.character_1 = new_character
+        current_user.character = new_character
         
         db.session.add(current_user)
         db.session.commit()
@@ -169,14 +161,31 @@ def new_character():
 def my_event(message):
     emit('game_action',
          {'data': message['data']})
-    character = User.query.filter_by(username=current_user.username).first().character_1
-
+    user = db.session.query(User).filter_by(username=current_user.username).first()
+    character = user.character
     if character:
-        
+        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
+        if not character.room.room_filled:
+            character.room.fill_room(character=character)
+    action_result = actions.do_action(action_input=message['data'], character=character)
 
-    emit('game_event',
-        {'data': 'sample game event'})
+    if not action_result['action_success']:
+        emit('game_event',
+            {'data': action_result['action_error']})
+    else:
+        if action_result['room_change']['room_change_flag'] == True:
+            emit('game_event',
+                {'data': "{} leaves the room.".format(character.first_name)}, to=str(character.room.room_number), include_self=False)
+            leave_room(action_result['room_change']['old_room'])
+            join_room(action_result['room_change']['new_room'])
+        emit('game_event',
+            {'data': action_result['character_output']})
+        emit('game_event',
+            {'data': action_result['room_output']}, to=str(character.room.room_number), include_self=False)
+        emit('status_update',
+            {'data': action_result['status_output']})
 
+    db.session.commit()
 
 @socketio.event
 def my_broadcast_event(message):
@@ -244,18 +253,20 @@ def my_ping():
 @socketio.event
 def connect():
     thread = eventlet.spawn(background_thread)
-    character = User.query.filter_by(username=current_user.username).first().character_1
+    character = User.query.filter_by(username=current_user.username).first().character
 
     if character:
         character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
         if not character.room.room_filled:
             character.room.fill_room(character=character)
-        join_room(character.room.room_number)
+        join_room(str(character.room.room_number))
         emit('game_event', {'data': 'You are connected as ' 
                             + character.first_name + ' ' + character.last_name 
                             + '<br><br>' 
                             + character.room.intro_text()}) 
-        emit('game_event', {'data': rooms()}) 
+        emit('game_event', {'data': rooms()})
+        emit('game_event', {'data': '{} has entered the room.'.format(character.first_name)}, to=str(character.room.room_number), include_self=False)
+        emit('status_update', {'data': character.get_status()})
     
     else:
         emit('game_event', {'data': 'You have not yet set up a character.'})

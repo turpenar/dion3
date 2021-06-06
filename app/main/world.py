@@ -2,6 +2,11 @@
 import pathlib as pathlib
 import imp as imp
 
+from app import db
+from app.main import tiles
+from app.main.models import Room
+
+
 path_maps = pathlib.Path.cwd() / "app" / "resources" / "maps"
 map_list = path_maps.glob('*.txt')
 module = imp.load_source('tiles', 'app/main/tiles.py')
@@ -29,7 +34,14 @@ def load_tiles():
                 if tile_name == 'field_glade':
                     global starting_position
                     starting_position = (x, y)
-                _area[(x, y)] = None if tile_name == '' else getattr(module, area)(x, y, area, tile_name, room_number=int(str(area_count) + str(room_count)))
+                if tile_name == '':
+                    _area[(x, y)] = None
+                else:
+                    room_number = int(str(area_count) + str(room_count))
+                    _area[(x, y)] = tiles.create_tile(area_name=area, room_name=tile_name, room_number=room_number, x=x, y=y)
+                    room = Room(room_number=room_number)
+                    db.session.add(room)
+                    db.session.commit()
                 _world[area] = _area
                 room_count += 1
         area_count += 1
@@ -53,5 +65,7 @@ def area_enemies(area):
         if tile_exists(x=room[0], y=room[1], area=area):
             all_enemies.extend(all_rooms[room].enemies)
     return all_enemies
+
+
 
 

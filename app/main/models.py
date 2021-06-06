@@ -3,7 +3,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.ext.mutable import Mutable
 import pickle as pickle
 
-
 from app import db
 
 
@@ -99,7 +98,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String)
     password = db.Column(db.String)
-    character = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
+    characters = db.relationship('Character', backref='user', lazy=True )
     
     def __init__(self, username):
         self.username = username
@@ -122,7 +121,29 @@ class User(UserMixin, db.Model):
         return '<User {}>'.format(self.username)
 
 
-class character(db.Model):
+class Character(db.Model):
+
+    __tablename__ = "characters"
+    __table_args__ = {'extend_existing': True}
+
     id = db.Column(db.Integer, primary_key=True)
+    char = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
+    first_name = db.Column(db.String)
+    last_name = db.Column(db.String)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_number'), nullable=True)
+
+
+class Room(db.Model):
+
+    __tablename__ = "rooms"
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    room_number = db.Column(db.Integer)
+    characters = db.relationship('Character', backref='room', lazy=True)
+
+db.create_all()
+
 
         

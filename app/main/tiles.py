@@ -23,10 +23,14 @@ all_npcs = mixins.npcs
 logging.basicConfig(level=logging.DEBUG,
                     format='[%(levelname)s] (%(threadName)-10s) %(message)s',
                     )
+
+def create_tile(area_name=None, room_name=None, room_number=None, x=None, y=None):
+    return MapTile.tile(area_name=area_name, room_name=room_name, room_number=room_number, x=x, y=y)
+
     
 
 class MapTile(mixins.DataFileMixin):
-    def __init__(self, x, y, area_name: str, room_name: str, room_number: int):
+    def __init__(self, area_name: str, room_name: str, room_number: int, x, y):
 
         self._area_data = self.get_area_by_name(area_name)
         self._room_data = self._area_data[room_name]
@@ -48,6 +52,23 @@ class MapTile(mixins.DataFileMixin):
         self.hidden = []
         self.room_filled = False
         self.shop_filled = False
+
+    areas = {}
+
+    @classmethod
+    def register_area(cls, area):
+        """Catalogues tiles in a dictionary for reference purposes"""
+        def decorator(subclass):
+            cls.areas[area] = subclass
+            return subclass
+        return decorator
+
+    @classmethod
+    def tile(cls, area_name, room_name, room_number, **kwargs):
+        """Method used to initiate an action"""
+        if area_name not in cls.areas:
+            return
+        return cls.areas[area_name](area_name=area_name, room_name=room_name, room_number=room_number, **kwargs)
 
     def modify_player(self):
         raise NotImplementedError()
@@ -245,7 +266,7 @@ class MapTile(mixins.DataFileMixin):
         intro_text = """\
 [{}, {}] <br>
 {} <br>
-{}
+{} <br>
 {}\
         """.format(self.area,
                    self.room_name,
@@ -264,9 +285,10 @@ class MapTile(mixins.DataFileMixin):
         return NotImplementedError()
 
 
+@MapTile.register_area('Town')
 class Town(MapTile):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x, y)
 
     def spawn_generator(self, character):
         pass
@@ -275,34 +297,40 @@ class Town(MapTile):
         pass
 
 
+@MapTile.register_area('Dochas')
 class Dochas(Town):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
 
 
+@MapTile.register_area('DochasGrounds')
 class DochasGrounds(Town):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x, y)
 
 
+@MapTile.register_area('DochasLeatherWorks')
 class DochasLeatherworks(Town):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x, y)
 
 
+@MapTile.register_area('DochasSmallHouse')
 class DochasSmallHouse(Town):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x, y)
         
-    
+
+@MapTile.register_area('DochasWeaponsmith')
 class DochasWeaponsmith(Town):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x, y)
 
 
+@MapTile.register_area('EdgewoodForest')
 class EdgewoodForest(MapTile):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x, y)
 
     def spawn_generator(self, character):
         area_rooms = world.area_rooms(self.area)
@@ -328,8 +356,9 @@ class EdgewoodForest(MapTile):
         spawn_thread = eventlet.spawn(self.spawn_generator, args=(character,))
 
 
+@MapTile.register_area('Field')
 class Field(Town):
-    def __init__(self, x, y, area_name, room_name, room_number):
-        super().__init__(x=x, y=y, area_name=area_name, room_name=room_name, room_number=room_number)
+    def __init__(self, area_name, room_name, room_number, x, y):
+        MapTile.__init__(self, area_name, room_name, room_number, x, y)
 
 

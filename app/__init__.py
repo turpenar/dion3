@@ -21,7 +21,6 @@ def create_app(debug=debug):
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main/users.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SESSION_TYPE'] = "sqlalchemy"
-    app.config['SESSION_SQLALCHEMY_TABLE'] = "users"
     app.config['SESSION_SQLALCHEMY'] = db
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
@@ -33,5 +32,4 @@ def create_app(debug=debug):
     with app.app_context():
         from app.main import main as main_blueprint
         app.register_blueprint(main_blueprint)
-        db.create_all()
         return app

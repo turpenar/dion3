@@ -16,6 +16,7 @@
             // The callback function is invoked when a connection with the
             // server is established.
             socket.on('connect', function() {
+                socket.emit('my_event', {data:  "look", first_name:  "{{character_first_name}}", last_name:  "{{character_last_name}}"})
             });
 
             socket.on('game_action', function(msg, cb) {
@@ -62,7 +63,7 @@
             // These accept data from the user and send it to the server in a
             // variety of ways
             $('form#emit').submit(function(event) {
-                socket.emit('my_event', {data: $('#emit_data').val()});
+                socket.emit('my_event', {data: $('#emit_data').val(), first_name: "{{character_first_name}}", last_name:  "{{character_last_name}}"});
                 $('#emit_data').val('')
                 return false;
             });

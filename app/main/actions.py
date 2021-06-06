@@ -40,13 +40,25 @@ class DoActions:
         self.character = character
         self.action_result = {"action_success": True,
                               "action_error": None,
-                              "room_change": {"room_change_flag":  False,
-                                              "old_room":  None,
-                                              "new_room":  None},
+                              "room_change": {
+                                  "room_change_flag":  False,
+                                  "leave_room_text": None,
+                                  "old_room":  None,
+                                  "new_room":  None,
+                                  "enter_room_text":  None
+                              },
+                              "display_room_flag":  False,
                               "character_output":  None,
-                              "room_output":  None,
-                              "area_output":  None,
-                              "status_output":  None}
+                              "room_output":  {
+                                  "room_output_flag":  False,
+                                  "room_output_text":  None
+                              },
+                              "area_output":  {
+                                  "area_output_flag":  False,
+                                  "area_output_text":  None
+                              },
+                              "status_output":  None
+                            }
 
     do_actions = {}
 
@@ -68,20 +80,28 @@ class DoActions:
             return cls.action_result
         return cls.do_actions[action](character, **kwargs).action_result
     
-    def update_room(self, old_room_number, new_room_number):
+    def update_room(self, character, old_room_number):
         self.action_result['room_change']['room_change_flag'] = True
+        self.action_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
         self.action_result['room_change']['old_room'] = old_room_number
-        self.action_result['room_change']['new_room'] = new_room_number
+        self.action_result['room_change']['new_room'] = character.room.room_number
+        self.action_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+        self.action_result['display_room_flag'] = True
         return
     
     def update_character_output(self, character_output_text):
         self.action_result['character_output'] = character_output_text
+
+    def update_display_room(self):
+        self.action_result['display_room_flag'] = True
         
     def update_room_output(self, room_output_text):
-        self.action_result['room_output'] = room_output_text
+        self.action_result['room_output']['room_output_flag'] = True
+        self.action_result['room_output']['room_output_text'] = room_output_text
         
     def update_area_output(self, area_output_text):
-        self.action_result['area_output'] = area_output_text
+        self.action_result['area_output']['area_output_flag'] = True
+        self.action_result['area_output']['area_output_text'] = area_output_text
     
     def update_status(self, status_text):
         self.action_result['status_output'] = status_text
@@ -256,26 +276,28 @@ class East(DoActions):
         
         if character.check_round_time():
             self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
             self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
             self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
                     character.room.shop.exit_shop()
-            old_room = self.character.room.room_number             
+            old_room = self.character.room.room_number 
             self.character.move_east()
-            self.update_character_output(character.room.intro_text())
-            self.update_room(old_room_number=old_room, new_room_number=self.character.room.room_number)
-            self.update_room_output("{} enters the room.".format(character.first_name))
+            self.update_room(character=character, old_room_number=old_room)
             self.update_status(character.get_status())
             return
         else:
             self.update_character_output("You cannot find a way to move in that direction.")
+            self.update_status(character.get_status())
             return
             
             
@@ -663,27 +685,33 @@ class Look(DoActions):
         if character.is_dead():
             return
         if kwargs['preposition'] == None:
-            character.room.intro_text()
+            self.update_display_room()
+            self.update_status(character.get_status())
             return
         if kwargs['preposition'][0] == 'in':
             item_found = False
             if kwargs['indirect_object'] is None:
-                events.game_event("I am not sure what you are referring to.")
+                self.update_character_output("I am not sure what you are referring to.")
+                self.update_status(character.get_status())
                 return
             for item in character.room.items + character.room.objects + character.room.npcs + character.inventory + [character.get_dominant_hand_inv()] + [character.get_non_dominant_hand_inv()]:
                 if isinstance(item, npcs.NPC):
-                    events.game_event("It wouldn't be advisable to look in " + item.name)
+                    self.update_character_output("It wouldn't be advisable to look in " + item.name)
+                    self.update_status(character.get_status())
                     return
                 if set(item.handle) & set(kwargs['indirect_object']):
-                    events.game_event(item.contents())
+                    self.update_character_output(item.contents())
+                    self.update_status(character.get_status())
                     return
             if item_found is False:
-                events.game_event("A {} is nowhere to be found.".format(kwargs['indirect_object'][0]))
+                self.update_character_output("A {} is nowhere to be found.".format(kwargs['indirect_object'][0]))
+                self.update_status(character.get_status())
                 return
         if kwargs['preposition'][0] == 'at':
             item_found = False
             if kwargs['indirect_object'] is None:
-                events.game_event("I am not sure what you are referring to.")
+                self.update_character_output("I am not sure what you are referring to.")
+                self.update_status(character.get_status())
                 return
             for item in character.room.items + character.room.objects + character.room.npcs + character.room.enemies + character.inventory + [character.get_dominant_hand_inv()] + [character.get_non_dominant_hand_inv()]:
                 if not item:
@@ -708,10 +736,12 @@ class Look(DoActions):
                     enemy.view_description()
                     return
             if item_found is False:
-                events.game_event("At what did you want to look?")
+                self.update_character_output("At what did you want to look?")
+                self.update_status(character.get_status())
                 return
         else:
-            events.game_event("I'm sorry, I didn't understand you.")
+            self.update_character_output("I'm sorry, I didn't understand you.")
+            self.update_status(character.get_status())
             return
 
 
@@ -726,20 +756,29 @@ class North(DoActions):
         DoActions.__init__(self, character, **kwargs)      
         
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())            
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
+            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_status(character.get_status())
             return
-        if world.tile_exists(x=self.character.location_x, y=self.character.location_y - 1, area=self.character.area):
+        if world.tile_exists(x=character.location_x, y=character.location_y - 1, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
-                    character.room.shop.exit_shop()        
+                    character.room.shop.exit_shop()
+            old_room = self.character.room.room_number 
             self.character.move_north()
-            character.print_status()
+            self.update_room(character=character, old_room_number=old_room)
+            self.update_status(character.get_status())
             return
         else:
-            events.game_event('You cannot find a way to move in that direction.')
+            self.update_character_output("You cannot find a way to move in that direction.")
+            self.update_status(character.get_status())
             return
             
             
@@ -968,9 +1007,11 @@ class Sit(DoActions):
 
         if character.check_round_time():
             self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
             self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if character.position == 'sitting':
             self.update_character_output(character_output_text="You seem to already be sitting.")
@@ -1066,19 +1107,30 @@ class South(DoActions):
         DoActions.__init__(self, character, **kwargs)        
         
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())            
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
+            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_status(character.get_status())
             return
-        if world.tile_exists(x=self.character.location_x, y=self.character.location_y + 1, area=self.character.area):
+        if world.tile_exists(x=character.location_x, y=character.location_y + 1, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
-                    character.room.shop.exit_shop()        
+                    character.room.shop.exit_shop()
+            old_room = self.character.room.room_number 
             self.character.move_south()
-            character.print_status()        
+            self.update_room(character=character, old_room_number=old_room)
+            self.update_status(character.get_status())
+            return
         else:
-            events.game_event("You cannot find a way to move in that direction.")
+            self.update_character_output("You cannot find a way to move in that direction.")
+            self.update_status(character.get_status())
+            return
             
             
 @DoActions.register_subclass('stance')
@@ -1136,9 +1188,11 @@ class Stand(DoActions):
     def stand(self, character):
         if self.character.check_round_time():
             self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if self.character.is_dead():
             self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if self.character.position == 'standing':
             self.update_character_output(character_output_text="You seem to already be standing.")
@@ -1218,19 +1272,30 @@ class West(DoActions):
         DoActions.__init__(self, character, **kwargs)       
         
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
+            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_status(character.get_status())
             return
-        if world.tile_exists(x=self.character.location_x - 1, y=self.character.location_y, area=self.character.area):
+        if world.tile_exists(x=character.location_x - 1, y=character.location_y, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
-                    character.room.shop.exit_shop()        
+                    character.room.shop.exit_shop()
+            old_room = self.character.room.room_number 
             self.character.move_west()
-            character.print_status()
+            self.update_room(character=character, old_room_number=old_room)
+            self.update_status(character.get_status())
+            return
         else:
-            events.game_event("You cannot find a way to move in that direction.")
+            self.update_character_output("You cannot find a way to move in that direction.")
+            self.update_status(character.get_status())
+            return
 
 
 class Action:

@@ -6,7 +6,7 @@ from flask_login import UserMixin, current_user, login_user, logout_user, login_
 
 from app import socketio, login, db
 from app.main import main, config, player, world, actions
-from app.main.models import User
+from app.main.models import User, Character, Room
 from app.main.forms import LoginForm, SignUpForm, NewCharacterForm
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -86,16 +86,22 @@ def characters():
 
     user = User.query.filter_by(username=current_user.username).first()
 
-    if user:
-    
-        if user.character:
-            characters.append(user.character)
-            
+    if user: 
+        if user.characters:
+            for char in user.characters:
+                characters.append(char.char)        
         for character in characters:
-            character_names.append(character.first_name)
+            character_names.append(character.first_name + " " + character.last_name)
 
         if request.method == "POST":
-            return render_template('/play.html', user=current_user.username)
+            current_character = request.form.get('character')
+            current_character_split = current_character.split()
+            current_character_firstname = current_character_split[0]
+            current_character_lastname = current_character_split[1]
+            return render_template('/play.html', 
+                    user=current_user.username,
+                    character_first_name=current_character_firstname,
+                    character_last_name=current_character_lastname)
     
     return render_template('/characters.html', Characters=character_names)
 
@@ -125,31 +131,28 @@ def new_character():
             stats_initial[stat.lower()] = int(result[stat])
             stats_total += stats_initial[stat.lower()]
 
-        new_character = player.create_character('new_player')
+        new_character = Character(char=player.create_character('new_player'))
         
-        new_character.name = first_name
+        new_character.char.name = first_name
         new_character.first_name = first_name
+        new_character.char.first_name = first_name
         new_character.last_name = last_name
-        new_character.gender = gender
-        new_character.profession = profession
+        new_character.char.last_name = last_name
+        new_character.char.gender = gender
+        new_character.char.profession = profession
         
-        for stat in new_character.stats:
-            new_character.stats[stat] = stats_initial[stat]
+        for stat in new_character.char.stats:
+            new_character.char.stats[stat] = stats_initial[stat]
             
-        new_character.set_character_attributes()    
-        new_character.set_gender(new_character.gender)
-        new_character.level_up_skill_points()
-        new_character.room = world.tile_exists(x=new_character.location_x, y=new_character.location_y, area=new_character.area)
+        new_character.char.set_character_attributes()    
+        new_character.char.set_gender(new_character.char.gender)
+        new_character.char.level_up_skill_points()
+        new_character.char.room = world.tile_exists(x=new_character.char.location_x, y=new_character.char.location_y, area=new_character.char.area)
 
-        current_user.character = new_character
+        current_user.characters.append(new_character)
         
-        db.session.add(current_user)
+        db.session.add(new_character)
         db.session.commit()
-
-        
-        new_character.room.fill_room(character=new_character)
-        new_character.room.intro_text()
-        new_character.get_status()
               
         return '<h1>Character Created! Please close the window and return to the main page.</h1>'
         
@@ -161,12 +164,13 @@ def new_character():
 def my_event(message):
     emit('game_action',
          {'data': message['data']})
-    user = db.session.query(User).filter_by(username=current_user.username).first()
-    character = user.character
+    character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
+    character = character_file.char
     if character:
         character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
         if not character.room.room_filled:
             character.room.fill_room(character=character)
+    room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
     action_result = actions.do_action(action_input=message['data'], character=character)
 
     if not action_result['action_success']:
@@ -175,15 +179,35 @@ def my_event(message):
     else:
         if action_result['room_change']['room_change_flag'] == True:
             emit('game_event',
-                {'data': "{} leaves the room.".format(character.first_name)}, to=str(character.room.room_number), include_self=False)
-            leave_room(action_result['room_change']['old_room'])
-            join_room(action_result['room_change']['new_room'])
+                {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']), include_self=False)
+            leave_room(str(action_result['room_change']['old_room']))
+            join_room(str(action_result['room_change']['new_room']))
+            room_file = db.session.query(Room).filter_by(room_number=action_result['room_change']['new_room']).first()
+            room_file.characters.append(character_file)
+            emit('game_event',
+                {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']), include_self=False)
         emit('game_event',
             {'data': action_result['character_output']})
-        emit('game_event',
-            {'data': action_result['room_output']}, to=str(character.room.room_number), include_self=False)
+        if action_result['display_room_flag']:
+            intro_text = character.room.intro_text()
+            char_names = []
+            for char in room_file.characters:
+                char_names.append(char.first_name)
+            char_names.remove(character.first_name)
+            if len(char_names) > 0:
+                intro_text = intro_text + "<br>" + "Also here:  " + " ".join(char_names)
+            emit('game_event',
+                {'data': intro_text})
+        if action_result['room_output']['room_output_flag'] == True:
+            emit('game_event',
+                {'data': action_result['room_output']['room_output_text']}, to=str(character.room.room_number), include_self=False)
         emit('status_update',
             {'data': action_result['status_output']})
+
+        emit('game_event',
+            {'data':  rooms()})
+
+    character_file.char = character
 
     db.session.commit()
 
@@ -250,26 +274,10 @@ def my_ping():
     emit('my_pong')
 
 
-@socketio.event
-def connect():
-    thread = eventlet.spawn(background_thread)
-    character = User.query.filter_by(username=current_user.username).first().character
-
-    if character:
-        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
-        if not character.room.room_filled:
-            character.room.fill_room(character=character)
-        join_room(str(character.room.room_number))
-        emit('game_event', {'data': 'You are connected as ' 
-                            + character.first_name + ' ' + character.last_name 
-                            + '<br><br>' 
-                            + character.room.intro_text()}) 
-        emit('game_event', {'data': rooms()})
-        emit('game_event', {'data': '{} has entered the room.'.format(character.first_name)}, to=str(character.room.room_number), include_self=False)
-        emit('status_update', {'data': character.get_status()})
-    
-    else:
-        emit('game_event', {'data': 'You have not yet set up a character.'})
+@socketio.on('connect')
+def test_connect():
+    # thread = eventlet.spawn(background_thread)
+    emit('game_event', {'data': 'You are now connected'})
 
 @socketio.on('disconnect')
 def test_disconnect():

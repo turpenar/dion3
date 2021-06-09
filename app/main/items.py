@@ -17,6 +17,7 @@ def create_item(item_category, item_name, **kwargs):
 
 class Item(mixins.ReprMixin, mixins.DataFileMixin):
     def __init__(self, item_data, **kwargs):
+        super(Item, self).__init__()
 
         item_data = item_data
 
@@ -56,7 +57,7 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
         return "Inside {} you see {}".format(self.name, all_items_output)
 
     def view_description(self):
-        events.game_event("You see " + self.description)
+        return "You see " + self.description
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

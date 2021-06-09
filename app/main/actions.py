@@ -48,7 +48,10 @@ class DoActions:
                                   "enter_room_text":  None
                               },
                               "display_room_flag":  False,
-                              "character_output":  None,
+                              "character_output":  {
+                                  "character_output_flag":  False,
+                                  "character_output_text":  None
+                              },
                               "room_output":  {
                                   "room_output_flag":  False,
                                   "room_output_text":  None
@@ -90,7 +93,8 @@ class DoActions:
         return
     
     def update_character_output(self, character_output_text):
-        self.action_result['character_output'] = character_output_text
+        self.action_result['character_output']['character_output_flag'] = True
+        self.action_result['character_output']['character_output_text'] = character_output_text
 
     def update_display_room(self):
         self.action_result['display_room_flag'] = True
@@ -290,7 +294,7 @@ class East(DoActions):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
                     character.room.shop.exit_shop()
-            old_room = self.character.room.room_number 
+            old_room = character.room.room_number 
             self.character.move_east()
             self.update_room(character=character, old_room_number=old_room)
             self.update_status(character.get_status())
@@ -473,26 +477,35 @@ class Go(DoActions):
         DoActions.__init__(self, character, **kwargs)
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
+            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_status(character.get_status())
             return
         if not kwargs['direct_object']:
-            events.game_event("Go where?")
+            self.update_character_output("Go where?")
+            self.update_status(character.get_status())
             return
         for room_object in character.room.objects:
             if set(room_object.handle) & set(kwargs['direct_object']):
-                events.game_event("You move toward {}.".format(room_object.name))
-                room_object.go_object(character=character)
+                self.update_character_output("You move toward {}.".format(room_object.name))
+                self.action_result = room_object.go_object(character=character)
                 return
         for room_item in character.room.items:
             if set(room_item.handle) & set(kwargs['direct_object']):
-                events.game_event("You move toward {}.".format(room_item.name))
+                self.update_character_output("You move toward {}.".format(room_item.name))
+                self.update_status(character.get_status())
                 return
         for room_npc in character.room.npcs:
             if set(room_npc.handle) & set(kwargs['direct_object']):
-                events.game_event("You move toward {}.".format(room_npc.name))
+                self.update_character_output("You move toward {}.".format(room_npc.name))
+                self.update_status(character.get_status())
                 return
         
 @DoActions.register_subclass('health')

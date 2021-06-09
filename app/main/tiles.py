@@ -155,9 +155,8 @@ class MapTile(mixins.DataFileMixin):
             for npc in self._room_data['npcs']:
                 try:
                     self.npcs.append(npcs.create_npc(npc_category=npc, npc_name=npc, character=character, room=self))
-                    self.npcs[-1].start()
                 except:
-                    print("WARNING:  Could not create npc " + npc.name + " in room " + self.room_name)
+                    print("WARNING:  Could not create npc " + npc + " in room " + self.room_name)
             for door in self._room_data['hidden']['doors']:
                 try:
                     self.hidden.append(objects.Door(object_name=door, room=self))
@@ -166,7 +165,6 @@ class MapTile(mixins.DataFileMixin):
             for npc in self._room_data['hidden']['npcs']:
                 try:
                     self.hidden.append(npcs.create_npc(npc_category=npc, npc_name=npc, character=character, room=self))
-                    self.hidden[-1].start()
                 except:
                     print("WARNING:  Could not create hidden npc " + npc.name + " in room " + self.room_name)
             for category in self._room_data['hidden']['items']:

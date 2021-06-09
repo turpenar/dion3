@@ -186,8 +186,9 @@ def my_event(message):
             room_file.characters.append(character_file)
             emit('game_event',
                 {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']), include_self=False)
-        emit('game_event',
-            {'data': action_result['character_output']})
+        if action_result['character_output']['character_output_flag'] == True:
+            emit('game_event',
+                {'data': action_result['character_output']['character_output_text']})
         if action_result['display_room_flag']:
             intro_text = character.room.intro_text()
             char_names = []

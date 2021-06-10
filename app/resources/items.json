@@ -260,6 +260,7 @@
 			"capacity": 0,
 			"category": "clothing", 
 			"sub_category": false,
+			"classification": "leather",
 			"visibility": 100,
 			"enchant": false,
 			"rarity": "common",

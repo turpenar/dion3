@@ -180,8 +180,8 @@ def my_event(message):
         if action_result['room_change']['room_change_flag'] == True:
             emit('game_event',
                 {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']), include_self=False)
-            leave_room(str(action_result['room_change']['old_room']))
-            join_room(str(action_result['room_change']['new_room']))
+            leave_room(room=str(action_result['room_change']['old_room']))
+            join_room(room=str(action_result['room_change']['new_room']))
             room_file = db.session.query(Room).filter_by(room_number=action_result['room_change']['new_room']).first()
             room_file.characters.append(character_file)
             emit('game_event',
@@ -211,48 +211,6 @@ def my_event(message):
     character_file.char = character
 
     db.session.commit()
-
-@socketio.event
-def my_broadcast_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         broadcast=True)
-
-
-@socketio.event
-def join(message):
-    join_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.event
-def leave(message):
-    leave_room(message['room'])
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': 'In rooms: ' + ', '.join(rooms()),
-          'count': session['receive_count']})
-
-
-@socketio.on('close_room')
-def on_close_room(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response', {'data': 'Room ' + message['room'] + ' is closing.',
-                         'count': session['receive_count']},
-         to=message['room'])
-    close_room(message['room'])
-
-
-@socketio.event
-def my_room_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('my_response',
-         {'data': message['data'], 'count': session['receive_count']},
-         to=message['room'])
 
 
 @socketio.event

@@ -7,7 +7,6 @@ TODO: Integrate the BUY function into the shops.
 
 """
 
-import pathlib as pathlib
 import textwrap as textwrap
 
 from app.main import world, enemies, command_parser, config, npcs, combat

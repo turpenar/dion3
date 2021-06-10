@@ -145,34 +145,34 @@ class MapTile(mixins.DataFileMixin):
                     try:
                         self.objects.append(objects.create_object(object_category=category, object_name=object, room=self))
                     except:
-                        print("WARNING:  Could not create object " + object.name + " in room " + self.room_name)
+                        print("WARNING:  Could not create object " + object.name + " in room " + self.room_name + " in " + self.area)
             for category in self._room_data['items']:
                 for item in self._room_data['items'][category]:
                     try:
                         self.items.append(items.create_item(item_category=category, item_name=item))
                     except:
-                        print("WARNING:  Could not create item " + item.name + " in room " + self.room_name)
+                        print("WARNING:  Could not create item " + item.name + " in room " + self.room_name + " in " + self.area)
             for npc in self._room_data['npcs']:
                 try:
                     self.npcs.append(npcs.create_npc(npc_category=npc, npc_name=npc, character=character, room=self))
                 except:
-                    print("WARNING:  Could not create npc " + npc + " in room " + self.room_name)
+                    print("WARNING:  Could not create npc " + npc + " in room " + self.room_name + " in " + self.area)
             for door in self._room_data['hidden']['doors']:
                 try:
                     self.hidden.append(objects.Door(object_name=door, room=self))
                 except:
-                    print("WARNING:  Could not create hidden door " + door.name + " in room " + self.room_name)
+                    print("WARNING:  Could not create hidden door " + door.name + " in room " + self.room_name + " in " + self.area)
             for npc in self._room_data['hidden']['npcs']:
                 try:
                     self.hidden.append(npcs.create_npc(npc_category=npc, npc_name=npc, character=character, room=self))
                 except:
-                    print("WARNING:  Could not create hidden npc " + npc.name + " in room " + self.room_name)
+                    print("WARNING:  Could not create hidden npc " + npc.name + " in room " + self.room_name + " in " + self.area)
             for category in self._room_data['hidden']['items']:
                 for item in self._room_data['hidden']['items'][category]:
                     try:
                         self.hidden.append(items.create_item(item_category=category, item_name=item))
                     except:
-                        print("WARNING:  Could not create hidden item " + item.name + " in room " + self.room_name)
+                        print("WARNING:  Could not create hidden item " + item.name + " in room " + self.room_name + " in " + self.area)
             self.room_filled = True
             
     def fill_shop(self):
@@ -304,31 +304,31 @@ class Dochas(Town):
 @MapTile.register_area('DochasGrounds')
 class DochasGrounds(Town):
     def __init__(self, area_name, room_name, room_number, x, y):
-        MapTile.__init__(self, area_name, room_name, room_number, x, y)
+        MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
 
 
-@MapTile.register_area('DochasLeatherWorks')
+@MapTile.register_area('DochasLeatherworks')
 class DochasLeatherworks(Town):
     def __init__(self, area_name, room_name, room_number, x, y):
-        MapTile.__init__(self, area_name, room_name, room_number, x, y)
+        MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
 
 
 @MapTile.register_area('DochasSmallHouse')
 class DochasSmallHouse(Town):
     def __init__(self, area_name, room_name, room_number, x, y):
-        MapTile.__init__(self, area_name, room_name, room_number, x, y)
+        MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
         
 
 @MapTile.register_area('DochasWeaponsmith')
 class DochasWeaponsmith(Town):
     def __init__(self, area_name, room_name, room_number, x, y):
-        MapTile.__init__(self, area_name, room_name, room_number, x, y)
+        MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
 
 
 @MapTile.register_area('EdgewoodForest')
 class EdgewoodForest(MapTile):
     def __init__(self, area_name, room_name, room_number, x, y):
-        MapTile.__init__(self, area_name, room_name, room_number, x, y)
+        MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
 
     def spawn_generator(self, character):
         area_rooms = world.area_rooms(self.area)
@@ -357,6 +357,6 @@ class EdgewoodForest(MapTile):
 @MapTile.register_area('Field')
 class Field(Town):
     def __init__(self, area_name, room_name, room_number, x, y):
-        MapTile.__init__(self, area_name, room_name, room_number, x, y)
+        MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
 
 

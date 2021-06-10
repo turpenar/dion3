@@ -67,6 +67,15 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
             return cls.object_result
         return cls.object_categories[object_category](object_name, **kwargs)
 
+    def update_room(self, character, old_room_number):
+        self.object_result['room_change']['room_change_flag'] = True
+        self.object_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
+        self.object_result['room_change']['old_room'] = old_room_number
+        self.object_result['room_change']['new_room'] = character.room.room_number
+        self.object_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+        self.object_result['display_room_flag'] = True
+        return
+
     def update_character_output(self, character_output_text):
         self.object_result['character_output']['character_output_flag'] = True
         self.object_result['character_output']['character_output_text'] = character_output_text
@@ -94,10 +103,10 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
         return "I'm not sure how you intend on doing that."
 
     def view_description(self):
-        events.game_event("{}".format(self.description))
+        return "{}".format(self.description)
 
     def skin(self, room):
-        events.game_event("You cannot skin {}.".format(self.name))
+        return "You cannot skin {}.".format(self.name)
 
     def search(self, character):
         NotImplementedError()
@@ -112,25 +121,16 @@ class Door(Object):
 
         self.room = room
 
-    def update_room(self, character, old_room_number):
-        self.object_result['room_change']['room_change_flag'] = True
-        self.object_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
-        self.object_result['room_change']['old_room'] = old_room_number
-        self.object_result['room_change']['new_room'] = character.room.room_number
-        self.object_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
-        self.object_result['display_room_flag'] = True
-        return
-
     def go_object(self, character):
         if character.room.room_name == self.object_data['location_1']['name']:
             new_location = self.object_data['location_2']
         elif character.room.room_name == self.object_data['location_2']['name']:
             new_location = self.object_data['location_1']
-        character.room = world.tile_exists(x=new_location['x'], y=new_location['y'], area=new_location['area'].replace(" ",""))
+        old_room = character.room.room_number 
+        character.room = world.tile_exists(x=new_location['x'], y=new_location['y'], area=new_location['area'])
         if character.room.shop_filled == True:
             if character.room.shop.in_shop == True:
                 character.room.shop.exit_shop() 
-        old_room = character.room.room_number 
         character.location_x = new_location['x']
         character.location_y = new_location['y']
         character.area = new_location['area']

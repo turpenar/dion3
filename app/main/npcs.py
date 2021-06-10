@@ -44,10 +44,8 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
         self.inventory = []
 
         for category in self.npc_data['inventory']:
-            for item_handle in self.npc_data['inventory'][category]:
+            for item_handle in self.npc_data['inventory'][category]:               
                 try:
-                    print(item_handle)
-                    print(items.create_item(item_category=category, item_name=item_handle).name)
                     self.inventory.append(items.create_item(item_category=category, item_name=item_handle))
                 except:
                     print("WARNING:  Could not create " + item_handle + " for " + self.name + " in " + self.room.room_name)

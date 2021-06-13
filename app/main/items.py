@@ -41,6 +41,59 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
         self.area = item_data['area']
         self.items = []
 
+        self.item_result = {
+            "action_success": True,
+            "action_error": None,
+            "room_change": {
+                "room_change_flag":  False,
+                "leave_room_text": None,
+                "old_room":  None,
+                "new_room":  None,
+                "enter_room_text":  None
+            },
+            "display_room_flag":  False,
+            "character_output":  {
+                "character_output_flag":  False,
+                "character_output_text":  None
+            },
+            "room_output":  {
+                "room_output_flag":  False,
+                "room_output_text":  None
+            },
+            "area_output":  {
+                "area_output_flag":  False,
+                "area_output_text":  None
+            },
+            "status_output":  None
+        }
+
+    def update_room(self, character, old_room_number):
+        self.item_result['room_change']['room_change_flag'] = True
+        self.item_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
+        self.item_result['room_change']['old_room'] = old_room_number
+        self.item_result['room_change']['new_room'] = character.room.room_number
+        self.item_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+        self.item_result['display_room_flag'] = True
+        return
+    
+    def update_character_output(self, character_output_text):
+        self.item_result['character_output']['character_output_flag'] = True
+        self.item_result['character_output']['character_output_text'] = character_output_text
+
+    def update_display_room(self):
+        self.item_result['display_room_flag'] = True
+        
+    def update_room_output(self, room_output_text):
+        self.item_result['room_output']['room_output_flag'] = True
+        self.item_result['room_output']['room_output_text'] = room_output_text
+        
+    def update_area_output(self, area_output_text):
+        self.item_result['area_output']['area_output_flag'] = True
+        self.item_result['area_output']['area_output_text'] = area_output_text
+    
+    def update_status(self, status_text):
+        self.item_result['status_output'] = status_text
+
     def contents(self):
         if self.container == False:
             return "A {} cannot hold anything".format(self.handle[0])
@@ -54,10 +107,12 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
             all_items_output = all_items_output + ', and ' + all_items[-1]
         else:
             all_items_output = all_items[0]
-        return "Inside {} you see {}".format(self.name, all_items_output)
+        self.update_character_output("Inside {} you see {}".format(self.name, all_items_output))
+        return self.item_result
 
     def view_description(self):
-        return "You see " + self.description
+        self.update_character_output("You see " + self.description)
+        return self.item_result
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

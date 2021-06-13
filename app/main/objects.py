@@ -97,16 +97,20 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
     def contents(self):
         # Currently there are no objects that are containers.
         if self.container == False:
-            return "{} cannot hold anything".format(self.name)
+            self.update_character_output(character_output_text="{} cannot hold anything".format(self.name))
+            return self.object_result
 
     def go_object(self, **kwargs):
-        return "I'm not sure how you intend on doing that."
+        self.update_character_output(character_output_text="I'm not sure how you intend on doing that.")
+        return self.object_result
 
     def view_description(self):
-        return "{}".format(self.description)
+        self.update_character_output(character_output_text="{}".format(self.description))
+        return self.object_result
 
     def skin(self, room):
-        return "You cannot skin {}.".format(self.name)
+        self.update_character_output(character_output_text="You cannot skin {}.".format(self.name))
+        return self.object_result
 
     def search(self, character):
         NotImplementedError()

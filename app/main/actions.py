@@ -538,7 +538,7 @@ class Go(DoActions):
             if set(room_object.handle) & set(kwargs['direct_object']):
                 self.update_character_output("You move toward {}.".format(room_object.name))
                 self.update_room_output("{} moves toward {}.".format(character.first_name, room_object.name))
-                self.action_result = room_object.go_object(character=character)
+                self.action_result.update(room_object.go_object(character=character))
                 return
         for room_item in character.room.items:
             if set(room_item.handle) & set(kwargs['direct_object']):
@@ -781,7 +781,7 @@ class Look(DoActions):
                     self.update_status(character.get_status())
                     return
                 if set(item.handle) & set(kwargs['indirect_object']):
-                    self.update_character_output(item.contents())
+                    self.action_result.update(item.contents())
                     self.update_status(character.get_status())
                     return
             if item_found is False:
@@ -798,17 +798,17 @@ class Look(DoActions):
                 if not item:
                     pass
                 elif set(item.handle) & set(kwargs['indirect_object']):
-                    self.update_character_output(item.view_description())
+                    self.action_result.update(item.view_description())
                     self.update_status(character.get_status())
                     return
             for item in character.inventory:
                 if set(item.handle) & set(kwargs['indirect_object']):
-                    self.update_character_output(item.view_description())
+                    self.action_result.update(item.view_description())
                     self.update_status(character.get_status())
                     return
             for object in character.room.objects:
                 if set(object.handle) & set(kwargs['indirect_object']):
-                    self.update_character_output(object.view_description())
+                    self.action_result.update(object.view_description())
                     self.update_status(character.get_status())
                     return
             for npc in character.room.npcs:
@@ -1127,25 +1127,21 @@ class Skills(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
 
-        self.update_character_output('''
-Edged Weapons Base:  {}
-        
-Edged Weapons:    {}  ({})          Armor:              {}  ({})
-Blunt Weapons:    {}  ({})          Shield:             {}  ({})
-Polearm Weapons:  {}  ({})          Dodging:            {}  ({})
-Thrown Weapons:   {}  ({})          Physical Fitness:   {}  ({})
-Ranged Weapons:   {}  ({})          Perception:         {}  ({})
+        self.update_character_output(character_output_text='''
+Edged Weapons:    {}  ({})          Shield:             {}  ({})
+Blunt Weapons:    {}  ({})          Dodging:            {}  ({})
+Polearm Weapons:  {}  ({})          Physical Fitness:   {}  ({})
+Armor:            {}  ({})          Perception:         {}  ({})      
+         
+         
 
-            '''.format(character.skills_base['edged_weapons'], 
-                       character.skills['edged_weapons'], character.skills_bonus['edged_weapons'],
-                       character.skills['armor'], character.skills_bonus['armor'],
+            '''.format(character.skills['edged_weapons'], character.skills_bonus['edged_weapons'],
                        character.skills['blunt_weapons'], character.skills_bonus['blunt_weapons'],
-                       character.skills['shield'], character.skills_bonus['shield'],
                        character.skills['polearm_weapons'], character.skills_bonus['polearm_weapons'],
+                       character.skills['armor'], character.skills_bonus['armor'],
+                       character.skills['shield'], character.skills_bonus['shield'],
                        character.skills['dodging'], character.skills_bonus['dodging'],
-                       character.skills['thrown_weapons'], character.skills_bonus['thrown_weapons'],
                        character.skills['physical_fitness'], character.skills_bonus['physical_fitness'],
-                       character.skills['ranged_weapons'], character.skills_bonus['ranged_weapons'],
                        character.skills['perception'], character.skills_bonus['perception'])
               )
         self.update_status(character.get_status())
@@ -1234,7 +1230,7 @@ class Stance(DoActions):
     STANCE <type>: Changes your stance to the desired stance.
     
     Types of Stances:
-    offensive
+    offense
     forward
     neutral
     guarded

@@ -16,6 +16,7 @@
             // The callback function is invoked when a connection with the
             // server is established.
             socket.on('connect', function() {
+                socket.emit('connect_room', {first_name:  "{{character_first_name}}", last_name:  "{{character_last_name}}"})
                 socket.emit('my_event', {data:  "look", first_name:  "{{character_first_name}}", last_name:  "{{character_last_name}}"})
             });
 
@@ -68,9 +69,14 @@
                 return false;
             });
             $('form#disconnect').submit(function(event) {
+                socket.emit('disconnect_room', {first_name:  "{{character_first_name}}", last_name:  "{{character_last_name}}"})
                 socket.emit('disconnect_request');
                 return false;
             });
+
+            window.onbeforeunload = function () {
+                socket.emit('disconnect_room', {first_name:  "{{character_first_name}}", last_name:  "{{character_last_name}}"})
+            };
         });
     </script>
 {% endblock %}
@@ -87,7 +93,7 @@
     </div>
 
 
-    <div class="interface-window">
+    <div class="interface-window" id="interface-window">
         <div id="log">You are not currently connected.</div>
     
         <div class="status-window" id="status-window-id">

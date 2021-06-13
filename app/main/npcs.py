@@ -75,7 +75,7 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
             inventory_armor = "{} is also wearing {}.".format(self.object_pronoun, inventory_armor[0])
         else:
             inventory_armor = "{} is also wearing no armor.".format(self.object_pronoun)
-        events.game_event('''\
+        return ('''\
 {}
 {}
 {}

@@ -273,7 +273,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         return
 
     def view_description(self):
-        events.game_event(self.description)
+        return (self.description)
 
 
 

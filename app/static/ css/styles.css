@@ -2,7 +2,7 @@ body {
     background-color: powderblue;
 }
 
-.interface-window {
+#interface-window {
 	width: 80%;
 	height: 500px;
 	font-family: Courier New, monospace;

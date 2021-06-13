@@ -7,6 +7,7 @@ TODO: Integrate the BUY function into the shops.
 
 """
 
+import random as random
 import textwrap as textwrap
 
 from app.main import world, enemies, command_parser, config, npcs, combat
@@ -37,30 +38,31 @@ def do_action(action_input, character=None):
 class DoActions:
     def __init__(self, character, **kwargs):
         self.character = character
-        self.action_result = {"action_success": True,
-                              "action_error": None,
-                              "room_change": {
-                                  "room_change_flag":  False,
-                                  "leave_room_text": None,
-                                  "old_room":  None,
-                                  "new_room":  None,
-                                  "enter_room_text":  None
-                              },
-                              "display_room_flag":  False,
-                              "character_output":  {
-                                  "character_output_flag":  False,
-                                  "character_output_text":  None
-                              },
-                              "room_output":  {
-                                  "room_output_flag":  False,
-                                  "room_output_text":  None
-                              },
-                              "area_output":  {
-                                  "area_output_flag":  False,
-                                  "area_output_text":  None
-                              },
-                              "status_output":  None
-                            }
+        self.action_result = {
+            "action_success": True,
+            "action_error": None,
+            "room_change": {
+                "room_change_flag":  False,
+                "leave_room_text": None,
+                "old_room":  None,
+                "new_room":  None,
+                "enter_room_text":  None
+            },
+            "display_room_flag":  False,
+            "character_output":  {
+                "character_output_flag":  False,
+                "character_output_text":  None
+            },
+            "room_output":  {
+                "room_output_flag":  False,
+                "room_output_text":  None
+            },
+            "area_output":  {
+                "area_output_flag":  False,
+                "area_output_text":  None
+            },
+            "status_output":  None
+        }
 
     do_actions = {}
 
@@ -191,9 +193,10 @@ class Attributes(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
 
-        events.game_event('''
+        self.update_character_output('''
 Attribute:  {}
             '''.format(character.attack_strength_base))
+        self.update_status(character.get_status())
         
         
 @DoActions.register_subclass('buy')
@@ -207,27 +210,40 @@ class Buy(DoActions):
     """
     
     def __init__(self, character, **kwargs):
+        DoActions.__init__(self, character, **kwargs)
          
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
-        if not character.check_position_to_move():
-            return 
             
         if character.room.is_shop == False:
-            events.game_event("You can't seem to find a way to order anything here.")
+            self.update_character_output("You can't seem to find a way to order anything here.")
+            self.update_status(character.get_status())
             return
         if character.room.shop_filled == False:
-            events.game_event("You will need to ORDER first.")
+            self.update_character_output("You will need to ORDER first.")
+            self.update_status(character.get_status())
             return
         if character.room.shop.in_shop == False:
-            events.game_event("You have exited the shop. You will need to ORDER again.")
+            self.update_character_output("You have exited the shop. You will need to ORDER again.")
+            self.update_status(character.get_status())
             return 
         if character.get_dominant_hand_inv() is not None:
-            events.game_event("You will need to empty your right hand first.")
+            self.update_character_output("You will need to empty your right hand first.")
+            self.update_status(character.get_status())
             return
-        character.set_dominant_hand_inv(character.room.shop.buy_item(number=kwargs['number_1']))
+        self.action_result.update(character.room.shop.buy_item(number=kwargs['number_1']))
+        if self.action_result['shop_item']['shop_item_flag']:
+            try:
+                character.set_dominant_hand_inv(self.action_result['shop_item']['shop_item'])
+            except:
+                print("WARNING: Shop did not deliver item")
+        return
 
 
 @DoActions.register_subclass('drop')
@@ -247,23 +263,31 @@ class Drop(DoActions):
         DoActions.__init__(self, character, **kwargs)
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         elif not kwargs['direct_object']:
-            events.game_event("I'm sorry, I could not understand what you wanted.")
+            self.update_character_output("I'm sorry, I could not understand what you wanted.")
+            self.update_status(character.get_status())
             return
         elif character.get_dominant_hand_inv() is None:
-            events.game_event("You do not have that item in your hand")
+            self.update_character_output("You do not have that item in your hand")
+            self.update_status(character.get_status())
             return
         elif not set(character.get_dominant_hand_inv().handle) & set(kwargs['direct_object']):
-            events.game_event("You do not have that item in your right hand.")
+            self.update_character_output("You do not have that item in your right hand.")
+            self.update_status(character.get_status())
             return
         else:
             character.room.items.append(character.get_dominant_hand_inv())
-            events.game_event("You drop " + character.get_dominant_hand_inv().name)
+            self.update_character_output("You drop {}.".format(character.get_dominant_hand_inv().name))
+            self.update_room_output("{} dropped {}.".format(character.first_name, character.get_dominant_hand_inv().name))
             character.set_dominant_hand_inv(item=None)
-            character.print_status()
+            self.update_status(character.get_status())
             return
 
 
@@ -314,17 +338,20 @@ class Exit(DoActions):
         DoActions.__init__(self, character, **kwargs)
         
         if character.room.is_shop == False:
-            game_window.print_status("You have nothing to exit.")
+            self.update_character_output("You have nothing to exit.")
+            self.update_status(character.get_status())
             return 
         if character.room.shop_filled == False:
-            game_window.print_status("You have nothing to exit.")
+            self.update_character_output("You have nothing to exit.")
+            self.update_status(character.get_status())
             return
         if character.room.shop.in_shop == False:
-            game_window.print_status("You have nothing to exit.")
+            self.update_character_output("You have nothing to exit.")
+            self.update_status(character.get_status())
             return            
         else:
-            character.room.shop.exit_shop()
-            character.print_status()
+            self.action_result.update(character.room.shop.exit_shop())
+            self.update_status(character.get_status())
             return
 
             
@@ -338,9 +365,11 @@ class Experience(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
 
-        events.game_event('''\
+        self.update_character_output('''\
 Experience:  {}
         '''.format(character.experience))
+        self.update_status(character.get_status())
+        return
 
 
 @DoActions.register_subclass('flee')
@@ -353,19 +382,24 @@ class Flee(DoActions):
         DoActions.__init__(self, character, **kwargs)       
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
+            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_status(character.get_status())
             return
         if character.room.shop_filled == True:
             if character.room.shop.in_shop == True:
                 character.room.shop.exit_shop()
         available_moves = character.room.adjacent_moves()
         r = random.randint(0, len(available_moves) - 1)
-        actions.do_action(action_input=available_moves[r], character=character)
-        character.print_status()
-
+        flee_action = do_action(action_input=available_moves[r], character=character)
+        self.action_result.update(flee_action.action_result)
         return
 
 
@@ -385,15 +419,20 @@ class Get(DoActions):
         DoActions.__init__(self, character, **kwargs)
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not kwargs['direct_object']:
-            events.game_event("I'm sorry, I could not understand what you wanted.")
+            self.update_character_output("I'm sorry, I could not understand what you wanted.")
+            self.update_status(character.get_status())
             return
         for room_object in character.room.objects:
             if set(room_object.handle) & set(kwargs['direct_object']):
-                events.game_event("Perhaps picking up {} is not a good idea.".format(room_object.name))
+                self.update_character_output("Perhaps picking up {} is not a good idea.".format(room_object.name))
                 return
         if character.get_dominant_hand_inv() is None:
             item_found = False
@@ -401,8 +440,9 @@ class Get(DoActions):
                 if set(room_item.handle) & set(kwargs['direct_object']):
                     character.set_dominant_hand_inv(room_item)
                     character.room.items.remove(room_item)
-                    events.game_event("You pick up {}.".format(room_item.name))
-                    character.print_status()
+                    self.update_character_output("You pick up {}.".format(room_item.name))
+                    self.update_room_output("{} picks up {}.".format(character.first_name, room_item.name))
+                    self.update_status(character.get_status())
                     return
             if not item_found:
                 for inv_item in character.inventory:
@@ -411,13 +451,16 @@ class Get(DoActions):
                             if set(sub_item.handle) & set(kwargs['direct_object']):
                                 character.set_dominant_hand_inv(sub_item)
                                 inv_item.items.remove(sub_item)
-                                events.game_event("You take {} from {}.".format(sub_item.name, inv_item.name))
-                                character.print_status()
+                                self.update_character_output("You take {} from {}.".format(sub_item.name, inv_item.name))
+                                self.update_room_output("{} takes {} from {}.".format(character.first_name, sub_item.name, inv_item.name))
+                                self.update_status(character.get_status())
                                 return
             if not item_found:
-                events.game_event("A " + kwargs['direct_object'][0] + " is nowhere to be found")
+                self.update_character_output("A " + kwargs['direct_object'][0] + " is nowhere to be found")
+                self.update_status(character.get_status())
         else:
-            events.game_event('You already have something in your right hand')
+            self.update_character_output('You already have something in your right hand')
+            self.update_status(character.get_status())
 
 
 @DoActions.register_subclass('give')
@@ -494,16 +537,19 @@ class Go(DoActions):
         for room_object in character.room.objects:
             if set(room_object.handle) & set(kwargs['direct_object']):
                 self.update_character_output("You move toward {}.".format(room_object.name))
+                self.update_room_output("{} moves toward {}.".format(character.first_name, room_object.name))
                 self.action_result = room_object.go_object(character=character)
                 return
         for room_item in character.room.items:
             if set(room_item.handle) & set(kwargs['direct_object']):
                 self.update_character_output("You move toward {}.".format(room_item.name))
+                self.update_room_output("{} moves toward {}.".format(character.first_name, room_item.name))
                 self.update_status(character.get_status())
                 return
         for room_npc in character.room.npcs:
             if set(room_npc.handle) & set(kwargs['direct_object']):
                 self.update_character_output("You move toward {}.".format(room_npc.name))
+                self.update_room_output("{} moves toward {}.".format(character.first_name, room_npc.name))
                 self.update_status(character.get_status())
                 return
         
@@ -516,10 +562,12 @@ class Health(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
         
-        events.game_event('''
+        self.update_character_output('''
 Health:  {} of {} hit points
             '''.format(character.health,
                        character.health_max))
+        self.update_status(character.get_status())
+        return
 
 
 @DoActions.register_subclass('help')
@@ -542,17 +590,21 @@ class Help(DoActions):
             for a, b, c in zip(verbs[::3], verbs[1::3], verbs[2::3]):
                 verb_list = verb_list + '{:30s}{:30s}{:30s}\n'.format(a,b,c)
             
-            events.game_event("""
+            self.update_character_output("""
 Below are the list of actions for which you can ask for help.
 Type HELP <verb> for more information about that specific verb.
 {}\
             """.format(verb_list))
-
-            
+            self.update_status(character.get_status())
+            return
         elif kwargs['subject_verb'] in DoActions.do_actions:
-            events.game_event(DoActions.do_actions[kwargs['subject_verb']].__doc__)
+            self.update_character_output(DoActions.do_actions[kwargs['subject_verb']].__doc__)
+            self.update_status(character.get_status())
+            return
         else:
-            events.game_event("I'm sorry, what did you need help with?")
+            self.update_character_output("I'm sorry, what did you need help with?")
+            self.update_status(character.get_status())
+            return
             
 @DoActions.register_subclass('info')
 @DoActions.register_subclass('information')
@@ -564,7 +616,7 @@ class Information(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
         
-        events.game_event('''
+        self.update_character_output('''
 Name:  {} {}
 Gender:  {}
 Race:  {}
@@ -575,6 +627,8 @@ Level:  {}
                        character.race,
                        character.profession,
                        character.level))
+        self.update_status(character.get_status())
+        return
 
 
 @DoActions.register_subclass('inventory')
@@ -613,7 +667,7 @@ class Inventory(DoActions):
         else:
             inventory_armor = "You are also wearing no armor.".format(character.object_pronoun)
         wealth = "You have {} gulden.".format(character.money)
-        events.game_event('''\
+        self.update_character_output('''\
 {}
 {}
 {}
@@ -625,6 +679,7 @@ class Inventory(DoActions):
                                                wrapper.fill(inventory_clothing),
                                                wrapper.fill(inventory_armor),
                                                wrapper.fill(wealth)))
+        self.update_status(character.get_status())
         
         
 @DoActions.register_subclass('kneel')
@@ -638,17 +693,22 @@ class Kneel(DoActions):
         DoActions.__init__(self, character, **kwargs)
     
         if character.check_round_time():
-            return 
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
+            return
         if character.is_dead():
-            return 
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
+            return
         if character.position == 'kneeling':
-            events.game_event('You seem to already be kneeling.')
-            character.print_status()
+            self.update_character_output('You seem to already be kneeling.')
+            self.update_status(character.get_status())
             return 
         else:
             character.position = 'kneeling'
-            events.game_event('You move yourself to a kneeling position.')
-            character.print_status()
+            self.update_character_output(character_output_text="You move yourself to a kneeling position.")
+            self.update_room_output(room_output_text="{} move {}self to a kneeling position.".format(character.first_name, character.possessive_pronoun))
+            self.update_status(status_text=character.get_status())
             return
         
         
@@ -663,17 +723,22 @@ class Lie(DoActions):
         DoActions.__init__(self, character, **kwargs)
         
         if character.check_round_time():
-            return 
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
+            return
         if character.is_dead():
-            return 
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
+            return
         if character.position == 'lying':
-            events.game_event('You seem to already be lying down.')
-            character.print_status()
+            self.update_character_output('You seem to already be lying down.')
+            self.update_status(character.get_status())
             return 
         else:
             character.position = 'lying'
-            events.game_event('You lower yourself to the ground and lie down.')
-            character.print_status()
+            self.update_character_output(character_output_text="You lower yourself to the ground and lie down.")
+            self.update_room_output(room_output_text="{} lowers {}self to a laying position.".format(character.first_name, character.possessive_pronoun))
+            self.update_status(status_text=character.get_status())
             return
 
 
@@ -693,8 +758,12 @@ class Look(DoActions):
         DoActions.__init__(self, character, **kwargs)
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if kwargs['preposition'] == None:
             self.update_display_room()
@@ -729,23 +798,28 @@ class Look(DoActions):
                 if not item:
                     pass
                 elif set(item.handle) & set(kwargs['indirect_object']):
-                    item.view_description()
+                    self.update_character_output(item.view_description())
+                    self.update_status(character.get_status())
                     return
             for item in character.inventory:
                 if set(item.handle) & set(kwargs['indirect_object']):
-                    item.view_description()
+                    self.update_character_output(item.view_description())
+                    self.update_status(character.get_status())
                     return
             for object in character.room.objects:
                 if set(object.handle) & set(kwargs['indirect_object']):
-                    object.view_description()
+                    self.update_character_output(object.view_description())
+                    self.update_status(character.get_status())
                     return
             for npc in character.room.npcs:
                 if set(npc.handle) & set(kwargs['indirect_object']):
-                    npc.view_description()
+                    self.update_character_output(npc.view_description())
+                    self.update_status(character.get_status())
                     return
             for enemy in character.room.enemies:
                 if set(npc.handle) & set(kwargs['indirect_object']):
-                    enemy.view_description()
+                    self.update_character_output(enemy.view_description())
+                    self.update_status(character.get_status())
                     return
             if item_found is False:
                 self.update_character_output("At what did you want to look?")
@@ -808,22 +882,27 @@ class Order(DoActions):
         DoActions.__init__(self, character, **kwargs)
          
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())            
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
             
         if character.room.is_shop == False:
-            events.game_event("You can't seem to find a way to order anything here.")
+            self.update_character_output("You can't seem to find a way to order anything here.")
+            self.update_status(character.get_status())
             return 
         elif character.room.is_shop == True:  
             if character.room.shop_filled == False:             
                 character.room.fill_shop()
-                character.room.shop.enter_shop()
+                self.action_result.update(character.room.shop.enter_shop())
                 return
             if character.room.shop.in_shop == False:
-                character.room.shop.enter_shop()
+                self.action_result.update(character.room.shop.enter_shop())
                 return
-            character.room.shop.order_item(kwargs['number_1'])
+            self.action_result.update(character.room.shop.order_item(kwargs['number_1']))
             return
 
                 
@@ -838,12 +917,8 @@ class Position(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
         
-        self.character = character
-        
-        self.position()
-        
-    def position(self):
-        events.game_event('''You are currently in the {} position.'''.format(self.character.position))
+        self.update_character_output('''You are currently in the {} position.'''.format(self.character.position))
+        self.update_status(character.get_status())
 
 
 @DoActions.register_subclass('put')
@@ -863,48 +938,62 @@ class Put(DoActions):
         DoActions.__init__(self, character, **kwargs)
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_status(character.get_status())            
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not kwargs['direct_object']:
-            events.game_event("What is it you're trying to put down?")
+            self.update_character_output("What is it you're trying to put down?")
+            self.update_status(character.get_status())
             return
         elif character.get_dominant_hand_inv() is None:
-            events.game_event("You do not have that item in your hand.")
+            self.update_character_output("You do not have that item in your hand.")
+            self.update_status(character.get_status())
             return
         elif not set(character.get_dominant_hand_inv().handle) & set(kwargs['direct_object']):
-            events.game_event("You do not have that item in your right hand.")
+            self.update_character_output("You do not have that item in your right hand.")
+            self.update_status(character.get_status())
             return
         elif kwargs['preposition'][0] == "in":
             for inv_item in character.inventory:
                 if set(inv_item.handle) & set(kwargs['indirect_object']):
                     if inv_item.container == False:
-                        events.game_event("{} won't fit in there.".format(character.get_dominant_hand_inv().name))
+                        self.update_character_output("{} won't fit in there.".format(character.get_dominant_hand_inv().name))
+                        self.update_status(character.get_status())
                         return
                     if len(inv_item.items) == inv_item.capacity:
-                        events.game_event("{} can't hold any more items".format(inv_item.name))
+                        self.update_character_output("{} can't hold any more items".format(inv_item.name))
+                        self.update_status(character.get_status())
                         return
                     inv_item.items.append(character.get_dominant_hand_inv())
-                    events.game_event("You put {} {} {}".format(character.get_dominant_hand_inv().name, kwargs['preposition'][0], inv_item.name))
+                    self.update_character_output("You put {} {} {}".format(character.get_dominant_hand_inv().name, kwargs['preposition'][0], inv_item.name))
+                    self.update_room_output("{} puts {} {} {}".format(character.first_name, character.get_dominant_hand_inv().name, kwargs['preposition'][0], inv_item.name))
                     character.set_dominant_hand_inv(item=None)
-                    character.print_status()
+                    self.update_status(character.get_status())
                     return
             for room_item in character.room.items:
                 if set(room_item.handle) & set(kwargs['indirect_object']):
                     if room_item.container == False:
-                        events.game_event("{} won't fit {} there.".format(character.right_hand_inv[0].name, kwargs['preposition'][0]))
+                        self.update_character_output("{} won't fit {} there.".format(character.right_hand_inv[0].name, kwargs['preposition'][0]))
+                        self.update_status(character.get_status())
                         return
                     room_item.items.append(character.get_dominant_hand_inv())
                     character.set_dominant_hand_inv(item=None)
-                    events.game_event("You put {} {} {}".format(character.get_dominant_hand_inv().name, kwargs['preposition'][0], room_item.name))
+                    self.update_character_output("You put {} {} {}".format(character.get_dominant_hand_inv().name, kwargs['preposition'][0], room_item.name))
+                    self.update_room_output("{} puts {} {} {}".format(character.first_name, character.get_dominant_hand_inv().name, kwargs['preposition'][0], room_item.name))
                     character.set_dominant_hand_inv(item=None)
-                    character.print_status()
+                    self.update_status(character.get_status())
                     return
         elif kwargs['preposition'][0] == "on":
-            events.game_event("You cannot stack items yet.")
+            self.update_character_output("You cannot stack items yet.")
+            self.update_status(character.get_status())
             return
         else:
-            events.game_event("That item is not around here, unfortunately.")
+            self.update_character_output("That item is not around here, unfortunately.")
+            self.update_status(character.get_status())
             return
 
 
@@ -917,19 +1006,7 @@ class Quit(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
 
-        events.game_event("You will need to find a way to exit the game.")
-
-
-@DoActions.register_subclass('save')
-class Save(DoActions):
-    """\
-    \
-    """
-
-    def __init__(self, character, **kwargs):
-        DoActions.__init__(self, character, **kwargs)
-
-        self.character.save()
+        self.update_character_output("You will need to find a way to exit the game.")
 
 
 @DoActions.register_subclass('search')
@@ -1050,7 +1127,7 @@ class Skills(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
 
-        events.game_event('''
+        self.update_character_output('''
 Edged Weapons Base:  {}
         
 Edged Weapons:    {}  ({})          Armor:              {}  ({})
@@ -1071,6 +1148,7 @@ Ranged Weapons:   {}  ({})          Perception:         {}  ({})
                        character.skills['ranged_weapons'], character.skills_bonus['ranged_weapons'],
                        character.skills['perception'], character.skills_bonus['perception'])
               )
+        self.update_status(character.get_status())
 
 
 @DoActions.register_subclass('skin')
@@ -1166,21 +1244,20 @@ class Stance(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
         
-        self.character = character
-        
-        self.stance(character=character, desired_stance=kwargs['adjective_1'])
-        
-    def stance(self, character, desired_stance):
+        desired_stance=kwargs['adjective_1']
+
         if not desired_stance:
-            events.game_event('''You are currently in the {} stance.'''.format(self.character.stance))
+            self.update_character_output('''You are currently in the {} stance.'''.format(character.stance))
+            self.update_status(character.get_status())
             return
         if set(desired_stance) & set(stances):
-            self.character.stance = desired_stance[0]
-            events.game_event('''You are now in {} stance.'''.format(desired_stance[0]))
-            character.print_status()
+            character.stance = desired_stance[0]
+            self.update_character_output('''You are now in {} stance.'''.format(desired_stance[0]))
+            self.update_status(character.get_status())
             return
         else:
-            events.game_event("You cannot form that stance.")
+            self.update_character_output("You cannot form that stance.")
+            self.update_status(character.get_status())
             return
 
 
@@ -1213,6 +1290,7 @@ class Stand(DoActions):
         else:
             self.character.position = 'standing'
             self.update_character_output(character_output_text="You raise yourself to a standing position.")
+            print()
             self.update_room_output(room_output_text="{} raises {}self to a standing position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
             return
@@ -1227,7 +1305,7 @@ class Stats(DoActions):
     def __init__(self, character, **kwargs):
         DoActions.__init__(self, character, **kwargs)
 
-        events.game_event('''
+        self.update_character_output('''
 Name:  {} {}
 Level: {}
 Strength:       {}  ({})        Intellect:      {}  ({})
@@ -1246,6 +1324,7 @@ Agility:        {}  ({})        Spirit:         {}  ({})
                    character.stats['agility'], character.stats_bonus['agility'],
                    character.stats['spirit'], character.stats_bonus['spirit'])
               )
+        self.update_status(character.get_status())
 
 
 

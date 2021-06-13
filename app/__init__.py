@@ -15,7 +15,7 @@ login = LoginManager()
 db = SQLAlchemy()
 
 def create_app(debug=debug):
-    app = Flask(__name__, static_folder=None)
+    app = Flask(__name__)
     app.config['SECRET_KEY'] = 'Your Kung-Fu is Very Good'
     app.config['DEBUG'] = debug
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main/users.db'

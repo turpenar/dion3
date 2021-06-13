@@ -205,12 +205,40 @@ def my_event(message):
         emit('status_update',
             {'data': action_result['status_output']})
 
-        emit('game_event',
-            {'data':  rooms()})
+        # emit('game_event',
+        #     {'data':  rooms()})
 
     character_file.char = character
 
     db.session.commit()
+
+@socketio.event
+def connect_room(message):
+    character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
+    character = character_file.char
+    if character:
+        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
+    join_room(character.room.room_number)
+    room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
+    room_file.characters.append(character_file)
+
+    db.session.commit()
+
+@socketio.event
+def disconnect_room(message):
+    character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
+    character = character_file.char
+    if character:
+        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
+    leave_room(character.room.room_number)
+    room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
+    room_file.characters.remove(character_file)
+    emit('game_event', 
+            {'data':  "{} left.".format(character.first_name)}, to=str(character.room.room_number), include_self=False
+        )
+
+    db.session.commit()
+
 
 
 @socketio.event

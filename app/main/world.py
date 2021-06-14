@@ -2,69 +2,45 @@
 import pathlib as pathlib
 import imp as imp
 
-from app import db
-from app.main import tiles
-from app.main.models import Room
+from app.main import areas
 
 
 path_maps = pathlib.Path.cwd() / "app" / "resources" / "maps"
 map_list = path_maps.glob('*.txt')
 module = imp.load_source('tiles', 'app/main/tiles.py')
 
-_world = {}
-starting_position = (0, 0)
-area_count = 10
-room_count = 100
+class World:
+    def __init__(self, **kwargs):
+        self._world = {}
+        self.starting_position = (0, 0)
+        self._area_count = 10
 
+    def load_tiles(self):
+        """Parses a file that describes the world space into the _world object."""
+        for path in map_list:
+            area_name = path.stem.split('.')[0]
+            area = areas.Area(area_name=area_name, area_path=path, area_number=self._area_count)
+            self._world[area_name] = area
 
-def load_tiles():
-    """Parses a file that describes the world space into the _world object."""
-    global area_count
-    global room_count
-    for path in map_list:
-        _area = {}
-        with open(path.resolve().as_posix(), 'r') as f:
-            rows = f.readlines()
-        x_max = len(rows[0].split('\t')) #assumes all rows contain the same number of tabs
-        area = path.stem.split('.')[0]
-        for y in range(len(rows)):
-            cols = rows[y].split('\t')
-            for x in range(x_max):
-                tile_name = cols[x].replace('\n', '')
-                if tile_name == 'field_glade':
-                    global starting_position
-                    starting_position = (x, y)
-                if tile_name == '':
-                    _area[(x, y)] = None
-                else:
-                    room_number = int(str(area_count) + str(room_count))
-                    _area[(x, y)] = tiles.create_tile(area_name=area, room_name=tile_name, room_number=room_number, x=x, y=y)
-                    room = Room(room_number=room_number)
-                    db.session.add(room)
-                    db.session.commit()
-                _world[area] = _area
-                room_count += 1
-        area_count += 1
+            self._area_count += 1
+        return
 
+    def tile_exists(self, x, y, area):
+        area = area.replace(" ", "")
+        return self._world[area].tile_exists(x=x, y=y)
 
-def tile_exists(x, y, area):
-    area = area.replace(" ", "")
-    return _world[area].get((x, y))
+    def area_rooms(self, area):
+        area = area.replace(" ", "")
+        return self._world[area]
 
+    def area_enemies(self, area):
+        area = area.replace(" ", "")
+        return self._world[area].area_enemies(area)
 
-def area_rooms(area):
-    area = area.replace(" ", "")
-    return _world[area]
-
-
-def area_enemies(area):
-    area = area.replace(" ", "")
-    all_enemies = []
-    all_rooms = area_rooms(area)
-    for room in all_rooms:
-        if tile_exists(x=room[0], y=room[1], area=area):
-            all_enemies.extend(all_rooms[room].enemies)
-    return all_enemies
+world_map = World()
+world_map.load_tiles()
+for area in world_map._world:
+    world_map._world[area].spawn_enemies()
 
 
 

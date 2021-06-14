@@ -147,7 +147,7 @@ def new_character():
         new_character.char.set_character_attributes()    
         new_character.char.set_gender(new_character.char.gender)
         new_character.char.level_up_skill_points()
-        new_character.char.room = world.tile_exists(x=new_character.char.location_x, y=new_character.char.location_y, area=new_character.char.area)
+        new_character.char.room = world.world_map.tile_exists(x=new_character.char.location_x, y=new_character.char.location_y, area=new_character.char.area)
 
         current_user.characters.append(new_character)
         
@@ -167,7 +167,7 @@ def my_event(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     character = character_file.char
     if character:
-        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
+        character.room = world.world_map.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
         if not character.room.room_filled:
             character.room.fill_room(character=character)
     room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
@@ -189,19 +189,20 @@ def my_event(message):
         if action_result['character_output']['character_output_flag'] == True:
             emit('game_event',
                 {'data': action_result['character_output']['character_output_text']})
-        if action_result['display_room_flag']:
-            intro_text = character.room.intro_text()
+        if action_result['display_room']['display_room_flag']:
             char_names = []
             for char in room_file.characters:
                 char_names.append(char.first_name)
             char_names.remove(character.first_name)
             if len(char_names) > 0:
-                intro_text = intro_text + "<br>" + "Also here:  " + " ".join(char_names)
+                action_result['display_room']['display_room_text'] = action_result['display_room']['display_room_text'] + "<br>" + "Also here:  " + " ".join(char_names)
             emit('game_event',
-                {'data': intro_text})
+                {'data': action_result['display_room']['display_room_text']})
         if action_result['room_output']['room_output_flag'] == True:
             emit('game_event',
                 {'data': action_result['room_output']['room_output_text']}, to=str(character.room.room_number), include_self=False)
+        # if action_result['spawn_generator']['spawn_generator_flag'] == True:
+        #     thread = eventlet.spawn(action_result['spawn_generator']['spawn_generator_thread'].spawn_generator(character=character))
         emit('status_update',
             {'data': action_result['status_output']})
 
@@ -217,7 +218,7 @@ def connect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     character = character_file.char
     if character:
-        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
+        character.room = world.world_map.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
     join_room(character.room.room_number)
     room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
     room_file.characters.append(character_file)
@@ -229,7 +230,7 @@ def disconnect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     character = character_file.char
     if character:
-        character.room = world.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
+        character.room = world.world_map.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
     leave_room(character.room.room_number)
     room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
     room_file.characters.remove(character_file)

@@ -13,7 +13,7 @@ import textwrap as textwrap
 import logging as logging
 import eventlet
 
-from app.main import config, items, enemies, actions, world, mixins, objects, shops, npcs
+from app.main import config, items, actions, world, mixins, objects, shops, npcs
 
 
 wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
@@ -27,13 +27,12 @@ logging.basicConfig(level=logging.DEBUG,
 def create_tile(area_name=None, room_name=None, room_number=None, x=None, y=None):
     return MapTile.tile(area_name=area_name, room_name=room_name, room_number=room_number, x=x, y=y)
 
-    
 
 class MapTile(mixins.DataFileMixin):
     def __init__(self, area_name: str, room_name: str, room_number: int, x, y):
 
         self._area_data = self.get_area_by_name(area_name)
-        self._room_data = self._area_data[room_name]
+        self._room_data = self._area_data['rooms'][room_name]
 
         self.x = x
         self.y = y
@@ -53,6 +52,40 @@ class MapTile(mixins.DataFileMixin):
         self.room_filled = False
         self.shop_filled = False
 
+        self.room_result = {
+            "action_success": True,
+            "action_error": None,
+            "room_change": {
+                "room_change_flag":  False,
+                "leave_room_text": None,
+                "old_room":  None,
+                "new_room":  None,
+                "enter_room_text":  None
+            },
+            "display_room":  {
+                "display_room_flag":  False,
+                "display_room_text":  None,
+            },
+            "character_output":  {
+                "character_output_flag":  False,
+                "character_output_text":  None
+            },
+            "room_output":  {
+                "room_output_flag":  False,
+                "room_output_text":  None
+            },
+            "area_output":  {
+                "area_output_flag":  False,
+                "area_output_text":  None
+            },
+            "spawn_generator":  {
+                "spawn_generator_flag":  False,
+                "spawn_generator_thread":  None
+            },
+            "status_output":  None
+        }
+        self.room_result_default = self.room_result.copy()
+
     areas = {}
 
     @classmethod
@@ -70,31 +103,67 @@ class MapTile(mixins.DataFileMixin):
             return
         return cls.areas[area_name](area_name=area_name, room_name=room_name, room_number=room_number, **kwargs)
 
+    def update_room(self, character, old_room_number):
+        self.room_result['room_change']['room_change_flag'] = True
+        self.room_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
+        self.room_result['room_change']['old_room'] = old_room_number
+        self.room_result['room_change']['new_room'] = character.room.room_number
+        self.room_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+        self.room_result['display_room_flag'] = True
+        return
+
+    def update_character_output(self, character_output_text):
+        self.room_result['character_output']['character_output_flag'] = True
+        self.room_result['character_output']['character_output_text'] = character_output_text
+        return
+
+    def update_display_room(self, display_room_text):
+        self.room_result['display_room']['display_room_flag'] = True
+        self.room_result['display_room']['display_room_text'] = display_room_text
+        return
+        
+    def update_room_output(self, room_output_text):
+        self.room_result['room_output']['room_output_flag'] = True
+        self.room_result['room_output']['room_output_text'] = room_output_text
+        return
+        
+    def update_area_output(self, area_output_text):
+        self.room_result['area_output']['area_output_flag'] = True
+        self.room_result['area_output']['area_output_text'] = area_output_text
+        return
+    
+    def update_status(self, status_text):
+        self.room_result['status_output'] = status_text
+        return
+
+    def reset_result(self):
+        self.room_result = self.room_result_default.copy()
+    
     def modify_player(self):
         raise NotImplementedError()
 
     def adjacent_moves_enemy(self, area):
         moves = []
-        if world.tile_exists(x=self.x, y=self.y - 1, area=self.area):
+        if world.world_map.tile_exists(x=self.x, y=self.y - 1, area=self.area):
             moves.append(actions.MoveNorthEnemy())
-        if world.tile_exists(x=self.x, y=self.y + 1, area=self.area):
+        if world.world_map.tile_exists(x=self.x, y=self.y + 1, area=self.area):
             moves.append(actions.MoveSouthEnemy())
-        if world.tile_exists(x=self.x + 1, y=self.y, area=self.area):
+        if world.world_map.tile_exists(x=self.x + 1, y=self.y, area=self.area):
             moves.append(actions.MoveEastEnemy())
-        if world.tile_exists(x=self.x - 1, y=self.y, area=self.area):
+        if world.world_map.tile_exists(x=self.x - 1, y=self.y, area=self.area):
             moves.append(actions.MoveWestEnemy())
         return moves
 
     def obvious_exits(self):
         """Returns all of the available actions in this room."""
         moves = []
-        if world.tile_exists(x=self.x, y=self.y - 1, area=self.area):
+        if world.world_map.tile_exists(x=self.x, y=self.y - 1, area=self.area):
             moves.append("north")
-        if world.tile_exists(x=self.x, y=self.y + 1, area=self.area):
+        if world.world_map.tile_exists(x=self.x, y=self.y + 1, area=self.area):
             moves.append("south")
-        if world.tile_exists(x=self.x + 1, y=self.y, area=self.area):
+        if world.world_map.tile_exists(x=self.x + 1, y=self.y, area=self.area):
             moves.append("east")
-        if world.tile_exists(x=self.x - 1, y=self.y, area=self.area):
+        if world.world_map.tile_exists(x=self.x - 1, y=self.y, area=self.area):
             moves.append("west")
         obvious = []
         if len(moves) == 0:
@@ -174,12 +243,14 @@ class MapTile(mixins.DataFileMixin):
                     except:
                         print("WARNING:  Could not create hidden item " + item.name + " in room " + self.room_name + " in " + self.area)
             self.room_filled = True
+        return
             
     def fill_shop(self):
         if not self.shop_filled:
             self.shop = shops.Shop(shop_name=self.area, shop_items=self.shop_items)
             self.shop.write_shop_menu() 
             self.shop_filled = True
+        return
     
     @property
     def room_number(self):
@@ -261,6 +332,7 @@ class MapTile(mixins.DataFileMixin):
 
 
     def intro_text(self):
+        self.reset_result()
         intro_text = """\
 [{}, {}] <br>
 {} <br>
@@ -271,7 +343,8 @@ class MapTile(mixins.DataFileMixin):
                    wrapper.fill(text=self.description),
                    self.obvious_exits(),
                    self.all_objects())
-        return intro_text
+        self.update_display_room(display_room_text=intro_text)
+        return self.room_result
 
     def spawn_generator(self, character):
         return NotImplementedError()
@@ -279,20 +352,11 @@ class MapTile(mixins.DataFileMixin):
     def search_room(self):
         pass
 
-    def run(self, character):
-        return NotImplementedError()
-
 
 @MapTile.register_area('Town')
 class Town(MapTile):
     def __init__(self, area_name, room_name, room_number, x, y):
         MapTile.__init__(self, area_name, room_name, room_number, x, y)
-
-    def spawn_generator(self, character):
-        pass
-
-    def run(self, character):
-        pass
 
 
 @MapTile.register_area('Dochas')
@@ -329,29 +393,6 @@ class DochasWeaponsmith(Town):
 class EdgewoodForest(MapTile):
     def __init__(self, area_name, room_name, room_number, x, y):
         MapTile.__init__(self, area_name, room_name, room_number, x=x, y=y)
-
-    def spawn_generator(self, character):
-        area_rooms = world.area_rooms(self.area)
-        while character.area == self.area.replace(" ", ""):
-            time.sleep(5)
-            area_enemies = world.area_enemies(self.area)
-            if len(area_enemies) < 1:
-                area_rooms = {keys: value for keys, value in area_rooms.items() if value is not None}
-                spawn_room_coords = random.choice(list(area_rooms))
-                if random.randint(0,100) > 50:
-                    spawn_room = world.tile_exists(x=spawn_room_coords[0], y=spawn_room_coords[1], area=self.area)
-                    spawn_room.enemies.append(
-                        enemies.Enemy(enemy_name=self._room_data['spawn'][0],
-                                      target=character,
-                                      room=spawn_room,
-                                      location_x=spawn_room_coords[0],
-                                      location_y=spawn_room_coords[1],
-                                      area=self.area))
-                    spawn_room.enemies[-1].start()
-
-
-    def run(self, character):
-        spawn_thread = eventlet.spawn(self.spawn_generator, args=(character,))
 
 
 @MapTile.register_area('Field')

@@ -1,39 +1,29 @@
 {
 	"Dochas": {
-		"dochas_a_small_house": {
-			"name": "A Small House", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "Tucked in between the larger villas and set a short distance from the road, you see a small thatched house. You would miss it entirely if you weren't paying close attention. Flowers sit on the window sill and a scent of cooking eminates from the windows. The house is well kept and tidy. It even appears as though someone swept the front walk leading up to the house.",
-			"objects": {
-				"doors": ["dochas_smallhouse_gate"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+		"name":  "Dochas",
+		"enemies":  [],
+		"rooms":  {
+			"dochas_a_small_house": {
+				"name": "A Small House", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "Tucked in between the larger villas and set a short distance from the road, you see a small thatched house. You would miss it entirely if you weren't paying close attention. Flowers sit on the window sill and a scent of cooking eminates from the windows. The house is well kept and tidy. It even appears as though someone swept the front walk leading up to the house.",
+				"objects": {
+					"doors": ["dochas_smallhouse_gate"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -42,44 +32,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_center": {
-			"name": "Town Center", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "The intersection of the main roads of town are bustling with traffic. Residents hurry along to their destinations with all manner of demeanors. People chat idly in the doorways and exchange the latest goings-on in Dochas. It would be easy to miss a newcomer in this town.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_center": {
+				"name": "Town Center", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "The intersection of the main roads of town are bustling with traffic. Residents hurry along to their destinations with all manner of demeanors. People chat idly in the doorways and exchange the latest goings-on in Dochas. It would be easy to miss a newcomer in this town.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -88,44 +78,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_cul_de_sac": {
-			"name": "Cul De Sac", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "You find yourself at a dead end on a small street. It quickly becomes a bit clostrophobic and you feel like you want to get back to the main road. There are a few stacks of crates and piles of refuse in the corners. This appears to be a staging ground for the town's commerce.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_cul_de_sac": {
+				"name": "Cul De Sac", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "You find yourself at a dead end on a small street. It quickly becomes a bit clostrophobic and you feel like you want to get back to the main road. There are a few stacks of crates and piles of refuse in the corners. This appears to be a staging ground for the town's commerce.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -134,44 +124,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_market_north": {
-			"name": "Market", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "Shops and stands line this street. Vendors and salespeople hold out their wares, beckoning buyers to their tables. This area of the market seems to be occupied by mostly fruit, vegetable, and cloth makers. The market continues to the south",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_market_north": {
+				"name": "Market", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "Shops and stands line this street. Vendors and salespeople hold out their wares, beckoning buyers to their tables. This area of the market seems to be occupied by mostly fruit, vegetable, and cloth makers. The market continues to the south",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -180,44 +170,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"dochas_market_south": {
-			"name": "Market", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "You look around and see vendors selling meat, clothing, trinkets, and a few old antiques.  As you make your way through the tables of goods, you begom to make a list of what you may need for the journey ahead.  The market continues to the north.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"dochas_market_south": {
+				"name": "Market", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "You look around and see vendors selling meat, clothing, trinkets, and a few old antiques.  As you make your way through the tables of goods, you begom to make a list of what you may need for the journey ahead.  The market continues to the north.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -226,44 +216,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"dochas_north_end": {
-			"name": "The North End", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "You hear and smell the production quarter of the town. A blacksmith is hammering in the distance and the scent of leather is in the air. You see animal skins hanging from a building. The ground is littered with wood and metal shavings. Black ash is in the air. While food and trinkets are sold in the southern end of the town, this appears to be where they are made.",
-			"objects": {
-				"doors": ["dochas_leatherworks_door"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"dochas_north_end": {
+				"name": "The North End", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "You hear and smell the production quarter of the town. A blacksmith is hammering in the distance and the scent of leather is in the air. You see animal skins hanging from a building. The ground is littered with wood and metal shavings. Black ash is in the air. While food and trinkets are sold in the southern end of the town, this appears to be where they are made.",
+				"objects": {
+					"doors": ["dochas_leatherworks_door"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -272,44 +262,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"dochas_north_end_outfitters": {
-			"name": "The North End Outfitters", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "The clanging of metal and smells of production are not far off. You see couriers rush by with raw materials and finsihed goods alike, moving in and out of stores with hurried looks on their faces.  To the south, the wall of shops is broken by a large opening. Inside, you see a few hand-crafted weapons on the wall.",
-			"objects": {
-				"doors": ["dochas_weaponsmith_opening"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"dochas_north_end_outfitters": {
+				"name": "The North End Outfitters", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "The clanging of metal and smells of production are not far off. You see couriers rush by with raw materials and finsihed goods alike, moving in and out of stores with hurried looks on their faces.  To the south, the wall of shops is broken by a large opening. Inside, you see a few hand-crafted weapons on the wall.",
+				"objects": {
+					"doors": ["dochas_weaponsmith_opening"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -318,44 +308,228 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_northeast_tower": {
-			"name": "Northeast Tower", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "The tower stands two stories. The second story almost appears to be an additional added to the building as an afterthought. Posts hold up a rickety roof, enought to deflect a small rain storm. Two guards sit on the second tower having a lively debate and occasionally looking out over the city walls. You can't quite tell what they are saying, but understand from the motions it is something about birds. The street to the south runs the length of the town.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": ["dochas town guard"],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_northeast_tower": {
+				"name": "Northeast Tower", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "The tower stands two stories. The second story almost appears to be an additional added to the building as an afterthought. Posts hold up a rickety roof, enought to deflect a small rain storm. Two guards sit on the second tower having a lively debate and occasionally looking out over the city walls. You can't quite tell what they are saying, but understand from the motions it is something about birds. The street to the south runs the length of the town.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": ["dochas town guard"],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_south_gate": {
+				"name": "South Gate", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "This area of town acts as a reciever area for those ejected from the market just north of here. New belongings in hand, many people are huddled together to plan the rest of the day. The southern gate is prominent and looks to be half ajar, allowing free exit and entry. A guard gives out directions and makes small talk with the townsfolk.",
+				"objects": {
+					"doors": ["dochas_south_gate"],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": ["dochas town guard"],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"dochas_southwest_tower": {
+				"name": "Southwest Tower", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "The southwest tower peaks just above the town walls, enough for any guard to watch the exterior of the town. Where the guard is, your not entirely sure. Perhaps he is milling around in the base of the tower. The door is closed, so you cannot find out from visual inspection. This corner of the town is quieter than the rest.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": ["dochas town guard"],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": ["sannd redra"],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_streets": {
+				"name": "Streets", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "The streets wind their way through town, just wide enough for a carraige. They have seen many weary travelers throughout their existence.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": true
+			}, 
+			"dochas_west_gate": {
+				"name": "West Gate", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "Inside the east gate the ground is a little moist. It is unclear where the water is coming from, or whether it is water at all. You carefully step through the muck. The town guard slouches on a stone bollard not far from the gate. The north wall of the town is only a few houses away, while the street to the south stretches for some distance.",
+				"objects": {
+					"doors": ["dochas_west_gate"],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": ["dochas town guard"],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -364,230 +538,50 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_south_gate": {
-			"name": "South Gate", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "This area of town acts as a reciever area for those ejected from the market just north of here. New belongings in hand, many people are huddled together to plan the rest of the day. The southern gate is prominent and looks to be half ajar, allowing free exit and entry. A guard gives out directions and makes small talk with the townsfolk.",
-			"objects": {
-				"doors": ["dochas_south_gate"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": ["dochas town guard"],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
-				"npcs": [],
-				"items": {
-					"clothing": [],
-					"armor": [],
-					"weapon": [],
-					"ring": [],
-					"neck": [],
-					"skin": [],
-					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"dochas_southwest_tower": {
-			"name": "Southwest Tower", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "The southwest tower peaks just above the town walls, enough for any guard to watch the exterior of the town. Where the guard is, your not entirely sure. Perhaps he is milling around in the base of the tower. The door is closed, so you cannot find out from visual inspection. This corner of the town is quieter than the rest.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": ["dochas town guard"],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
-				"npcs": ["sannd redra"],
-				"items": {
-					"clothing": [],
-					"armor": [],
-					"weapon": [],
-					"ring": [],
-					"neck": [],
-					"skin": [],
-					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_streets": {
-			"name": "Streets", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "The streets wind their way through town, just wide enough for a carraige. They have seen many weary travelers throughout their existence.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"spawn": [],
-			"hidden": {
-				"doors": [],
-				"npcs": [],
-				"items": {
-					"clothing": [],
-					"armor": [],
-					"weapon": [],
-					"ring": [],
-					"neck": [],
-					"skin": [],
-					"miscellaneous": []
-					}
-				},
-			"exit": true
-		}, 
-		"dochas_west_gate": {
-			"name": "West Gate", 
-			"area": "Dochas",
-			"class": "Dochas",
-			"description": "Inside the east gate the ground is a little moist. It is unclear where the water is coming from, or whether it is water at all. You carefully step through the muck. The town guard slouches on a stone bollard not far from the gate. The north wall of the town is only a few houses away, while the street to the south stretches for some distance.",
-			"objects": {
-				"doors": ["dochas_west_gate"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": ["dochas town guard"],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
-				"npcs": [],
-				"items": {
-					"clothing": [],
-					"armor": [],
-					"weapon": [],
-					"ring": [],
-					"neck": [],
-					"skin": [],
-					"miscellaneous": []
-					}
-				},
-			"exit": false
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}
 		}
 	},
 	"DochasLeatherworks": {
-		"leather_foyer": {
-			"name": "Foyer", 
-			"area": "Dochas Leatherworks",
-			"class": "DochasLeatherworks",
-			"description": "The strong scent of leather hits your nostrils immediately. You find yourself in an entrance area of the building. You hear some bustle further into the shop, but cannot quite make out what it is. In the entrance are hospitable features, such as a coat rack, bench, and a welcome sign.",
-			"objects": {
-				"doors": ["dochas_leatherworks_door"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+		"name":  "Dochas Leatherworks",
+		"enemies":  [],
+		"rooms":  {
+			"leather_foyer": {
+				"name": "Foyer", 
+				"area": "Dochas Leatherworks",
+				"class": "DochasLeatherworks",
+				"description": "The strong scent of leather hits your nostrils immediately. You find yourself in an entrance area of the building. You hear some bustle further into the shop, but cannot quite make out what it is. In the entrance are hospitable features, such as a coat rack, bench, and a welcome sign.",
+				"objects": {
+					"doors": ["dochas_leatherworks_door"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -596,44 +590,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": true
-		}, 
-		"leather_main": {
-			"name": "Main Room", 
-			"area": "Dochas Leatherworks",
-			"class": "DochasLeatherworks",
-			"description": "As you enter the main room, it is clear that the shop is organized into wings. The wing furthest back in the shop holds walls of tools and crafting items. To the west, you see finished goods hanging on racks. To the east, there appear to be several torn pieces of leather on a table as well as a small line of people waiting for what appears to repairs.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": true
+			}, 
+			"leather_main": {
+				"name": "Main Room", 
+				"area": "Dochas Leatherworks",
+				"class": "DochasLeatherworks",
+				"description": "As you enter the main room, it is clear that the shop is organized into wings. The wing furthest back in the shop holds walls of tools and crafting items. To the west, you see finished goods hanging on racks. To the east, there appear to be several torn pieces of leather on a table as well as a small line of people waiting for what appears to repairs.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -642,44 +636,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"leather_repair": {
-			"name": "Leather Repair", 
-			"area": "Dochas Leatherworks",
-			"class": "DochasLeatherworks",
-			"description": "Walking into this part of the shop, you see unfinished goods strewn about on tables and racks. The line for repairs extends out into the room while several workers attempt to help patrons at each of the tables. There is a reception counter to the left to check in those in line.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"leather_repair": {
+				"name": "Leather Repair", 
+				"area": "Dochas Leatherworks",
+				"class": "DochasLeatherworks",
+				"description": "Walking into this part of the shop, you see unfinished goods strewn about on tables and racks. The line for repairs extends out into the room while several workers attempt to help patrons at each of the tables. There is a reception counter to the left to check in those in line.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -688,44 +682,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"leather_goods": {
-			"name": "Leather Goods", 
-			"area": "Dochas Leatherworks",
-			"class": "DochasLeatherworks",
-			"description": "Leather products of all shapes and sizes are displayed. They mostly appear to be for defense, as none of them look too fashionable. You see tables of arm greaves, racks of vests, hooks filled with wrist wraps, and many other variants. There is even a case with leather helmets.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": ["order_sign"]
-				},
-			"npcs": [],
-			"shop": true,
-			"shop_items": {
-				"clothing": [],
-				"armor": ["leather_arm_greaves", "light_leather"],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"leather_goods": {
+				"name": "Leather Goods", 
+				"area": "Dochas Leatherworks",
+				"class": "DochasLeatherworks",
+				"description": "Leather products of all shapes and sizes are displayed. They mostly appear to be for defense, as none of them look too fashionable. You see tables of arm greaves, racks of vests, hooks filled with wrist wraps, and many other variants. There is even a case with leather helmets.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": ["order_sign"]
+					},
 				"npcs": [],
+				"shop": true,
+				"shop_items": {
+					"clothing": [],
+					"armor": ["leather_arm_greaves", "light_leather"],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -734,44 +728,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"leather_workshop": {
-			"name": "Workshop", 
-			"area": "Dochas Leatherworks",
-			"class": "DochasLeatherworks",
-			"description": "In the far back of the shop, you are greeted with the owner and master craftsman. He is hard at work on a design and appears to be frustrated with a particular element. Tools of all shapes and sizes line every wall. There are outlines where tools have been removed for use on a product. While the room gets good light, there is another, more intense light attached to a long arm and clamped to the workbench. This light appears to serve as an examination light.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": ["gander diggle"],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
-				"npcs": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"leather_workshop": {
+				"name": "Workshop", 
+				"area": "Dochas Leatherworks",
+				"class": "DochasLeatherworks",
+				"description": "In the far back of the shop, you are greeted with the owner and master craftsman. He is hard at work on a design and appears to be frustrated with a particular element. Tools of all shapes and sizes line every wall. There are outlines where tools have been removed for use on a product. While the room gets good light, there is another, more intense light attached to a long arm and clamped to the workbench. This light appears to serve as an examination light.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": ["gander diggle"],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -780,46 +774,50 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}
 		}
 	},
 	"DochasSmallHouse": {
-		"house_doorstep": {
-			"name": "Doorstep", 
-			"area": "Dochas Small House",
-			"class": "DochasSmallHouse",
-			"description": "The front of the house is quaint and cozy. The smell from the house becomes stronger as you approach the door. The thatches of the house have settled asymmetrically and provide a mosaic of patterns on the facade of the house.",
-			"objects": {
-				"doors": ["dochas_smallhouse_gate", "dochas_smallhouse_door"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+		"name":  "Dochas Small House",
+		"enemies":  [],
+		"rooms":  {
+			"house_doorstep": {
+				"name": "Doorstep", 
+				"area": "Dochas Small House",
+				"class": "DochasSmallHouse",
+				"description": "The front of the house is quaint and cozy. The smell from the house becomes stronger as you approach the door. The thatches of the house have settled asymmetrically and provide a mosaic of patterns on the facade of the house.",
+				"objects": {
+					"doors": ["dochas_smallhouse_gate", "dochas_smallhouse_door"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -828,44 +826,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": true
-		}, 
-		"house_triage": {
-			"name": "Triage", 
-			"area": "Dochas Small House",
-			"class": "DochasSmallHouse",
-			"description": "The main room of the small house is cramped and crowded. Cots line the walls, all but one occupied with patients.  Two nurses hustle between this room and the kitchen in the back with bandages and pots of strange concoctions.",
-			"objects": {
-				"doors": ["dochas_smallhouse_door"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": true
+			}, 
+			"house_triage": {
+				"name": "Triage", 
+				"area": "Dochas Small House",
+				"class": "DochasSmallHouse",
+				"description": "The main room of the small house is cramped and crowded. Cots line the walls, all but one occupied with patients.  Two nurses hustle between this room and the kitchen in the back with bandages and pots of strange concoctions.",
+				"objects": {
+					"doors": ["dochas_smallhouse_door"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -874,44 +872,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"house_livingroom": {
-			"name": "Living Room", 
-			"area": "Dochas Small House",
-			"class": "DochasSmallHouse",
-			"description": "The living room is less busy than the adjacent triage room. Two patients sit on weathered couches opposite each other. They converse about their latest adventures and how it's not like the good ol' days.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"house_livingroom": {
+				"name": "Living Room", 
+				"area": "Dochas Small House",
+				"class": "DochasSmallHouse",
+				"description": "The living room is less busy than the adjacent triage room. Two patients sit on weathered couches opposite each other. They converse about their latest adventures and how it's not like the good ol' days.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -920,44 +918,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		}, 
-		"house_kitchen": {
-			"name": "Kitchen", 
-			"area": "Dochas Small House",
-			"class": "DochasSmallHouse",
-			"description": "The kitchen, positioned in the back of the house, is where the smell eminates. Several pots are heated in a fire in the corner. A nurse kneeds herbs on a table in the center of the room. Sacks of plants and roots sit along the back wall below the window to the exterior. Glass cabinets frame the entrance doorway filled with glass vials and glass jars, each containing precioius ingredients for recipes.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}, 
+			"house_kitchen": {
+				"name": "Kitchen", 
+				"area": "Dochas Small House",
+				"class": "DochasSmallHouse",
+				"description": "The kitchen, positioned in the back of the house, is where the smell eminates. Several pots are heated in a fire in the corner. A nurse kneeds herbs on a table in the center of the room. Sacks of plants and roots sit along the back wall below the window to the exterior. Glass cabinets frame the entrance doorway filled with glass vials and glass jars, each containing precioius ingredients for recipes.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -966,46 +964,50 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}
 		}
 	}, 
 	"DochasWeaponsmith": {
-		"weaponsmith_entryway": {
-			"name": "Entryway", 
-			"area": "Dochas Weaponsmith",
-			"class": "DochasWeaponsmith",
-			"description": "The entry is smothered with dirt and dust spilling over from outside traffic. The walls are partially lined with hooks and hangers carrying an assortment of weapons. The empty spaces give an impression that this merchant used to carry a much larger selection.",
-			"objects": {
-				"doors": ["dochas_weaponsmith_opening"],
-				"furniture": [],
-				"miscellaneous": ["order_sign"]
-				},
-			"npcs": [],
-			"shop": true,
-			"shop_items":  {
-				"clothing": [],
-				"armor": [],
-				"weapon": ["dagger01", "rapier01", "short_sword01", "longsword01", "broadsword01", "handaxe01", "battle_axe01", "whip01", "cudgel01", "mace01", "morning_star01", "flail01", "hammer01", "pilum01", "spear01", "halberd01", "trident01"],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+		"name":  "Dochas Weaponsmith",
+		"enemies":  [],
+		"rooms":  {
+			"weaponsmith_entryway": {
+				"name": "Entryway", 
+				"area": "Dochas Weaponsmith",
+				"class": "DochasWeaponsmith",
+				"description": "The entry is smothered with dirt and dust spilling over from outside traffic. The walls are partially lined with hooks and hangers carrying an assortment of weapons. The empty spaces give an impression that this merchant used to carry a much larger selection.",
+				"objects": {
+					"doors": ["dochas_weaponsmith_opening"],
+					"furniture": [],
+					"miscellaneous": ["order_sign"]
+					},
 				"npcs": [],
+				"shop": true,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": ["dagger01", "rapier01", "short_sword01", "longsword01", "broadsword01", "handaxe01", "battle_axe01", "whip01", "cudgel01", "mace01", "morning_star01", "flail01", "hammer01", "pilum01", "spear01", "halberd01", "trident01"],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1014,46 +1016,50 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": true
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": true
+			}
 		}
 	},
 	"Field": {
-		"field_glade": {
-			"name": "Glade",
-			"area": "Field",
-			"class": "Field",
-			"description": "You find yourself in a small glade, surrounded on all sides by tall, deciduous trees.  The air is ripe with pollen and earthy scents. The ground is soft and pleasant under your feet. You see the signs of insects and small rodents darting about, keeping the ecosystem in check. The trees seem to thin out to the east. Somehow you get a sense that it all begins here.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+		"name":  "Field",
+		"enemies":  [],
+		"rooms":  {
+			"field_glade": {
+				"name": "Glade",
+				"area": "Field",
+				"class": "Field",
+				"description": "You find yourself in a small glade, surrounded on all sides by tall, deciduous trees.  The air is ripe with pollen and earthy scents. The ground is soft and pleasant under your feet. You see the signs of insects and small rodents darting about, keeping the ecosystem in check. The trees seem to thin out to the east. Somehow you get a sense that it all begins here.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1062,44 +1068,90 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_edge": {
-			"name": "Edge",
-			"area": "Field",
-			"class": "Field",
-			"description": "The trees grow right up to the edge of the large field, acting almost as a gateway between two worlds. The field stretches beyond your eyesight to the east. The area has little traffic, but you can tell you are not the only one to come this way. The grass is overgrown and has a few areas where it has been matted down.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": ["dagger01"],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_edge": {
+				"name": "Edge",
+				"area": "Field",
+				"class": "Field",
+				"description": "The trees grow right up to the edge of the large field, acting almost as a gateway between two worlds. The field stretches beyond your eyesight to the east. The area has little traffic, but you can tell you are not the only one to come this way. The grass is overgrown and has a few areas where it has been matted down.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": ["dagger01"],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_clearing": {
+				"name": "Clearing",
+				"area": "Field",
+				"class": "Field",
+				"description": "You approach a clearing in the grass. The ground is harder here and you can even see a few large boulders embedded in the soil. This appears to be a gathering spot for passers-by as you see signs of campfires. The tracks mostly stem from the south toward a few wheat fields, and to the west you see the edge of the field lined with large deciduous trees.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1108,44 +1160,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_clearing": {
-			"name": "Clearing",
-			"area": "Field",
-			"class": "Field",
-			"description": "You approach a clearing in the grass. The ground is harder here and you can even see a few large boulders embedded in the soil. This appears to be a gathering spot for passers-by as you see signs of campfires. The tracks mostly stem from the south toward a few wheat fields, and to the west you see the edge of the field lined with large deciduous trees.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_wheat_rows": {
+				"name": "Wheat Rows", 
+				"area": "Field",
+				"class": "Field",
+				"description": "Among the wheat fields, you get a strong smell of the earth as the ground has just been tilled. As you step through the peaks and troughs, your feet become covered in dirt. Worms and other small insects crawl about looking for new homes. To the north, you can see a clearing and some boulders. To the south, just pass the fields, you see a small knoll.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1154,44 +1206,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_wheat_rows": {
-			"name": "Wheat Rows", 
-			"area": "Field",
-			"class": "Field",
-			"description": "Among the wheat fields, you get a strong smell of the earth as the ground has just been tilled. As you step through the peaks and troughs, your feet become covered in dirt. Worms and other small insects crawl about looking for new homes. To the north, you can see a clearing and some boulders. To the south, just pass the fields, you see a small knoll.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_knoll": {
+				"name": "Knoll", 
+				"area": "Field",
+				"class": "Field",
+				"description": "The knoll gradually rises off the pasture. You climb to the top without breaking a sweat, although the grass makes it somewhat slow. From here, you can get a better view of the surrounding land. You see a small town to the southeast past some uneven terrain. From here, you can only make out that the town is currently inhabited, but it is unclear how many people actually reside there. To the north are a few wheat fields and off in the distance is a small clearing. To the west is a fenced in pasture, which it looks like it could house any size of animal. From here the fence looks important enough that you decide not go that way. The fence continues south and makes a turn to the east some distance off.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1200,44 +1252,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_knoll": {
-			"name": "Knoll", 
-			"area": "Field",
-			"class": "Field",
-			"description": "The knoll gradually rises off the pasture. You climb to the top without breaking a sweat, although the grass makes it somewhat slow. From here, you can get a better view of the surrounding land. You see a small town to the southeast past some uneven terrain. From here, you can only make out that the town is currently inhabited, but it is unclear how many people actually reside there. To the north are a few wheat fields and off in the distance is a small clearing. To the west is a fenced in pasture, which it looks like it could house any size of animal. From here the fence looks important enough that you decide not go that way. The fence continues south and makes a turn to the east some distance off.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_pasture": {
+				"name": "Pasture", 
+				"area": "Field",
+				"class": "Field",
+				"description": "As you follow the fence, there are sections in disrepair and broken, allowing animals to roam free of their containment. You fail to see a shephard to tell them about the issue. You occasionally pass animal droppings as you move through the field. The fence takes a turn here. To the north, you see a knoll.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1246,44 +1298,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_pasture": {
-			"name": "Pasture", 
-			"area": "Field",
-			"class": "Field",
-			"description": "As you follow the fence, there are sections in disrepair and broken, allowing animals to roam free of their containment. You fail to see a shephard to tell them about the issue. You occasionally pass animal droppings as you move through the field. The fence takes a turn here. To the north, you see a knoll.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_fence": {
+				"name": "Fence", 
+				"area": "Field",
+				"class": "Field",
+				"description": "The fence enclosing the pasture is made of old wood, twisted with knots and marked with scratches. Long ago it was built with care, but it has since been left to decay. You slowly walk along the fence, picking your way through the tall grass.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1292,44 +1344,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_fence": {
-			"name": "Fence", 
-			"area": "Field",
-			"class": "Field",
-			"description": "The fence enclosing the pasture is made of old wood, twisted with knots and marked with scratches. Long ago it was built with care, but it has since been left to decay. You slowly walk along the fence, picking your way through the tall grass.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_town": {
+				"name": "Town", 
+				"area": "Field",
+				"class": "Field",
+				"description": "From here, the town is the prominent feature of the landscape. The walls are made of stone and grout. The stone is uneven at parts and appears to have quite a bit of rework. There are two towers at either end of town keeping watch for the citizens. Streams of smoke eminate from various locations within. To the south of town is a large lake that provides a defacto moat. To the north, hills give way to more hills as far as the eye can see.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1338,44 +1390,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_town": {
-			"name": "Town", 
-			"area": "Field",
-			"class": "Field",
-			"description": "From here, the town is the prominent feature of the landscape. The walls are made of stone and grout. The stone is uneven at parts and appears to have quite a bit of rework. There are two towers at either end of town keeping watch for the citizens. Streams of smoke eminate from various locations within. To the south of town is a large lake that provides a defacto moat. To the north, hills give way to more hills as far as the eye can see.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"field_outside_gate": {
+				"name": "Outside the West Gate", 
+				"area": "Field",
+				"class": "Field",
+				"description": "At a close distance, the gates are old and tattered. They probably should have been replaced some time ago, however from the looks of the interior of the town, there doesn't appear to be anyone wanting to put in the money or effort. The gates operate on a hinge that releases squeaks with every nudge. They are currently open, providing access to anyone wishing to enter.",
+				"objects": {
+					"doors": ["dochas_west_gate"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1384,92 +1436,50 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"field_outside_gate": {
-			"name": "Outside the West Gate", 
-			"area": "Field",
-			"class": "Field",
-			"description": "At a close distance, the gates are old and tattered. They probably should have been replaced some time ago, however from the looks of the interior of the town, there doesn't appear to be anyone wanting to put in the money or effort. The gates operate on a hinge that releases squeaks with every nudge. They are currently open, providing access to anyone wishing to enter.",
-			"objects": {
-				"doors": ["dochas_west_gate"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
-				"npcs": [],
-				"items": {
-					"clothing": [],
-					"armor": [],
-					"weapon": [],
-					"ring": [],
-					"neck": [],
-					"skin": [],
-					"miscellaneous": []
-					}
-				},
-			"exit": false
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}
 		}
 	}, 
 	"DochasGrounds": {
-		"dochas_grounds_outside_gate": {
-			"name": "Outside Gate", 
-			"area": "Dochas Grounds",
-			"class": "DochasGrounds",
-			"description": "Just outside of town, the air is a bit cooler. Looking east or west, you see the stone walls wrap around the structures inside. Several gaps in the stone reveal pockets and openings to glimpse the activity inside. To the south is a clearing, patted down by moderate foot traffic. In the distance, you see forest surrounding the area.",
-			"objects": {
-				"doors": ["dochas_south_gate"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+		"name":  "Dochas Grounds",
+		"enemies":  [],
+		"rooms":  {
+			"dochas_grounds_outside_gate": {
+				"name": "Outside Gate", 
+				"area": "Dochas Grounds",
+				"class": "DochasGrounds",
+				"description": "Just outside of town, the air is a bit cooler. Looking east or west, you see the stone walls wrap around the structures inside. Several gaps in the stone reveal pockets and openings to glimpse the activity inside. To the south is a clearing, patted down by moderate foot traffic. In the distance, you see forest surrounding the area.",
+				"objects": {
+					"doors": ["dochas_south_gate"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1478,44 +1488,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_grounds_clearing": {
-			"name": "Clearing", 
-			"area": "Dochas Grounds",
-			"class": "DochasGrounds",
-			"description": "The city walls look somewhat at home in the open expanse of the grassland. The grass even seem so to be growing on some of the rocks. As you round the outside of the town, you get the impression that many battles were waged outside of these walls.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_grounds_clearing": {
+				"name": "Clearing", 
+				"area": "Dochas Grounds",
+				"class": "DochasGrounds",
+				"description": "The city walls look somewhat at home in the open expanse of the grassland. The grass even seem so to be growing on some of the rocks. As you round the outside of the town, you get the impression that many battles were waged outside of these walls.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1524,90 +1534,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_grounds_tree": {
-			"name": "Tree", 
-			"area": "Dochas Grounds",
-			"class": "DochasGrounds",
-			"description": "You approach a thick, knotty tree. Branches weave and wind their way off the trunk. The roots feel their way across the grass before submerging for groundwater below. The area underneath the tree is exposed dirt and and fine sand. To the east, the land dips into a depression where a forest begins. The town walls continue to wind their way around the north, although the clearing to the south seems more inviting.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
-				"npcs": ["emmera sadana"],
-				"items": {
-					"clothing": [],
-					"armor": [],
-					"weapon": [],
-					"ring": [],
-					"neck": [],
-					"skin": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_grounds_tree": {
+				"name": "Tree", 
+				"area": "Dochas Grounds",
+				"class": "DochasGrounds",
+				"description": "You approach a thick, knotty tree. Branches weave and wind their way off the trunk. The roots feel their way across the grass before submerging for groundwater below. The area underneath the tree is exposed dirt and and fine sand. To the east, the land dips into a depression where a forest begins. The town walls continue to wind their way around the north, although the clearing to the south seems more inviting.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_grounds_depression": {
-			"name": "A Depression", 
-			"area": "Dochas Grounds",
-			"class": "DochasGrounds",
-			"description": "As you walk through this low lying area, you feel a sense of vulnerability to whatever might crest the top of the hills around you. At the eastern edge of the depression begins a forest. A path begins to form at the center of the depression funneling travelers into the forest. The trees are tall and narrow, serving as an ominous entrance.",
-			"objects": {
-				"doors": ["edgwood_forest_path"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1616,44 +1580,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"dochas_grounds_moat": {
-			"name": "Moat", 
-			"area": "Dochas Grounds",
-			"class": "DochasGrounds",
-			"description": "A small pond blocks forward movement around the southwest side of the town. The water is still and abuts the town walls. Three quarters of the pond is covered in a thick, green algea, leaving the only a ring in the center open for inspection. On the opposite side of the pond, you can see animals grazing in an enclosed pasture.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": [],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": ["emmera sadana"],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_grounds_depression": {
+				"name": "A Depression", 
+				"area": "Dochas Grounds",
+				"class": "DochasGrounds",
+				"description": "As you walk through this low lying area, you feel a sense of vulnerability to whatever might crest the top of the hills around you. At the eastern edge of the depression begins a forest. A path begins to form at the center of the depression funneling travelers into the forest. The trees are tall and narrow, serving as an ominous entrance.",
+				"objects": {
+					"doors": ["edgwood_forest_path"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1662,46 +1626,96 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_grounds_moat": {
+				"name": "Moat", 
+				"area": "Dochas Grounds",
+				"class": "DochasGrounds",
+				"description": "A small pond blocks forward movement around the southwest side of the town. The water is still and abuts the town walls. Three quarters of the pond is covered in a thick, green algea, leaving the only a ring in the center open for inspection. On the opposite side of the pond, you can see animals grazing in an enclosed pasture.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}
 		}
 	}, 
 	"EdgewoodForest": {
-		"edgwood_forest_path": {
-			"name": "A Forest Path", 
-			"area": "Edgewood Forest",
-			"class": "EdgewoodForest",
-			"description": "Moving through the tall trees, you hear a faint echo of your footsteps. The ground is soft and rarely traveled. Birds occasionally swoop by, searching for their next meal. Squirrels dart from tree to tree with the sound of chirps.",
-			"objects": {
-				"doors": ["edgwood_forest_path"],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": ["wild_boar"],
-			"hidden": {
-				"doors": [],
+		"name":  "Edgewood Forest",
+		"enemies":  ["wild_boar"],
+		"rooms":  {
+			"edgwood_forest_path": {
+				"name": "A Forest Path", 
+				"area": "Edgewood Forest",
+				"class": "EdgewoodForest",
+				"description": "Moving through the tall trees, you hear a faint echo of your footsteps. The ground is soft and rarely traveled. Birds occasionally swoop by, searching for their next meal. Squirrels dart from tree to tree with the sound of chirps.",
+				"objects": {
+					"doors": ["edgwood_forest_path"],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1710,44 +1724,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"edgwood_forest_hovel": {
-			"name": "Hovel", 
-			"area": "Edgewood Forest",
-			"class": "EdgewoodForest",
-			"description": "You approach a small hovel sunken slightly into the ground. Plants and tree roots have overtake much of the base of the hovel. It appears empty, although you are unsure whether someone has stayed here recently.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": ["wild_boar"],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": ["wild_boar"],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"edgwood_forest_hovel": {
+				"name": "Hovel", 
+				"area": "Edgewood Forest",
+				"class": "EdgewoodForest",
+				"description": "You approach a small hovel sunken slightly into the ground. Plants and tree roots have overtake much of the base of the hovel. It appears empty, although you are unsure whether someone has stayed here recently.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1756,44 +1770,44 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
-		},
-		"edgwood_forest_wood": {
-			"name": "The Forest", 
-			"area": "Edgewood Forest",
-			"class": "EdgewoodForest",
-			"description": "Thick trees and small mounds block your view further than your immediate surroundings. You don't find any sign that people normally travel this far into the forest.",
-			"objects": {
-				"doors": [],
-				"furniture": [],
-				"miscellaneous": []
-				},
-			"npcs": [],
-			"shop": false,
-			"shop_items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"items": {
-				"clothing": [],
-				"armor": [],
-				"weapon": [],
-				"ring": [],
-				"neck": [],
-				"skin": [],
-				"miscellaneous": []
-				},
-			"spawn": ["wild_boar"],
-			"hidden": {
-				"doors": [],
+					},
+				"spawn": ["wild_boar"],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"edgwood_forest_wood": {
+				"name": "The Forest", 
+				"area": "Edgewood Forest",
+				"class": "EdgewoodForest",
+				"description": "Thick trees and small mounds block your view further than your immediate surroundings. You don't find any sign that people normally travel this far into the forest.",
+				"objects": {
+					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
 				"npcs": [],
+				"shop": false,
+				"shop_items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
 				"items": {
 					"clothing": [],
 					"armor": [],
@@ -1802,9 +1816,23 @@
 					"neck": [],
 					"skin": [],
 					"miscellaneous": []
-					}
-				},
-			"exit": false
+					},
+				"spawn": ["wild_boar"],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			}
 		}
 	}
 }

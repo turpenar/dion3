@@ -48,7 +48,10 @@ class DoActions:
                 "new_room":  None,
                 "enter_room_text":  None
             },
-            "display_room_flag":  False,
+            "display_room":  {
+                "display_room_flag":  False,
+                "display_room_text": None
+            },
             "character_output":  {
                 "character_output_flag":  False,
                 "character_output_text":  None
@@ -60,6 +63,10 @@ class DoActions:
             "area_output":  {
                 "area_output_flag":  False,
                 "area_output_text":  None
+            },
+            "spawn_generator":  {
+                "spawn_generator_flag":  False,
+                "spawn_generator_thread":  None
             },
             "status_output":  None
         }
@@ -96,20 +103,26 @@ class DoActions:
     def update_character_output(self, character_output_text):
         self.action_result['character_output']['character_output_flag'] = True
         self.action_result['character_output']['character_output_text'] = character_output_text
+        return
 
-    def update_display_room(self):
-        self.action_result['display_room_flag'] = True
+    def update_display_room(self, display_room_text):
+        self.action_result['display_room']['display_room_flag'] = True
+        self.action_result['display_room']['display_room_text'] = display_room_text
+        return
         
     def update_room_output(self, room_output_text):
         self.action_result['room_output']['room_output_flag'] = True
         self.action_result['room_output']['room_output_text'] = room_output_text
+        return
         
     def update_area_output(self, area_output_text):
         self.action_result['area_output']['area_output_flag'] = True
         self.action_result['area_output']['area_output_text'] = area_output_text
+        return
     
     def update_status(self, status_text):
         self.action_result['status_output'] = status_text
+        return
         
 
 
@@ -313,12 +326,13 @@ class East(DoActions):
             self.update_character_output("You cannot move.  You are {}.".format(character.position))
             self.update_status(character.get_status())
             return
-        if world.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area):
+        if world.world_map.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
                     character.room.shop.exit_shop()
             old_room = character.room.room_number 
             self.character.move_east()
+            self.action_result.update(character.room.intro_text())
             self.update_room(character=character, old_room_number=old_room)
             self.update_status(character.get_status())
             return
@@ -766,7 +780,7 @@ class Look(DoActions):
             self.update_status(character.get_status())
             return
         if kwargs['preposition'] == None:
-            self.update_display_room()
+            self.action_result.update(character.room.intro_text())
             self.update_status(character.get_status())
             return
         if kwargs['preposition'][0] == 'in':
@@ -853,12 +867,13 @@ class North(DoActions):
             self.update_character_output("You cannot move.  You are {}.".format(character.position))
             self.update_status(character.get_status())
             return
-        if world.tile_exists(x=character.location_x, y=character.location_y - 1, area=character.area):
+        if world.world_map.tile_exists(x=character.location_x, y=character.location_y - 1, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
                     character.room.shop.exit_shop()
             old_room = self.character.room.room_number 
             self.character.move_north()
+            self.action_result.update(character.room.intro_text())
             self.update_room(character=character, old_room_number=old_room)
             self.update_status(character.get_status())
             return
@@ -1204,12 +1219,13 @@ class South(DoActions):
             self.update_character_output("You cannot move.  You are {}.".format(character.position))
             self.update_status(character.get_status())
             return
-        if world.tile_exists(x=character.location_x, y=character.location_y + 1, area=character.area):
+        if world.world_map.tile_exists(x=character.location_x, y=character.location_y + 1, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
                     character.room.shop.exit_shop()
             old_room = self.character.room.room_number 
             self.character.move_south()
+            self.action_result.update(character.room.intro_text())
             self.update_room(character=character, old_room_number=old_room)
             self.update_status(character.get_status())
             return
@@ -1286,7 +1302,6 @@ class Stand(DoActions):
         else:
             self.character.position = 'standing'
             self.update_character_output(character_output_text="You raise yourself to a standing position.")
-            print()
             self.update_room_output(room_output_text="{} raises {}self to a standing position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
             return
@@ -1370,12 +1385,13 @@ class West(DoActions):
             self.update_character_output("You cannot move.  You are {}.".format(character.position))
             self.update_status(character.get_status())
             return
-        if world.tile_exists(x=character.location_x - 1, y=character.location_y, area=character.area):
+        if world.world_map.tile_exists(x=character.location_x - 1, y=character.location_y, area=character.area):
             if character.room.shop_filled == True:
                 if character.room.shop.in_shop == True:
                     character.room.shop.exit_shop()
             old_room = self.character.room.room_number 
             self.character.move_west()
+            self.action_result.update(character.room.intro_text())
             self.update_room(character=character, old_room_number=old_room)
             self.update_status(character.get_status())
             return

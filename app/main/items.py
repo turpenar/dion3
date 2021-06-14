@@ -17,7 +17,6 @@ def create_item(item_category, item_name, **kwargs):
 
 class Item(mixins.ReprMixin, mixins.DataFileMixin):
     def __init__(self, item_data, **kwargs):
-        super(Item, self).__init__()
 
         item_data = item_data
 
@@ -51,7 +50,10 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
                 "new_room":  None,
                 "enter_room_text":  None
             },
-            "display_room_flag":  False,
+            "display_room":  {
+                "display_room_flag":  False,
+                "display_room_text":  None,
+            },
             "character_output":  {
                 "character_output_flag":  False,
                 "character_output_text":  None
@@ -66,6 +68,7 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
             },
             "status_output":  None
         }
+        self.item_result_default = self.item_result.copy()
 
     def update_room(self, character, old_room_number):
         self.item_result['room_change']['room_change_flag'] = True
@@ -79,27 +82,40 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
     def update_character_output(self, character_output_text):
         self.item_result['character_output']['character_output_flag'] = True
         self.item_result['character_output']['character_output_text'] = character_output_text
+        return
 
-    def update_display_room(self):
-        self.item_result['display_room_flag'] = True
+    def update_display_room(self, display_room_text):
+        self.item_result['display_room']['display_room_flag'] = True
+        self.item_result['display_room']['display_room_text'] = display_room_text
+        return
         
     def update_room_output(self, room_output_text):
         self.item_result['room_output']['room_output_flag'] = True
         self.item_result['room_output']['room_output_text'] = room_output_text
+        return
         
     def update_area_output(self, area_output_text):
         self.item_result['area_output']['area_output_flag'] = True
         self.item_result['area_output']['area_output_text'] = area_output_text
+        return
     
     def update_status(self, status_text):
         self.item_result['status_output'] = status_text
+        return
+
+    def reset_result(self):
+        self.item_result = self.item_result_default.copy()
+        return
 
     def contents(self):
+        self.reset_result()
         if self.container == False:
-            return "A {} cannot hold anything".format(self.handle[0])
+            self.update_character_output(character_output_text="A {} cannot hold anything".format(self.handle[0]))
+            return self.item_result
         all_items = []
         if len(self.items) == 0:
-            return "{} are empty".format(self.name)
+            self.update_character_output(character_output_text="{} is empty".format(self.name))
+            return self.item_result
         for item in self.items:
             all_items.append(item.name)
         if len(all_items) > 1:
@@ -107,10 +123,11 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
             all_items_output = all_items_output + ', and ' + all_items[-1]
         else:
             all_items_output = all_items[0]
-        self.update_character_output("Inside {} you see {}".format(self.name, all_items_output))
+        self.update_character_output(character_output_text="Inside {} you see {}".format(self.name, all_items_output))
         return self.item_result
 
     def view_description(self):
+        self.reset_result()
         self.update_character_output("You see " + self.description)
         return self.item_result
 
@@ -141,7 +158,7 @@ class Clothing(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('clothing')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
 
 
 @Item.register_subclass('weapon')
@@ -149,7 +166,7 @@ class Weapon(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('weapons')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
         
         self.classification = item_data['classification']
 
@@ -159,7 +176,7 @@ class Money(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('money')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
 
 
 @Item.register_subclass('armor')
@@ -167,7 +184,7 @@ class Armor(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('armor')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
 
         self.classification = item_data['classification']
 
@@ -176,7 +193,7 @@ class Ring(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('rings')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
 
 
 @Item.register_subclass('neck')
@@ -184,7 +201,7 @@ class Neck(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('neck')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
 
 
 @Item.register_subclass('skin')
@@ -192,7 +209,7 @@ class Skin(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('skin')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
 
 
 @Item.register_subclass('miscellaneous')
@@ -200,7 +217,7 @@ class Miscellaneous(Item):
     def __init__(self, item_name: str, **kwargs):
         category_data = self.get_item_by_name('miscellaneous')
         item_data = category_data[item_name]
-        super().__init__(item_data=item_data, **kwargs)
+        Item.__init__(self, item_data=item_data, **kwargs)
 
 
 

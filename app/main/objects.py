@@ -23,11 +23,14 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
                                     "new_room":  None,
                                     "enter_room_text":  None
                                 },
-                                "display_room_flag":  False,
-                              "character_output":  {
-                                  "character_output_flag":  False,
-                                  "character_output_text":  None
-                              },
+                                "display_room":  {
+                                    "display_room_flag":  False,
+                                    "display_room_text":  None,
+                                },
+                                "character_output":  {
+                                    "character_output_flag":  False,
+                                    "character_output_text":  None
+                                },
                                 "room_output":  {
                                     "room_output_flag":  False,
                                     "room_output_text":  None
@@ -36,8 +39,12 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
                                     "area_output_flag":  False,
                                     "area_output_text":  None
                                 },
+                                "spawn_generator":  {
+                                    "spawn_generator_flag":  False
+                                },
                                 "status_output":  None
-                              }
+        }
+        self.object_result_default = self.object_result.copy()
 
         self.object_data = object_data
 
@@ -79,40 +86,55 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
     def update_character_output(self, character_output_text):
         self.object_result['character_output']['character_output_flag'] = True
         self.object_result['character_output']['character_output_text'] = character_output_text
+        return
 
-    def update_display_room(self):
-        self.object_result['display_room_flag'] = True
+    def update_display_room(self, display_room_text):
+        self.object_result['display_room']['display_room_flag'] = True
+        self.object_result['display_room']['display_room_text'] = display_room_text
+        return
         
     def update_room_output(self, room_output_text):
         self.object_result['room_output']['room_output_flag'] = True
         self.object_result['room_output']['room_output_text'] = room_output_text
+        return
         
     def update_area_output(self, area_output_text):
         self.object_result['area_output']['area_output_flag'] = True
         self.object_result['area_output']['area_output_text'] = area_output_text
+        return
     
     def update_status(self, status_text):
         self.object_result['status_output'] = status_text
+        return
+
+    def reset_result(self):
+        self.object_result = self.object_result_default.copy()
+        return
 
     def contents(self):
         # Currently there are no objects that are containers.
+        self.reset_result()
         if self.container == False:
             self.update_character_output(character_output_text="{} cannot hold anything".format(self.name))
             return self.object_result
 
     def go_object(self, **kwargs):
+        self.reset_result()
         self.update_character_output(character_output_text="I'm not sure how you intend on doing that.")
         return self.object_result
 
     def view_description(self):
+        self.reset_result()
         self.update_character_output(character_output_text="{}".format(self.description))
         return self.object_result
 
     def skin(self, room):
+        self.reset_result()
         self.update_character_output(character_output_text="You cannot skin {}.".format(self.name))
         return self.object_result
 
     def search(self, character):
+        self.reset_result()
         NotImplementedError()
 
 
@@ -121,17 +143,18 @@ class Door(Object):
     def __init__(self, object_name, room, **kwargs):
         category_data = self.get_object_by_name('Doors')
         object_data = category_data[object_name]
-        super().__init__(object_data=object_data, **kwargs)
+        Object.__init__(self, object_data=object_data, **kwargs)
 
         self.room = room
 
     def go_object(self, character):
+        self.reset_result()
         if character.room.room_name == self.object_data['location_1']['name']:
             new_location = self.object_data['location_2']
         elif character.room.room_name == self.object_data['location_2']['name']:
             new_location = self.object_data['location_1']
         old_room = character.room.room_number 
-        character.room = world.tile_exists(x=new_location['x'], y=new_location['y'], area=new_location['area'])
+        character.room = world.world_map.tile_exists(x=new_location['x'], y=new_location['y'], area=new_location['area'])
         if character.room.shop_filled == True:
             if character.room.shop.in_shop == True:
                 character.room.shop.exit_shop() 
@@ -139,11 +162,13 @@ class Door(Object):
         character.location_y = new_location['y']
         character.area = new_location['area']
         character.room.fill_room(character=character)
+        self.object_result.update(character.room.intro_text())
         self.update_room(character=character, old_room_number=old_room)
-        self.update_status(character.get_status())
+        self.update_status(status_text=character.get_status())
         return self.object_result
 
     def search(self, character):
+        self.reset_result()
         pass
     
     
@@ -152,11 +177,12 @@ class Furniture(Object):
     def __init__(self, object_name, room, **kwargs):
         category_data = self.get_object_by_name('Furniture')
         object_data = category_data[object_name]
-        super().__init__(object_data=object_data, **kwargs)
+        Object.__init__(self, object_data=object_data, **kwargs)
 
         self.room = room
 
     def search(self, character):
+        self.reset_result()
         pass
     
 @Object.register_subclass('miscellaneous')
@@ -164,11 +190,12 @@ class Miscellaneous(Object):
     def __init__(self, object_name, room, **kwargs):
         category_data = self.get_object_by_name('Miscellaneous')
         object_data = category_data[object_name]
-        super().__init__(object_data=object_data, **kwargs)
+        Object.__init__(self, object_data=object_data, **kwargs)
 
         self.room = room
 
     def search(self, character):
+        self.reset_result()
         pass
 
 
@@ -177,7 +204,7 @@ class Corpse(Object):
     def __init__(self, object_name, room, **kwargs):
         category_data = self.get_object_by_name('Corpse')
         object_data = category_data[object_name]
-        super().__init__(object_data=object_data, **kwargs)
+        Object.__init__(self, object_data=object_data, **kwargs)
 
         self.room = room
 
@@ -189,6 +216,7 @@ class Corpse(Object):
         self.loot_money = self.object_data['loot']['money']
 
     def skin_corpse(self):
+        self.reset_result()
         if self.skin == None:
             events.game_event("You cannot skin {}".format(self.name))
         else:
@@ -197,6 +225,7 @@ class Corpse(Object):
         return
 
     def search(self, character):
+        self.reset_result()        
         possible_items = {}
         area = "Wilds"
         for category in self.loot_categories:

@@ -109,8 +109,8 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.dominance = "right_hand"
         self.non_dominance = "left_hand"
 
-        self.location_x, self.location_y = world.starting_position
-        self.room = world.tile_exists(x=self.location_x, y=self.location_y, area='Field')
+        self.location_x, self.location_y = world.world_map.starting_position
+        self.room = world.world_map.tile_exists(x=self.location_x, y=self.location_y, area='Field')
         self.area = 'Field'
 
         self.target = None
@@ -503,7 +503,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def move(self, dx, dy):
         self.location_x += dx
         self.location_y += dy
-        self.room = world.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
+        self.room = world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
         self.room.fill_room(character=self)
         return
 

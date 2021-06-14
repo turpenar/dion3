@@ -10,7 +10,7 @@ import textwrap as textwrap
 import random as random
 import math as math
 
-from app.main import mixins, combat, objects, world, config
+from app.main import mixins, combat, objects, world, config, items
 
 
 enemy_level_base = config.enemy_level_base
@@ -68,10 +68,6 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
 
         self.target = target
 
-        if self.room == target.room:
-            for line in textwrap.wrap(self._enemy_data['entrance_text'], 80):
-                events.game_event(line)
-
         self._right_hand_inv = self._enemy_data['right_hand']
         self._left_hand_inv = self._enemy_data['left_hand']
         
@@ -81,6 +77,73 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         
         self.experience = int((experience_next_level - experience_level) / enemies_at_level * random.uniform(0.9,1.1))
 
+        self.enemy_result =  {"action_success": True,
+                                "action_error": None,
+                                "room_change": {
+                                    "room_change_flag":  False,
+                                    "leave_room_text": None,
+                                    "old_room":  None,
+                                    "new_room":  None,
+                                    "enter_room_text":  None
+                                },
+                                "display_room":  {
+                                    "display_room_flag":  False,
+                                    "display_room_text":  None,
+                                },
+                                "character_output":  {
+                                    "character_output_flag":  False,
+                                    "character_output_text":  None
+                                },
+                                "room_output":  {
+                                    "room_output_flag":  False,
+                                    "room_output_text":  None
+                                },
+                                "area_output":  {
+                                    "area_output_flag":  False,
+                                    "area_output_text":  None
+                                },
+                                "status_output":  None
+        }
+        self.enemy_result_default = self.enemy_result.copy()   
+
+
+    def update_room(self, old_room_number):
+        self.enemy_result['room_change']['room_change_flag'] = True
+        self.enemy_result['room_change']['leave_room_text'] = "{} left.".format(self.name)
+        self.enemy_result['room_change']['old_room'] = old_room_number
+        self.enemy_result['room_change']['new_room'] = self.room.room_number
+        self.enemy_result['room_change']['enter_room_text'] = "{} arrived.".format(self.name)
+        return
+
+    def update_character_output(self, character_output_text):
+        self.enemy_result['character_output']['character_output_flag'] = True
+        self.enemy_result['character_output']['character_output_text'] = character_output_text
+        return
+
+    def update_display_room(self, display_room_text):
+        self.enemy_result['display_room']['display_room_flag'] = True
+        self.enemy_result['display_room']['display_room_text'] = display_room_text
+        return
+        
+    def update_room_output(self, room_output_text):
+        self.enemy_result['room_output']['room_output_flag'] = True
+        self.enemy_result['room_output']['room_number'] = self.room.room_number
+        self.enemy_result['room_output']['room_output_text'] = room_output_text
+        return
+        
+    def update_area_output(self, area_output_text):
+        self.enemy_result['area_output']['area_output_flag'] = True
+        self.enemy_result['area_output']['area_output_text'] = area_output_text
+        return
+    
+    def update_status(self, status_text):
+        self.enemy_result['status_output'] = status_text
+        return
+
+    def reset_result(self):
+        self.enemy_result = self.enemy_result_default.copy()
+        return 
+    
     def move(self, dx, dy):
         self.room.remove_enemy(self)
         if self.room == self.target.room:
@@ -273,7 +336,8 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         return
 
     def view_description(self):
-        return (self.description)
+        self.update_character_output(character_output_text=self.description)
+        return self.enemy_result
 
 
 

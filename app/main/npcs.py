@@ -43,6 +43,36 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
 
         self.inventory = []
 
+        self.npc_result = {
+            "action_success": True,
+            "action_error": None,
+            "room_change": {
+                "room_change_flag":  False,
+                "leave_room_text": None,
+                "old_room":  None,
+                "new_room":  None,
+                "enter_room_text":  None
+            },
+            "display_room":  {
+                "display_room_flag":  False,
+                "display_room_text": None
+            },
+            "character_output":  {
+                "character_output_flag":  False,
+                "character_output_text":  None
+            },
+            "room_output":  {
+                "room_output_flag":  False,
+                "room_output_text":  None
+            },
+            "area_output":  {
+                "area_output_flag":  False,
+                "area_output_text":  None
+            },
+            "status_output":  None
+        }
+        self.npc_result_default = self.npc_result.copy()
+
         for category in self.npc_data['inventory']:
             for item_handle in self.npc_data['inventory'][category]:               
                 try:
@@ -50,7 +80,63 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
                 except:
                     print("WARNING:  Could not create " + item_handle + " for " + self.name + " in " + self.room.room_name)
 
+    npc_categories = {}
+    
+    @classmethod
+    def register_subclass(cls, npc_category):
+        """Catalogues npcs in a dictionary for reference purposes"""
+        def decorator(subclass):
+            cls.npc_categories[npc_category] = subclass
+            return subclass
+        return decorator
+    
+    @classmethod
+    def new_npc(cls, npc_category, npc_name, **kwargs):
+        """Method used to initiate an npc"""
+        if npc_category not in cls.npc_categories:
+            events.game_event("I am sorry, I did not understand.")
+            return
+        return cls.npc_categories[npc_category](npc_name, **kwargs)
+
+    def update_room(self, character, old_room_number):
+        self.npc_result['room_change']['room_change_flag'] = True
+        self.npc_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
+        self.npc_result['room_change']['old_room'] = old_room_number
+        self.npc_result['room_change']['new_room'] = character.room.room_number
+        self.npc_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+        self.npc_result['display_room_flag'] = True
+        return
+
+    def update_character_output(self, character_output_text):
+        self.npc_result['character_output']['character_output_flag'] = True
+        self.npc_result['character_output']['character_output_text'] = character_output_text
+        return
+
+    def update_display_room(self, display_room_text):
+        self.npc_result['display_room']['display_room_flag'] = True
+        self.npc_result['display_room']['display_room_text'] = display_room_text
+        return
+        
+    def update_room_output(self, room_output_text):
+        self.npc_result['room_output']['room_output_flag'] = True
+        self.npc_result['room_output']['room_output_text'] = room_output_text
+        return
+        
+    def update_area_output(self, area_output_text):
+        self.npc_result['area_output']['area_output_flag'] = True
+        self.npc_result['area_output']['area_output_text'] = area_output_text
+        return
+    
+    def update_status(self, status_text):
+        self.npc_result['status_output'] = status_text
+        return
+
+    def reset_result(self):
+        self.npc_result = self.npc_result_default.copy()
+        return
+    
     def view_description(self):
+        self.reset_result()
         if len(self.right_hand_inv) == 1:
             right_hand = "{} has {} in {} right hand.".format(self.first_name, self.right_hand_inv[0], self.object_pronoun.lower())
         else:
@@ -75,7 +161,7 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
             inventory_armor = "{} is also wearing {}.".format(self.object_pronoun, inventory_armor[0])
         else:
             inventory_armor = "{} is also wearing no armor.".format(self.object_pronoun)
-        return ('''\
+        self.update_character_output(character_output_text='''\
 {}
 {}
 {}
@@ -87,9 +173,12 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
                                    wrapper.fill(self.description),
                                    wrapper.fill(inventory_clothing),
                                    wrapper.fill(inventory_armor)))
+        return self.npc_result
 
     def intro_text(self):
-        return self.entrance_text
+        self.reset_result()
+        self.update_character_output(character_output_text=self.entrance_text)
+        return self.npc_result
 
     def ask_about(self,object):
         NotImplementedError()
@@ -99,24 +188,6 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
 
     def give_item(self, item):
         NotImplementedError()
-        
-    npc_categories = {}
-    
-    @classmethod
-    def register_subclass(cls, npc_category):
-        """Catalogues npcs in a dictionary for reference purposes"""
-        def decorator(subclass):
-            cls.npc_categories[npc_category] = subclass
-            return subclass
-        return decorator
-    
-    @classmethod
-    def new_npc(cls, npc_category, npc_name, **kwargs):
-        """Method used to initiate an npc"""
-        if npc_category not in cls.npc_categories:
-            events.game_event("I am sorry, I did not understand.")
-            return
-        return cls.npc_categories[npc_category](npc_name, **kwargs)
 
 
 @NPC.register_subclass('SanndRedra')

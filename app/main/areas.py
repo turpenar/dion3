@@ -3,6 +3,7 @@
 import pathlib as pathlib
 import imp as imp
 import random as random
+import eventlet
 
 from app import db
 from app.main import tiles, enemies, mixins
@@ -72,6 +73,7 @@ class Area(mixins.DataFileMixin):
                                         location_x=spawn_room_coords[0],
                                         location_y=spawn_room_coords[1],
                                         area=self.area_name))
+            thread = eventlet.spawn(spawn_room.enemies[-1].run)
         return
 
 

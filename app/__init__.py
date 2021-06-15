@@ -1,15 +1,16 @@
 import eventlet
-eventlet.monkey_patch()
 from flask import Flask
-from flask_wtf.csrf import CsrfProtect
+from flask_wtf.csrf import CSRFProtect
 from flask_socketio import SocketIO
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
+eventlet.monkey_patch()
+
 async_mode = 'eventlet'
 debug = True
 
-csrf = CsrfProtect()
+csrf = CSRFProtect()
 socketio = SocketIO()
 login = LoginManager()
 db = SQLAlchemy()

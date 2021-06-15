@@ -10,7 +10,7 @@ TODO: Integrate the BUY function into the shops.
 import random as random
 import textwrap as textwrap
 
-from app.main import world, enemies, command_parser, config, npcs, combat
+from app.main import world, routes, enemies, command_parser, config, npcs, combat
 
 
 verbs = config.verbs
@@ -1401,45 +1401,183 @@ class West(DoActions):
             return
 
 
-class Action:
-    def __init__(self, method, name, action, **kwargs):
-        self.method = method
-        self.name = name
-        self.action = action
-        self.kwargs = kwargs
+
+def do_enemy_action(action_input, enemy=None):
+    action_history.insert(0,action_input)
+    if not enemy:
+        action_result = {"action_success": False,
+                         "action_error":  "No enemy loaded. You will need to create a new character or load an existing character."
+        }
+        return action_result
+    if len(action_input) == 0:
+        action_result = {"action_success": False,
+                         "action_error":  ""
+        }
+        return action_result
+    kwargs = command_parser.parser(action_input)
+    return EnemyAction.do_enemy_action(kwargs['action_verb'], enemy, **kwargs)
+
+
+class EnemyAction:
+    def __init__(self, enemy, **kwargs):
+        self.enemy = enemy
+        self.kwargs = kwargs        
+        self.action_result = {
+            "action_success": True,
+            "action_error": None,
+            "room_change": {
+                "room_change_flag":  False,
+                "leave_room_text": None,
+                "old_room":  None,
+                "new_room":  None,
+                "enter_room_text":  None
+            },
+            "display_room":  {
+                "display_room_flag":  False,
+                "display_room_text": None
+            },
+            "character_output":  {
+                "character_output_flag":  False,
+                "character_output_text":  None
+            },
+            "room_output":  {
+                "room_output_flag":  False,
+                "room_output_text":  None,
+                "room_output_number":  None
+            },
+            "area_output":  {
+                "area_output_flag":  False,
+                "area_output_text":  None
+            },
+            "spawn_generator":  {
+                "spawn_generator_flag":  False,
+                "spawn_generator_thread":  None
+            },
+            "status_output":  None
+        }
+
+    do_enemy_actions = {}
+
+    @classmethod
+    def register_subclass(cls, action):
+        """Catalogues actions in a dictionary for reference purposes"""
+        def decorator(subclass):
+            cls.do_enemy_actions[action] = subclass
+            return subclass
+        return decorator
+
+    @classmethod
+    def do_enemy_action(cls, action, enemy, **kwargs):
+        """Method used to initiate an action"""
+        if action not in cls.do_enemy_actions:
+            cls.action_result = {"action_success":  False,
+                             "action_error":  "I am sorry, I did not understand."
+            }
+            return cls.action_result
+        return cls.do_enemy_actions[action](enemy, **kwargs).action_result
+
+    def update_room(self, enemy, old_room_number):
+        self.action_result['room_change']['room_change_flag'] = True
+        self.action_result['room_change']['leave_room_text'] = enemy.text_move_out
+        self.action_result['room_change']['old_room'] = old_room_number
+        self.action_result['room_change']['new_room'] = enemy.room.room_number
+        self.action_result['room_change']['enter_room_text'] = enemy.text_move_in
+        self.action_result['display_room_flag'] = True
+        return
+    
+    def update_character_output(self, character_output_text):
+        self.action_result['character_output']['character_output_flag'] = True
+        self.action_result['character_output']['character_output_text'] = character_output_text
+        return
+
+    def update_display_room(self, display_room_text):
+        self.action_result['display_room']['display_room_flag'] = True
+        self.action_result['display_room']['display_room_text'] = display_room_text
+        return
+        
+    def update_room_output(self, room_output_text, room_output_number):
+        self.action_result['room_output']['room_output_flag'] = True
+        self.action_result['room_output']['room_output_text'] = room_output_text
+        self.action_result['room_output']['room_output_number'] = room_output_number
+        return
+        
+    def update_area_output(self, area_output_text):
+        self.action_result['area_output']['area_output_flag'] = True
+        self.action_result['area_output']['area_output_text'] = area_output_text
+        return
+
 
     def __str__(self):
         return "{}: {}".format(self.action, self.name)
 
 
-class MoveNorthEnemy(Action):
-    def __init__(self, **kwargs):
-        super().__init__(method=enemies.Enemy.move_north,
-                         name='Move North',
-                         action=['north'],
+@EnemyAction.register_subclass('spawn')
+class Spawn(EnemyAction):
+    def __init__(self, enemy, **kwargs):
+        super().__init__(enemy=enemy,
                          kwargs=kwargs)
 
+        self.enemy = enemy
 
-class MoveSouthEnemy(Action):
-    def __init__(self, **kwargs):
-        super().__init__(method=enemies.Enemy.move_south,
-                         name='Move South',
-                         action=['south'],
+        routes.enemy_spawn(enter_text=self.enemy.text_entrance, room_number=self.enemy.room.room_number)
+
+
+@EnemyAction.register_subclass('east')
+class MoveEastEnemy(EnemyAction):
+    def __init__(self, enemy, **kwargs):
+        super().__init__(enemy=enemy,
                          kwargs=kwargs)
+        self.enemy = enemy
+
+        if world.world_map.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
+            old_room = self.enemy.room.room_number
+            self.enemy.move_east()
+            self.update_room(enemy=enemy, old_room_number=old_room)
+            routes.enemy_event(action_result=self.action_result)
+            return
 
 
-class MoveEastEnemy(Action):
-    def __init__(self, **kwargs):
-        super().__init__(method=enemies.Enemy.move_east,
-                         name='Move East',
-                         action=['east'],
+@EnemyAction.register_subclass('north')
+class MoveNorthEnemy(EnemyAction):
+    def __init__(self, enemy, **kwargs):
+        super().__init__(enemy=enemy,
                          kwargs=kwargs)
+        self.enemy = enemy
+
+        if world.world_map.tile_exists(x=enemy.location_x, y=enemy.location_y - 1, area=enemy.area):
+            old_room = self.enemy.room.room_number
+            self.enemy.move_north()
+            self.update_room(enemy=enemy, old_room_number=old_room)
+            routes.enemy_event(action_result=self.action_result)
+            return
 
 
-class MoveWestEnemy(Action):
-    def __init__(self, **kwargs):
-        super().__init__(method=enemies.Enemy.move_west,
-                         name='Move West',
-                         action=['west'],
+@EnemyAction.register_subclass('south')
+class MoveSouthEnemy(EnemyAction):
+    def __init__(self, enemy, **kwargs):
+        super().__init__(enemy=enemy,
                          kwargs=kwargs)
+        self.enemy = enemy
+
+        if world.world_map.tile_exists(x=enemy.location_x, y=enemy.location_y + 1, area=enemy.area):
+            old_room = self.enemy.room.room_number
+            self.enemy.move_south()
+            self.update_room(enemy=enemy, old_room_number=old_room)
+            routes.enemy_event(action_result=self.action_result)
+            return
+
+
+@EnemyAction.register_subclass('west')
+class MoveWestEnemy(EnemyAction):
+    def __init__(self, enemy, **kwargs):
+        super().__init__(enemy=enemy,
+                         kwargs=kwargs)
+        self.enemy = enemy
+
+        if world.world_map.tile_exists(x=enemy.location_x - 1, y=enemy.location_y, area=enemy.area):
+            old_room = self.enemy.room.room_number
+            self.enemy.move_west()
+            self.update_room(enemy=enemy, old_room_number=old_room)
+            routes.enemy_event(action_result=self.action_result)
+            return
 

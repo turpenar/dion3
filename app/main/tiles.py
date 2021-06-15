@@ -142,18 +142,6 @@ class MapTile(mixins.DataFileMixin):
     def modify_player(self):
         raise NotImplementedError()
 
-    def adjacent_moves_enemy(self, area):
-        moves = []
-        if world.world_map.tile_exists(x=self.x, y=self.y - 1, area=self.area):
-            moves.append(actions.MoveNorthEnemy())
-        if world.world_map.tile_exists(x=self.x, y=self.y + 1, area=self.area):
-            moves.append(actions.MoveSouthEnemy())
-        if world.world_map.tile_exists(x=self.x + 1, y=self.y, area=self.area):
-            moves.append(actions.MoveEastEnemy())
-        if world.world_map.tile_exists(x=self.x - 1, y=self.y, area=self.area):
-            moves.append(actions.MoveWestEnemy())
-        return moves
-
     def obvious_exits(self):
         """Returns all of the available actions in this room."""
         moves = []

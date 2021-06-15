@@ -1,0 +1,9 @@
+The workstreams to complete before publication of first version.
+
+-Basic enemy movement
+-Combat
+-Skill selection and increases
+-Level increases
+-All professions and abilities work
+-Basic spells
+-Basic currency system

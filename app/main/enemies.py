@@ -9,8 +9,9 @@ import time as time
 import textwrap as textwrap
 import random as random
 import math as math
+import eventlet
 
-from app.main import mixins, combat, objects, world, config, items
+from app.main import mixins, actions, combat, objects, world, config, items
 
 
 enemy_level_base = config.enemy_level_base
@@ -146,26 +147,39 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     
     def move(self, dx, dy):
         self.room.remove_enemy(self)
-        if self.room == self.target.room:
-            events.game_event(self.text_move_out)
         self.location_x += dx
         self.location_y += dy
-        self.room = world.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
+        self.room = world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
         self.room.add_enemy(self)
-        if self.room == self.target.room:
-            events.game_event(self.text_move_in)
+        return
 
     def move_north(self, **kwargs):
         self.move(dx=0, dy=-1)
+        return
 
     def move_south(self, **kwargs):
         self.move(dx=0, dy=1)
+        return
 
     def move_east(self, **kwargs):
         self.move(dx=1, dy=0)
+        return
 
     def move_west(self, **kwargs):
         self.move(dx=-1, dy=0)
+        return
+
+    def adjacent_moves(self):
+        moves = []
+        if world.world_map.tile_exists(x=self.location_x, y=self.location_y - 1, area=self.area):
+            moves.append('north')
+        if world.world_map.tile_exists(x=self.location_x, y=self.location_y + 1, area=self.area):
+            moves.append('south')
+        if world.world_map.tile_exists(x=self.location_x + 1, y=self.location_y, area=self.area):
+            moves.append('east')
+        if world.world_map.tile_exists(x=self.location_x - 1, y=self.location_y, area=self.area):
+            moves.append('west')
+        return moves
         
     @property
     def name(self):
@@ -219,9 +233,8 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
             self._position = [position]
             
     def check_position_to_move(self):
-        non_moving_positions = [x for x in positions if x is not 'standing']
+        non_moving_positions = [x for x in positions if x != 'standing']
         if set(self.position) & set(non_moving_positions):
-            events.game_event('''{} struggles to move.'''.format(self.name[0]))
             return False
         else:
             return True
@@ -248,6 +261,10 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @weapon.setter
     def weapon(self, weapon):
             self._weapon = weapon
+
+    @property
+    def text_entrance(self):
+            return self._text_entrance
             
     @property
     def text_move_in(self):
@@ -316,23 +333,12 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                 print("Game Error:  when replacing a dead enemy with a corpse, the enemy was not in mapped to the proper room")
 
     def run(self):
-        if self.room == self.target.room:
-            events.game_event(self.text_move_in)
-        while self.health > 0:
-            if self.health <= 0:
-                break
-            elif (self.room == self.target.room) and (self.target.health > 0):
-                events.game_event(self.text_engage)
-                time.sleep(self.round_time_engage)
-                if (self.room == self.target.room) and (self.target.health > 0) and (self.is_alive):
-                    combat.melee_attack_character(self, self.target)
-                    time.sleep(self.round_time_attack)
-            else:
-                available_actions = self.room.adjacent_moves_enemy(area=self.area)
-                action = random.choice(available_actions)
-                action_method = getattr(self, action.method.__name__)
-                action_method()
-                time.sleep(self.round_time_move)
+        actions.do_enemy_action(action_input='spawn', enemy=self)
+        while self.is_alive():
+                available_movement_actions = self.adjacent_moves()
+                action = random.choice(available_movement_actions)
+                actions.do_enemy_action(action_input=action, enemy=self)
+                time.sleep(seconds=self.round_time_move)
         return
 
     def view_description(self):

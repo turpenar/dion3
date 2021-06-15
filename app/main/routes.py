@@ -271,4 +271,24 @@ def test_connect():
 def test_disconnect():
     print('Client disconnected', request.sid)
 
+def enemy_spawn(enter_text, room_number):
+    socketio.emit('game_event',
+        {'data': enter_text}, to=str(room_number))
+
+def enemy_event(action_result):
+    if action_result['room_change']['room_change_flag'] == True:
+        socketio.emit('game_event',
+            {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']))
+        socketio.emit('game_event',
+            {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']))
+    if action_result['character_output']['character_output_flag'] == True:
+        socketio.emit('game_event',
+            {'data': action_result['character_output']['character_output_text']})
+    if action_result['room_output']['room_output_flag'] == True:
+        socketio.emit('game_event',
+            {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']))
+
+        # emit('game_event',
+        #     {'data':  rooms()})
+
 

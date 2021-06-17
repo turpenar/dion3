@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import eventlet
 from flask import Flask, render_template, redirect, url_for, session, request, copy_current_request_context
-from flask_socketio import emit, join_room, leave_room, close_room, rooms, disconnect
-from flask_login import UserMixin, current_user, login_user, logout_user, login_required
+from flask_socketio import emit, join_room, leave_room, rooms, disconnect
+from flask_login import current_user, login_user, logout_user, login_required
 
 from app import socketio, login, db
 from app.main import main, config, player, world, actions
@@ -13,16 +13,6 @@ from app.main.forms import LoginForm, SignUpForm, NewCharacterForm
 # different async modes, or leave it set to None for the application to choose
 # the best option based on installed packages.
 
-
-def background_thread():
-    """Example of how to send server generated events to clients."""
-    count = 0
-    while True:
-        socketio.sleep(10)
-        count += 1
-        socketio.emit('game_event',
-                      {'data': 'Server generated event', 'count': count})
-
 @login.user_loader
 def load_user(id):
     return User(id)
@@ -31,6 +21,7 @@ def load_user(id):
 @main.route('/')
 @login_required
 def index():
+    world.create_world()
     return render_template('index.html')
 
 
@@ -90,8 +81,7 @@ def characters():
         if user.characters:
             for char in user.characters:
                 characters.append(char.char)        
-        for character in characters:
-            character_names.append(character.first_name + " " + character.last_name)
+                character_names.append(char.char.first_name + " " + char.char.last_name)
 
         if request.method == "POST":
             current_character = request.form.get('character')
@@ -218,11 +208,10 @@ def connect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     character = character_file.char
     if character:
-        character.room = world.world_map.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
-    join_room(character.room.room_number)
-    room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
+        character.join_room()
+    join_room(character.get_room().room_number)
+    room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
     room_file.characters.append(character_file)
-
     db.session.commit()
 
 @socketio.event
@@ -230,14 +219,13 @@ def disconnect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     character = character_file.char
     if character:
-        character.room = world.world_map.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
-    leave_room(character.room.room_number)
-    room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
+        character.leave_room()
+    leave_room(character.get_room().room_number)
+    room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
     room_file.characters.remove(character_file)
     emit('game_event', 
             {'data':  "{} left.".format(character.first_name)}, to=str(character.room.room_number), include_self=False
         )
-
     db.session.commit()
 
 
@@ -256,15 +244,8 @@ def disconnect_request():
          {'data': 'Disconnected!', 'count': session['receive_count']},
          callback=can_disconnect)
 
-
-@socketio.event
-def my_ping():
-    emit('my_pong')
-
-
 @socketio.on('connect')
 def test_connect():
-    # thread = eventlet.spawn(background_thread)
     emit('game_event', {'data': 'You are now connected'})
 
 @socketio.on('disconnect')

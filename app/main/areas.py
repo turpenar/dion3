@@ -73,7 +73,8 @@ class Area(mixins.DataFileMixin):
                                         location_x=spawn_room_coords[0],
                                         location_y=spawn_room_coords[1],
                                         area=self.area_name))
-            thread = eventlet.spawn(spawn_room.enemies[-1].run)
+
+            thread = eventlet.spawn(func=spawn_room.enemies[-1].run)
         return
 
 

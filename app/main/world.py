@@ -4,6 +4,7 @@ import imp as imp
 
 from app.main import areas
 
+world_map = None
 
 path_maps = pathlib.Path.cwd() / "app" / "resources" / "maps"
 map_list = path_maps.glob('*.txt')
@@ -21,7 +22,6 @@ class World:
             area_name = path.stem.split('.')[0]
             area = areas.Area(area_name=area_name, area_path=path, area_number=self._area_count)
             self._world[area_name] = area
-
             self._area_count += 1
         return
 
@@ -37,10 +37,13 @@ class World:
         area = area.replace(" ", "")
         return self._world[area].area_enemies(area)
 
-world_map = World()
-world_map.load_tiles()
-for area in world_map._world:
-    world_map._world[area].spawn_enemies()
+def create_world():
+    global world_map
+    world_map = World()
+    world_map.load_tiles()
+    for area in world_map._world:
+        world_map._world[area].spawn_enemies()
+    
 
 
 

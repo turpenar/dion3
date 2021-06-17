@@ -327,13 +327,14 @@ class East(DoActions):
             self.update_status(character.get_status())
             return
         if world.world_map.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area):
-            if character.room.shop_filled == True:
-                if character.room.shop.in_shop == True:
-                    character.room.shop.exit_shop()
-            old_room = character.room.room_number 
+            old_room = character.get_room()
+            if old_room.shop_filled == True:
+                if old_room.shop.in_shop == True:
+                    old_room.shop.exit_shop()
+            old_room_number = old_room.room_number 
             self.character.move_east()
-            self.action_result.update(character.room.intro_text())
-            self.update_room(character=character, old_room_number=old_room)
+            self.action_result.update(character.get_room().intro_text())
+            self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
         else:
@@ -868,13 +869,14 @@ class North(DoActions):
             self.update_status(character.get_status())
             return
         if world.world_map.tile_exists(x=character.location_x, y=character.location_y - 1, area=character.area):
-            if character.room.shop_filled == True:
-                if character.room.shop.in_shop == True:
-                    character.room.shop.exit_shop()
-            old_room = self.character.room.room_number 
+            old_room = character.get_room()
+            if old_room.shop_filled == True:
+                if old_room.shop.in_shop == True:
+                    old_room.shop.exit_shop()
+            old_room_number = old_room.room_number 
             self.character.move_north()
-            self.action_result.update(character.room.intro_text())
-            self.update_room(character=character, old_room_number=old_room)
+            self.action_result.update(character.get_room().intro_text())
+            self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
         else:
@@ -1220,13 +1222,14 @@ class South(DoActions):
             self.update_status(character.get_status())
             return
         if world.world_map.tile_exists(x=character.location_x, y=character.location_y + 1, area=character.area):
-            if character.room.shop_filled == True:
-                if character.room.shop.in_shop == True:
-                    character.room.shop.exit_shop()
-            old_room = self.character.room.room_number 
+            old_room = character.get_room()
+            if old_room.shop_filled == True:
+                if old_room.shop.in_shop == True:
+                    old_room.shop.exit_shop()
+            old_room_number = old_room.room_number 
             self.character.move_south()
-            self.action_result.update(character.room.intro_text())
-            self.update_room(character=character, old_room_number=old_room)
+            self.action_result.update(character.get_room().intro_text())
+            self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
         else:
@@ -1386,13 +1389,14 @@ class West(DoActions):
             self.update_status(character.get_status())
             return
         if world.world_map.tile_exists(x=character.location_x - 1, y=character.location_y, area=character.area):
-            if character.room.shop_filled == True:
-                if character.room.shop.in_shop == True:
-                    character.room.shop.exit_shop()
-            old_room = self.character.room.room_number 
+            old_room = character.get_room()
+            if old_room.shop_filled == True:
+                if old_room.shop.in_shop == True:
+                    old_room.shop.exit_shop()
+            old_room_number = old_room.room_number 
             self.character.move_west()
-            self.action_result.update(character.room.intro_text())
-            self.update_room(character=character, old_room_number=old_room)
+            self.action_result.update(character.get_room().intro_text())
+            self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
         else:
@@ -1480,7 +1484,7 @@ class EnemyAction:
         self.action_result['room_change']['room_change_flag'] = True
         self.action_result['room_change']['leave_room_text'] = enemy.text_move_out
         self.action_result['room_change']['old_room'] = old_room_number
-        self.action_result['room_change']['new_room'] = enemy.room.room_number
+        self.action_result['room_change']['new_room'] = enemy.get_room().room_number
         self.action_result['room_change']['enter_room_text'] = enemy.text_move_in
         self.action_result['display_room_flag'] = True
         return
@@ -1516,9 +1520,7 @@ class Spawn(EnemyAction):
     def __init__(self, enemy, **kwargs):
         super().__init__(enemy=enemy,
                          kwargs=kwargs)
-
         self.enemy = enemy
-
         routes.enemy_spawn(enter_text=self.enemy.text_entrance, room_number=self.enemy.room.room_number)
 
 
@@ -1530,7 +1532,7 @@ class MoveEastEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.world_map.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
-            old_room = self.enemy.room.room_number
+            old_room = self.enemy.get_room().room_number
             self.enemy.move_east()
             self.update_room(enemy=enemy, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
@@ -1545,7 +1547,7 @@ class MoveNorthEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.world_map.tile_exists(x=enemy.location_x, y=enemy.location_y - 1, area=enemy.area):
-            old_room = self.enemy.room.room_number
+            old_room = self.enemy.get_room().room_number
             self.enemy.move_north()
             self.update_room(enemy=enemy, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
@@ -1560,7 +1562,7 @@ class MoveSouthEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.world_map.tile_exists(x=enemy.location_x, y=enemy.location_y + 1, area=enemy.area):
-            old_room = self.enemy.room.room_number
+            old_room = self.enemy.get_room().room_number
             self.enemy.move_south()
             self.update_room(enemy=enemy, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
@@ -1575,7 +1577,7 @@ class MoveWestEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.world_map.tile_exists(x=enemy.location_x - 1, y=enemy.location_y, area=enemy.area):
-            old_room = self.enemy.room.room_number
+            old_room = self.enemy.get_room().room_number
             self.enemy.move_west()
             self.update_room(enemy=enemy, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)

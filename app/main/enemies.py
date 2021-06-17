@@ -5,13 +5,13 @@ This module contains enemy classes. Each enemy will operate on its own thread.
 TODO:  Add ability to drop weapons and armor
 """
 
-import time as time
-import textwrap as textwrap
 import random as random
 import math as math
 import eventlet
 
+from app import db
 from app.main import mixins, actions, combat, objects, world, config, items
+from app.main.models import Room
 
 
 enemy_level_base = config.enemy_level_base
@@ -144,13 +144,13 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     def reset_result(self):
         self.enemy_result = self.enemy_result_default.copy()
         return 
+
+    def get_room(self):
+        return world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
     
     def move(self, dx, dy):
-        self.room.remove_enemy(self)
         self.location_x += dx
         self.location_y += dy
-        self.room = world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
-        self.room.add_enemy(self)
         return
 
     def move_north(self, **kwargs):
@@ -334,18 +334,16 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
 
     def run(self):
         actions.do_enemy_action(action_input='spawn', enemy=self)
+        eventlet.sleep(seconds=self.round_time_move)
         while self.is_alive():
                 available_movement_actions = self.adjacent_moves()
                 action = random.choice(available_movement_actions)
                 actions.do_enemy_action(action_input=action, enemy=self)
-                time.sleep(seconds=self.round_time_move)
+                eventlet.sleep(seconds=self.round_time_move)
         return
 
     def view_description(self):
         self.update_character_output(character_output_text=self.description)
         return self.enemy_result
-
-
-
 
 

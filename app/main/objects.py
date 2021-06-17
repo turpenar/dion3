@@ -74,11 +74,11 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
             return cls.object_result
         return cls.object_categories[object_category](object_name, **kwargs)
 
-    def update_room(self, character, old_room_number):
+    def update_room(self, character, new_room_number, old_room_number):
         self.object_result['room_change']['room_change_flag'] = True
         self.object_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
         self.object_result['room_change']['old_room'] = old_room_number
-        self.object_result['room_change']['new_room'] = character.room.room_number
+        self.object_result['room_change']['new_room'] = new_room_number
         self.object_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
         self.object_result['display_room_flag'] = True
         return
@@ -149,21 +149,19 @@ class Door(Object):
 
     def go_object(self, character):
         self.reset_result()
-        if character.room.room_name == self.object_data['location_1']['name']:
+        old_room = character.get_room()
+        if old_room.room_name == self.object_data['location_1']['name']:
             new_location = self.object_data['location_2']
-        elif character.room.room_name == self.object_data['location_2']['name']:
+        elif old_room.room_name == self.object_data['location_2']['name']:
             new_location = self.object_data['location_1']
-        old_room = character.room.room_number 
-        character.room = world.world_map.tile_exists(x=new_location['x'], y=new_location['y'], area=new_location['area'])
-        if character.room.shop_filled == True:
-            if character.room.shop.in_shop == True:
-                character.room.shop.exit_shop() 
-        character.location_x = new_location['x']
-        character.location_y = new_location['y']
-        character.area = new_location['area']
-        character.room.fill_room(character=character)
-        self.object_result.update(character.room.intro_text())
-        self.update_room(character=character, old_room_number=old_room)
+        if old_room.shop_filled == True:
+            if old_room.shop.in_shop == True:
+                old_room.shop.exit_shop() 
+        character.change_room(x=new_location['x'], y=new_location['y'], area=new_location['area'])
+        new_room = character.get_room()
+        new_room.fill_room(character=character)
+        self.object_result.update(new_room.intro_text())
+        self.update_room(character=character, new_room_number=new_room.room_number, old_room_number=old_room.room_number)
         self.update_status(status_text=character.get_status())
         return self.object_result
 

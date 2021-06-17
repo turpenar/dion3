@@ -36,13 +36,13 @@ class MapTile(mixins.DataFileMixin):
 
         self.x = x
         self.y = y
-        self.character = None
         self.room_name = self._room_data['name']
         self.area = self._room_data['area']
         self._room_number = room_number
         self.description = self._room_data['description']
         self._is_shop = self._room_data['shop']
         self._shop_items = self._room_data['shop_items']
+        self.characters = []
         self.objects = []
         self.items = []
         self.npcs = []
@@ -261,6 +261,14 @@ class MapTile(mixins.DataFileMixin):
     @property
     def shop_items(self):
         return self._shop_items
+
+    def add_character(self, character):
+        self.characters.append(character)
+        return
+
+    def remove_character(self, character):
+        self.characters.remove(next((x for x in self.characters if (x.first_name == character.first_name) and (x.last_name == character.last_name)), None))
+        return
 
     def add_object(self, object):
         self.objects.append(object)

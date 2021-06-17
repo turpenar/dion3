@@ -110,7 +110,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.non_dominance = "left_hand"
 
         self.location_x, self.location_y = world.world_map.starting_position
-        self.room = world.world_map.tile_exists(x=self.location_x, y=self.location_y, area='Field')
         self.area = 'Field'
 
         self.target = None
@@ -183,7 +182,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             self._position = [position]
             
     def check_position_to_move(self):
-        non_moving_positions = [x for x in positions if x is not 'standing']
+        non_moving_positions = [x for x in positions if x != 'standing']
         if set([self.position]) & set(non_moving_positions):
             return False
         else:
@@ -488,23 +487,11 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @armor.setter
     def armor(self):
             self._armor
-            
-    def __getstate__(self):
-        """Copy the object's state from self.__dict__ which contains all our instance attributes. Always use the
-        dict.copy() method to avoid modifying the original state."""
-        state = self.__dict__.copy()
-        del state['room']
-        return state
-
-    def __setstate__(self, state):
-        """Set the object's state in self.__dict__ which contains all our instance attributes."""
-        self.__dict__.update(state)
         
     def move(self, dx, dy):
         self.location_x += dx
         self.location_y += dy
-        self.room = world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
-        self.room.fill_room(character=self)
+        self.get_room().fill_room(character=self)
         return
 
     def move_north(self, **kwargs):
@@ -522,6 +509,21 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def move_west(self, **kwargs):
         self.move(dx=-1, dy=0)
         return
+
+    def join_room(self):
+        return
+
+    def leave_room(self):
+        return
+
+    def get_room(self):
+        return world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
+
+    def change_room(self, x, y, area):
+        self.location_x = x
+        self.location_y = y
+        self.area = area
+        return
     
     def get_status(self, **kwargs):
         if self.right_hand_inv is None:
@@ -538,14 +540,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
                 "Left Hand:   {}".format(left_hand_status),
                 "Stance:      {}".format(self.stance),
                 "Position:    {}".format(self.position)]
-    
-    def save(self,):
-        save_data = self.__getstate__()
-        character_name = "{}_{}.p".format(self.first_name, self.last_name)
-        path_save = pathlib.Path.cwd() / 'Profiles' / character_name
-        pickle.dump(save_data, open(file=path_save.absolute().as_posix(), mode='wb'))
-        events.game_event(game_event_text="Progress saved.")
-        return
 
 
 

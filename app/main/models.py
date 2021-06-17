@@ -142,8 +142,8 @@ class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     room_number = db.Column(db.Integer)
     characters = db.relationship('Character', backref='room', lazy=True)
+    enemies = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
 
 db.create_all()
-
 
         

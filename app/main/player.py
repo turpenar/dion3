@@ -491,7 +491,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def move(self, dx, dy):
         self.location_x += dx
         self.location_y += dy
-        self.get_room().fill_room(character=self)
         return
 
     def move_north(self, **kwargs):

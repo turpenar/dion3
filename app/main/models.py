@@ -95,7 +95,7 @@ class User(UserMixin, db.Model):
     __tablename__ = "users"
     __table_args__ = {'extend_existing': True}
     
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement='auto')
     username = db.Column(db.String)
     password = db.Column(db.String)
     characters = db.relationship('Character', backref='user', lazy=True )
@@ -134,15 +134,40 @@ class Character(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_number'), nullable=True)
 
 
+class Enemy(db.Model):
+    __tablename__ = "enemies"
+    __table_args__ = {'extend_existing':  True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    enemy = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
+    room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_number'), nullable=False)
+
+
 class Room(db.Model):
 
     __tablename__ = "rooms"
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
+    room = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
     room_number = db.Column(db.Integer)
+    x=db.Column(db.Integer)
+    y=db.Column(db.Integer)
     characters = db.relationship('Character', backref='room', lazy=True)
-    enemies = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
+    enemies = db.relationship('Enemy', backref='room', lazy=True)
+    area_name = db.Column(db.String, db.ForeignKey('areas.area_name'), nullable=False)
+
+
+class Area(db.Model):
+
+    __tablename__ = "areas"
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, autoincrement='auto')
+    area = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
+    area_name = db.Column(db.String, primary_key=True)
+    rooms = db.relationship('Room', backref='area', lazy=True)
+
 
 db.create_all()
 

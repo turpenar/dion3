@@ -15,7 +15,7 @@ def create_npc(npc_category, npc_name, **kwargs):
 
 
 class NPC(mixins.ReprMixin, mixins.DataFileMixin):
-    def __init__(self, npc_name: str, character: object, room: object, **kwargs):
+    def __init__(self, npc_name: str, room: object, **kwargs):
         super(NPC, self).__init__()
 
         self.npc_data = self.get_npc_by_name(npc_name)
@@ -38,7 +38,6 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
         self.right_hand_inv = self.npc_data['right_hand']
         self.left_hand_inv = self.npc_data['left_hand']
 
-        self.character = character
         self.room = room
 
         self.inventory = []
@@ -193,7 +192,7 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
 @NPC.register_subclass('SanndRedra')
 class SanndRedra(NPC):
     def __init__(self, npc_name: str, character: object, room: object, **kwargs):
-        super().__init__(npc_name=npc_name, character=character, room=room, **kwargs)
+        super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def ask_about(self, object):
         pass
@@ -272,7 +271,7 @@ class SanndRedra(NPC):
 @NPC.register_subclass('GanderDiggle')
 class GanderDiggle(NPC):
     def __init__(self, npc_name: str, character: object, room: object, **kwargs):
-        super().__init__(npc_name=npc_name, character=character, room=room, **kwargs)
+        super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def sell_item(self, item):
         events.game_event("""\
@@ -430,7 +429,7 @@ Gander looks you up and down. "Did someone tell you to come to me? No? Then I ca
 @NPC.register_subclass('EmmeraSadana')        
 class EmmeraSadana(NPC):
     def __init__(self, npc_name: str, character: object, room: object, **kwargs):
-        super().__init__(npc_name=npc_name, character=character, room=room, **kwargs)
+        super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def ask_about(self, object):
         pass
@@ -608,7 +607,7 @@ class EmmeraSadana(NPC):
 @NPC.register_subclass('DochasTownGuard')
 class DochasTownGuard(NPC):
     def __init__(self, npc_name: str, character: object, room: object, **kwargs):
-        super().__init__(npc_name=npc_name, character=character, room=room, **kwargs)
+        super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def ask_about(self, object):
         pass

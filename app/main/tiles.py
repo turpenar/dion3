@@ -195,7 +195,7 @@ class MapTile(mixins.DataFileMixin):
             all_object_handles.append(object.name)
         return all_object_handles
 
-    def fill_room(self, character):
+    def fill_room(self):
         if not self.room_filled:
             for category in self._room_data['objects']:
                 for object in self._room_data['objects'][category]:
@@ -211,19 +211,19 @@ class MapTile(mixins.DataFileMixin):
                         print("WARNING:  Could not create item " + item.name + " in room " + self.room_name + " in " + self.area)
             for npc in self._room_data['npcs']:
                 try:
-                    self.npcs.append(npcs.create_npc(npc_category=npc, npc_name=npc, character=character, room=self))
+                    self.npcs.append(npcs.create_npc(npc_category=npc, npc_name=npc, room=self))
                 except:
                     print("WARNING:  Could not create npc " + npc + " in room " + self.room_name + " in " + self.area)
             for door in self._room_data['hidden']['doors']:
                 try:
                     self.hidden.append(objects.Door(object_name=door, room=self))
                 except:
-                    print("WARNING:  Could not create hidden door " + door.name + " in room " + self.room_name + " in " + self.area)
+                    print("WARNING:  Could not create hidden door " + door + " in room " + self.room_name + " in " + self.area)
             for npc in self._room_data['hidden']['npcs']:
                 try:
-                    self.hidden.append(npcs.create_npc(npc_category=npc, npc_name=npc, character=character, room=self))
+                    self.hidden.append(npcs.create_npc(npc_category=npc, npc_name=npc, room=self))
                 except:
-                    print("WARNING:  Could not create hidden npc " + npc.name + " in room " + self.room_name + " in " + self.area)
+                    print("WARNING:  Could not create hidden npc " + npc + " in room " + self.room_name + " in " + self.area)
             for category in self._room_data['hidden']['items']:
                 for item in self._room_data['hidden']['items'][category]:
                     try:

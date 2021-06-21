@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from flask.globals import current_app
 import eventlet
 from flask import Flask, render_template, redirect, url_for, session, request, copy_current_request_context
 from flask_socketio import emit, join_room, leave_room, rooms, disconnect
@@ -21,7 +22,7 @@ def load_user(id):
 @main.route('/')
 @login_required
 def index():
-    world.create_world()
+    world.create_world(current_app)
     return render_template('index.html')
 
 

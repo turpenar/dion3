@@ -5,11 +5,12 @@ This module contains enemy classes. Each enemy will operate on its own thread.
 TODO:  Add ability to drop weapons and armor
 """
 
+import os
 import random as random
 import math as math
 import eventlet
 
-from app import db
+from app import db, create_app
 from app.main import mixins, actions, combat, objects, world, config, items
 from app.main.models import Room
 
@@ -335,11 +336,14 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     def run(self):
         actions.do_enemy_action(action_input='spawn', enemy=self)
         eventlet.sleep(seconds=self.round_time_move)
-        while self.is_alive():
-                available_movement_actions = self.adjacent_moves()
-                action = random.choice(available_movement_actions)
-                actions.do_enemy_action(action_input=action, enemy=self)
-                eventlet.sleep(seconds=self.round_time_move)
+        settings_module = os.getenv('FLASK_SETTINGS_MODULE')
+        app = create_app(settings_module)
+        with app.app_context():
+                while self.is_alive():
+                        available_movement_actions = self.adjacent_moves()
+                        action = random.choice(available_movement_actions)
+                        actions.do_enemy_action(action_input=action, enemy=self)
+                        eventlet.sleep(seconds=self.round_time_move)
         return
 
     def view_description(self):

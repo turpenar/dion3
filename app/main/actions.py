@@ -10,6 +10,7 @@ TODO: Integrate the BUY function into the shops.
 import random as random
 import textwrap as textwrap
 
+from app import db
 from app.main import world, routes, enemies, command_parser, config, npcs, combat
 
 
@@ -455,6 +456,7 @@ class Get(DoActions):
                 if set(room_item.handle) & set(kwargs['direct_object']):
                     character.set_dominant_hand_inv(room_item)
                     character.room.items.remove(room_item)
+                    db.session.commit()
                     self.update_character_output("You pick up {}.".format(room_item.name))
                     self.update_room_output("{} picks up {}.".format(character.first_name, room_item.name))
                     self.update_status(character.get_status())

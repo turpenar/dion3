@@ -1,7 +1,28 @@
 {% extends 'base.html' %}
 
 {% block head %}
+
 <title>Dion - New Character</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+	$(document).ready(function(){
+	  $(".stat").mouseenter(function() {
+	    $("#"+this.id).addClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat").mouseout(function() {
+		$("#"+this.id).removeClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat").click(function() {
+		$(".stat").removeClass('stat-click');
+		$("#"+this.id).addClass('stat-click');
+		$(".stats-description").hide();
+		$("#stats-description-"+this.id).show();
+	  });
+	  	
+	});
+</script>
 
 {% endblock %}
 
@@ -10,6 +31,7 @@
 <div class="topnav">
 	<div class="page_title">Dion</div>
   	<a href="logout">Log Out</a>
+	<a href="characters">Characters</a>
 </div>
 
 <div class="title">
@@ -20,7 +42,7 @@
 
 </div>
 
-<div class="interface-window">
+<div class="flex-container-newcharacter">
 
 	<form action="{{ url_for('main.new_character') }}" method="post" role="form">
 		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
@@ -45,11 +67,11 @@
 			{{form.profession(size=1)}}
 		</div>
 		<br>
-		<div class="container">
+		<div id="stats-instruction">
+			Please choose your stats. You have 528 stat points to place where you see fit. You may not have a stat lower than 20 or higher than 100.
+		</div>
+		<div class="flex-container-stats">
 			<div id="stats-left">
-				<div id="stats-instruction">
-				Please choose your stats. You have 528 stat points to place where you see fit. You may not have a stat lower than 20 or higher than 100.
-				</div>
 				{% for stat in Stats %}
 					<div class="stat" id="{{stat}}">
 					{{form[stat].label}}
@@ -87,32 +109,6 @@
 	</form>
 
 </div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-<script>
-
-	$(document).ready(function(){
-		
-		
-	  $(".stat").mouseenter(function() {
-	    $("#"+this.id).addClass('stat-mouseenter');
-	  });
-	  
-	  $(".stat").mouseout(function() {
-		$("#"+this.id).removeClass('stat-mouseenter');
-	  });
-	  
-	  $(".stat").click(function() {
-		$(".stat").removeClass('stat-click');
-		$("#"+this.id).addClass('stat-click');
-		$(".stats-description").hide();
-		$("#stats-description-"+this.id).show();
-	  });
-	  	
-	});
-
-</script>
 
 
 {% endblock %}

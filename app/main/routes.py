@@ -152,7 +152,8 @@ def new_character():
 @socketio.event
 def my_event(message):
     emit('game_action',
-         {'data': message['data']})
+         {'data': message['data']}
+         )
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     if character_file:
         character = character_file.char
@@ -167,28 +168,33 @@ def my_event(message):
         room = room_file.room
     else:
         emit('game_action',
-             {'data': message['You have not loaded a character']})
+             {'data': 'You have not loaded a character'}
+             )
         return
 
     action_result = actions.do_action(action_input=message['data'], character=character, room=room)
 
     if not action_result['action_success']:
         emit('game_event',
-            {'data': action_result['action_error']})
+            {'data': action_result['action_error']}
+            )
     else:
         if action_result['room_change']['room_change_flag'] == True:
             room_file.characters.remove(character_file)
             emit('game_event',
-                {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']), include_self=False)
+                {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']), include_self=False
+                )
             leave_room(room=str(action_result['room_change']['old_room']))
             join_room(room=str(action_result['room_change']['new_room']))
             room_file = db.session.query(Room).filter_by(room_number=action_result['room_change']['new_room']).first()
             room_file.characters.append(character_file)
             emit('game_event',
-                {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']), include_self=False)
+                {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']), include_self=False
+                )
         if action_result['character_output']['character_output_flag'] == True:
             emit('game_event',
-                {'data': action_result['character_output']['character_output_text']})
+                {'data': action_result['character_output']['character_output_text']}
+                )
         if action_result['display_room']['display_room_flag']:
             char_names = []
             for char in room_file.characters:
@@ -199,15 +205,18 @@ def my_event(message):
             if len(char_names) > 0:
                 action_result['display_room']['display_room_text'] = action_result['display_room']['display_room_text'] + "Also here:  " + " ".join(char_names)
             emit('game_event',
-                {'data': action_result['display_room']['display_room_text']})
+                {'data': action_result['display_room']['display_room_text']}
+                )
         if action_result['room_output']['room_output_flag'] == True:
             emit('game_event',
-                {'data': action_result['room_output']['room_output_text']}, to=str(character.get_room().room_number), include_self=False)
+                {'data': action_result['room_output']['room_output_text']}, to=str(character.get_room().room_number), include_self=False
+                )
         emit('status_update',
-            {'data': action_result['status_output']})
-    db.session.merge(character_file)
-    db.session.merge(room_file)
-    db.session.commit()
+            {'data': action_result['status_output']}
+            )
+        db.session.merge(character_file)
+        db.session.merge(room_file)
+        db.session.commit()
 
 @socketio.event
 def connect_room(message):
@@ -217,12 +226,13 @@ def connect_room(message):
         join_room(str(character.get_room().room_number))
         room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
         room_file.characters.append(character_file)
-    emit('game_event', 
-            {'data':  "{} arrived.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
-        )
-    db.session.merge(character_file)
-    db.session.merge(room_file)
-    db.session.commit()
+        emit('game_event', 
+                {'data':  "{} arrived.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
+            )
+        db.session.merge(character_file)
+        db.session.merge(room_file)
+        db.session.commit()
+    return
 
 @socketio.event
 def disconnect_room(message):
@@ -230,15 +240,15 @@ def disconnect_room(message):
     character = character_file.char
     if character:
         character.leave_room()
-    leave_room(str(character.get_room().room_number))
-    room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
-    room_file.characters.remove(character_file)
-    emit('game_event', 
-            {'data':  "{} left.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
-        )
-    db.session.merge(character_file)
-    db.session.merge(room_file)
-    db.session.commit()
+        leave_room(str(character.get_room().room_number))
+        room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
+        room_file.characters.remove(character_file)
+        emit('game_event', 
+                {'data':  "{} left.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
+            )
+        db.session.merge(character_file)
+        db.session.merge(room_file)
+        db.session.commit()
 
 
 
@@ -259,6 +269,7 @@ def disconnect_request():
 @socketio.on('connect')
 def test_connect():
     emit('game_event', {'data': 'You are now connected'})
+    print('Client connected', request.sid)
 
 @socketio.on('disconnect')
 def test_disconnect():

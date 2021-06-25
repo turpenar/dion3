@@ -330,7 +330,7 @@ class MapTile(mixins.DataFileMixin):
     def intro_text(self):
         self.reset_result()
         intro_text = """\
-[{}, {}]
+<b>{}, {}</b>
 {}
 {}
 {}\

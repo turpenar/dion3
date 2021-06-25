@@ -96,7 +96,6 @@ def parser(input):
     if len(numbers) == 0:
         kwargs['number_1'] = None
     elif len(numbers) == 1:
-        print("code goes here")
         kwargs['number_1'] = [numbers[0]] 
         
     return kwargs

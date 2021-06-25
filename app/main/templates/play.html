@@ -21,19 +21,20 @@
             });
 
             socket.on('game_action', function(msg, cb) {
-                $('#log').append('<br>' + $('<div/>').text('> ' + msg.data).html());
+                $('#log').append('<div>' + '> ' + msg.data + '</div>');
                 if (cb)
                     cb();
             });
 
             socket.on('game_event', function(msg, cb) {
-                $('#log').append('<br>' + '<div>' + msg.data + '</div>');
+                $('#log').append('<div>' + msg.data + '</div>');
+                $('#log').append('<div>' + '> ' + '<div>')
                 if (cb)
                     cb();
             });
 
             socket.on('status_update', function(msg, cb) {
-                $('#status-window').html(msg['data'])
+                $('#status-window').html(msg['data'].join("<br />"))
             })
 
             // Interval function that tests message latency by sending a "ping"
@@ -83,31 +84,35 @@
 
 
 {% block body %}
-    <h1>Dion - Play</h1>
-    <p>
-    </p>
 
     <div class="topnav">
         <div class="page_title">Dion</div>
           <a href="logout">Log Out</a>
+          <a href="characters">Characters</a>
     </div>
 
+    <br>
+    <br>
 
-    <div id="game-window" class="flex-container-play"> 
-        <div id="interface-window">
-            <div id="log">
+    <div class="flex-container-play">
+        <div id="game-window" class="flex-container-interface"> 
+            <div id="interface-window">
+                <div id="log">
 You are not currently connected. 
+                </div>
+            </div>
+            <div class="status-window" id="status-window">
+                <span>Your character status will be displayed here.</span>
             </div>
         </div>
-        <div class="status-window" id="status-window">
-            <span>Your character status will be displayed here.</span>
+
+        <div class="flex-container-action">
+            <form id="emit" method="POST" action='#'>
+                <input type="text" name="emit_data" id="emit_data" placeholder="Action">
+                <input type="submit" value="Enter">
+            </form>
         </div>
     </div>
-
-    <form id="emit" method="POST" action='#'>
-        <input type="text" name="emit_data" id="emit_data" placeholder="Action">
-        <input type="submit" value="Enter">
-    </form>
 
 
 {% endblock %}

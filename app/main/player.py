@@ -110,6 +110,8 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.location_x, self.location_y = world.starting_position
         self.area_name = world.starting_area
 
+        self._in_shop = False
+
         self.target = None
         self.rt_start = 0
         self.rt_end = 0
@@ -483,8 +485,15 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def armor(self):
             return self._armor
     @armor.setter
-    def armor(self):
-            self._armor
+    def armor(self, armor):
+            self._armor = armor
+
+    @property
+    def in_shop(self):
+            return self._in_shop
+    @in_shop.setter
+    def in_shop(self, in_shop):
+            self._in_shop = in_shop
         
     def move(self, dx, dy):
         self.location_x += dx

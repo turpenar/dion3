@@ -1,6 +1,10 @@
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
 body {
     background-color: #F7F9FB;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-family: Optima, sans-serif;
 }
 
 .flex-container-login {
@@ -9,15 +13,84 @@ body {
     align-items: center;
 }
 
+.flex-container-signup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-container-newcharacter {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: stretch;
+}
+
+.flex-container-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: stretch;
+    height: 20%;
+}
+
+#stats-left {
+	width: 30%;
+	float: left;
+}
+
+#stats-instruction {
+	width: 100%;
+}
+
+.stats-description {
+	width: 70%;
+	float: left;
+	background-color: #8FC1E3;
+    padding: 2px;
+}
+
+.stat {
+	display: block;
+	width: 100%;
+}
+
+.stat-mouseenter {
+	background-color: #5085A5;
+    color: #F7F9FB;
+}
+
+.stat-click {
+	background-color: #8FC1E3;
+    color: #000000;
+}
+
+.error{
+	display: inline;
+	color: red;
+	font-size: 75%;
+}
+
 .flex-container-play {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: stretch;
+}
+
+.flex-container-play {
+    padding: 2px;
+}
+
+.flex-container-interface {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
     align-items: stretch;
 }
 
-.flex-container-play * {
-    padding: 5px;
+.flex-container-interface * {
+    padding: 2px;
 }
 
 #interface-window {
@@ -45,7 +118,19 @@ body {
     float: right;
 }
 
-#emit {
-    width: 100%;
-    float: left;
+.flex-container-action {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: stretch;
+}
+
+.flex-container-action * {
+    padding: 2px;
+}
+
+#emit_data {
+    border-radius: 5px;
+    box-shadow: 0 0 15px 4px rgba(0,0,0,0.06);
+    width: 75%;
 }

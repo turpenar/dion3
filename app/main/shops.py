@@ -10,7 +10,6 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
         self._shop_name = shop_name
         self._shop_data = shop_items
         self._shop_items = []
-        self._in_shop = False
         self._item_selected = None
         self._shop_menu = False
         
@@ -96,19 +95,16 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
         self.update_status(status_text=self.shop_menu)
         return
         
-    def enter_shop(self):
-        self.in_shop = True     
+    def enter_shop(self):   
         self.get_shop_menu()
         self.update_character_output(character_output_text="Welcome to the shop. Please see the menu to the right.")
         return self.shop_result
         
     def exit_shop(self):
-        self.in_shop = False
         self.update_character_output(character_output_text="You have exited the shop")
         return self.shop_result
         
     def order_item(self, number):
-        
         if number == None:
             self.update_character_output(character_output_text="You need to specify an item to order or EXIT.")
             return self.shop_result
@@ -144,14 +140,6 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
     @shop_menu.setter
     def shop_menu(self, menu_item):
         self._shop_menu = menu_item
-        
-    
-    @property
-    def in_shop(self):
-        return self._in_shop
-    @in_shop.setter
-    def in_shop(self, value):
-        self._in_shop = value
         
         
         

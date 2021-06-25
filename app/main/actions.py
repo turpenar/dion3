@@ -248,7 +248,7 @@ class Buy(DoActions):
             self.update_character_output("You will need to ORDER first.")
             self.update_status(character.get_status())
             return
-        if room.shop.in_shop == False:
+        if character.in_shop == False:
             self.update_character_output("You have exited the shop. You will need to ORDER again.")
             self.update_status(character.get_status())
             return 
@@ -334,8 +334,8 @@ class East(DoActions):
             return
         if world.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area_name):
             if room.shop_filled == True:
-                if room.shop.in_shop == True:
-                    room.shop.exit_shop()
+                if character.in_shop == True:
+                    character.in_shop = False
             old_room_number = room.room_number 
             character.move_east()
             self.action_result.update(character.get_room().intro_text())
@@ -365,7 +365,7 @@ class Exit(DoActions):
             self.update_character_output("You have nothing to exit.")
             self.update_status(character.get_status())
             return
-        if room.shop.in_shop == False:
+        if character.in_shop == False:
             self.update_character_output("You have nothing to exit.")
             self.update_status(character.get_status())
             return            
@@ -414,8 +414,8 @@ class Flee(DoActions):
             self.update_status(character.get_status())
             return
         if room.shop_filled == True:
-            if room.shop.in_shop == True:
-                room.shop.exit_shop()
+            if character.in_shop == True:
+                character.in_shop = False
         available_moves = room.adjacent_moves()
         r = random.randint(0, len(available_moves) - 1)
         flee_action = do_action(action_input=available_moves[r], character=character)
@@ -875,8 +875,8 @@ class North(DoActions):
             return
         if world.tile_exists(x=character.location_x, y=character.location_y - 1, area=character.area_name):
             if room.shop_filled == True:
-                if room.shop.in_shop == True:
-                    room.shop.exit_shop()
+                if character.in_shop == True:
+                    character.in_shop = False
             old_room_number = room.room_number 
             character.move_north()
             self.action_result.update(character.get_room().intro_text())
@@ -909,8 +909,7 @@ class Order(DoActions):
         if character.is_dead():
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(character.get_status())
-            return
-            
+            return     
         if room.is_shop == False:
             self.update_character_output("You can't seem to find a way to order anything here.")
             self.update_status(character.get_status())
@@ -918,9 +917,11 @@ class Order(DoActions):
         elif room.is_shop == True:  
             if room.shop_filled == False:             
                 room.fill_shop()
+                character.in_shop = True
                 self.action_result.update(room.shop.enter_shop())
                 return
-            if room.shop.in_shop == False:
+            if character.in_shop == False:
+                character.in_shop = True
                 self.action_result.update(room.shop.enter_shop())
                 return
             self.action_result.update(room.shop.order_item(kwargs['number_1']))
@@ -1227,7 +1228,8 @@ class South(DoActions):
             return
         if world.tile_exists(x=character.location_x, y=character.location_y + 1, area=character.area_name):
             if room.shop_filled == True:
-                if room.shop.in_shop == True:
+                if character.in_shop == True:
+                    character.in_shop = False
                     room.shop.exit_shop()
             old_room_number = room.room_number 
             self.character.move_south()
@@ -1393,7 +1395,8 @@ class West(DoActions):
             return
         if world.tile_exists(x=character.location_x - 1, y=character.location_y, area=character.area_name):
             if room.shop_filled == True:
-                if room.shop.in_shop == True:
+                if character.in_shop == True:
+                    character.in_shop = False
                     room.shop.exit_shop()
             old_room_number = room.room_number 
             self.character.move_west()

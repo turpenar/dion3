@@ -1,7 +1,9 @@
 
 import random as random
 
-from app.main import world, mixins, items, npcs
+from app import db
+from app.main import mixins, items
+from app.main.models import Room
 
 
 all_items_categories = mixins.items
@@ -147,23 +149,25 @@ class Door(Object):
 
         self.room = room
 
-    def go_object(self, character):
+    def go_object(self, character, room):
         self.reset_result()
-        old_room = character.get_room()
-        if old_room.room_name == self.object_data['location_1']['name']:
+        if room.room_name == self.object_data['location_1']['name']:
             new_location = self.object_data['location_2']
-        elif old_room.room_name == self.object_data['location_2']['name']:
+        elif room.room_name == self.object_data['location_2']['name']:
             new_location = self.object_data['location_1']
-        if old_room.shop_filled == True:
-            if old_room.shop.in_shop == True:
-                old_room.shop.exit_shop() 
+        if room.shop_filled == True:
+            if room.shop.in_shop == True:
+                room.shop.exit_shop() 
         character.change_room(x=new_location['x'], y=new_location['y'], area=new_location['area'])
         new_room = character.get_room()
-        new_room.fill_room(character=character)
-        self.object_result.update(new_room.intro_text())
-        self.update_room(character=character, new_room_number=new_room.room_number, old_room_number=old_room.room_number)
-        self.update_status(status_text=character.get_status())
-        return self.object_result
+        if new_room:
+            self.object_result.update(new_room.intro_text())
+            self.update_room(character=character, new_room_number=new_room.room_number, old_room_number=room.room_number)
+            self.update_status(status_text=character.get_status())
+            return self.object_result
+        else:
+            print('WARNING: Did not create room at x:  {}, y:  {}, in area:  {} for object {}'.format(new_location['x'], new_location['y'], new_location['area'], self.name))
+            return
 
     def search(self, character):
         self.reset_result()

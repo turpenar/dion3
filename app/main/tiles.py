@@ -145,13 +145,13 @@ class MapTile(mixins.DataFileMixin):
     def obvious_exits(self):
         """Returns all of the available actions in this room."""
         moves = []
-        if world.world_map.tile_exists(x=self.x, y=self.y - 1, area=self.area):
+        if world.tile_exists(x=self.x, y=self.y - 1, area=self.area):
             moves.append("north")
-        if world.world_map.tile_exists(x=self.x, y=self.y + 1, area=self.area):
+        if world.tile_exists(x=self.x, y=self.y + 1, area=self.area):
             moves.append("south")
-        if world.world_map.tile_exists(x=self.x + 1, y=self.y, area=self.area):
+        if world.tile_exists(x=self.x + 1, y=self.y, area=self.area):
             moves.append("east")
-        if world.world_map.tile_exists(x=self.x - 1, y=self.y, area=self.area):
+        if world.tile_exists(x=self.x - 1, y=self.y, area=self.area):
             moves.append("west")
         obvious = []
         if len(moves) == 0:
@@ -330,9 +330,9 @@ class MapTile(mixins.DataFileMixin):
     def intro_text(self):
         self.reset_result()
         intro_text = """\
-[{}, {}] <br>
-{} <br>
-{} <br>
+[{}, {}]
+{}
+{}
 {}\
         """.format(self.area,
                    self.room_name,

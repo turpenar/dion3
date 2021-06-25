@@ -14,14 +14,12 @@ import pathlib as pathlib
 import pickle as pickle
 import math as math
 
+from app import db
 from app.main import config, world, mixins, items
 
 
 wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
 commands = {}
-global character
-character = None
-global terminal_output
 available_stat_points = config.available_stat_points
 experience_points_base = config.experience_points_base
 experience_growth = config.experience_growth
@@ -109,8 +107,8 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.dominance = "right_hand"
         self.non_dominance = "left_hand"
 
-        self.location_x, self.location_y = world.world_map.starting_position
-        self.area = 'Field'
+        self.location_x, self.location_y = world.starting_position
+        self.area_name = world.starting_area
 
         self.target = None
         self.rt_start = 0
@@ -516,12 +514,14 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         return
 
     def get_room(self):
-        return world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
+        return world.tile_exists(x=self.location_x, 
+                                 y=self.location_y, 
+                                 area=self.area_name)
 
     def change_room(self, x, y, area):
         self.location_x = x
         self.location_y = y
-        self.area = area
+        self.area_name = area
         return
     
     def get_status(self, **kwargs):

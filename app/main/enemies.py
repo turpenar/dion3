@@ -10,7 +10,7 @@ import random as random
 import math as math
 import eventlet
 
-from app import db, create_app
+from app import db
 from app.main import mixins, actions, combat, objects, world, config, items
 from app.main.models import Room
 
@@ -24,7 +24,7 @@ stances = config.stances
 
 
 class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
-    def __init__(self, enemy_name: str, target: object, room: object, location_x: int, location_y: int, area: str, **kwargs):
+    def __init__(self, enemy_name: str, target: object, location_x: int, location_y: int, area: str, **kwargs):
         super(Enemy, self).__init__()
 
         self._enemy_data = self.get_enemy_by_name(enemy_name)
@@ -66,7 +66,6 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         self.location_x = location_x
         self.location_y = location_y
         self.area = area
-        self.room = room
 
         self.target = target
 
@@ -147,7 +146,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         return 
 
     def get_room(self):
-        return world.world_map.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
+        return world.tile_exists(x=self.location_x, y=self.location_y, area=self.area)
     
     def move(self, dx, dy):
         self.location_x += dx
@@ -172,13 +171,13 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
 
     def adjacent_moves(self):
         moves = []
-        if world.world_map.tile_exists(x=self.location_x, y=self.location_y - 1, area=self.area):
+        if world.tile_exists(x=self.location_x, y=self.location_y - 1, area=self.area):
             moves.append('north')
-        if world.world_map.tile_exists(x=self.location_x, y=self.location_y + 1, area=self.area):
+        if world.tile_exists(x=self.location_x, y=self.location_y + 1, area=self.area):
             moves.append('south')
-        if world.world_map.tile_exists(x=self.location_x + 1, y=self.location_y, area=self.area):
+        if world.tile_exists(x=self.location_x + 1, y=self.location_y, area=self.area):
             moves.append('east')
-        if world.world_map.tile_exists(x=self.location_x - 1, y=self.location_y, area=self.area):
+        if world.tile_exists(x=self.location_x - 1, y=self.location_y, area=self.area):
             moves.append('west')
         return moves
         
@@ -335,15 +334,14 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
 
     def run(self):
         actions.do_enemy_action(action_input='spawn', enemy=self)
+        db.session.commit()
         eventlet.sleep(seconds=self.round_time_move)
-        settings_module = os.getenv('FLASK_SETTINGS_MODULE')
-        app = create_app(settings_module)
-        with app.app_context():
-                while self.is_alive():
-                        available_movement_actions = self.adjacent_moves()
-                        action = random.choice(available_movement_actions)
-                        actions.do_enemy_action(action_input=action, enemy=self)
-                        eventlet.sleep(seconds=self.round_time_move)
+        while self.is_alive():
+                available_movement_actions = self.adjacent_moves()
+                action = random.choice(available_movement_actions)
+                actions.do_enemy_action(action_input=action, enemy=self)
+                db.session.commit()
+                eventlet.sleep(seconds=self.round_time_move)
         return
 
     def view_description(self):

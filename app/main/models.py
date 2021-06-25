@@ -98,7 +98,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement='auto')
     username = db.Column(db.String)
     password = db.Column(db.String)
-    characters = db.relationship('Character', backref='user', lazy=True )
+    characters = db.relationship('Character', backref='user', lazy=True, cascade='all, delete-orphan')
     
     def __init__(self, username):
         self.username = username
@@ -163,12 +163,9 @@ class Area(db.Model):
     __tablename__ = "areas"
     __table_args__ = {'extend_existing': True}
 
-    id = db.Column(db.Integer, autoincrement='auto')
+    id = db.Column(db.Integer, autoincrement='auto', primary_key=True)
     area = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
-    area_name = db.Column(db.String, primary_key=True)
+    area_name = db.Column(db.String)
     rooms = db.relationship('Room', backref='area', lazy=True)
 
-
 db.create_all()
-
-        

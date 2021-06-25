@@ -33,7 +33,7 @@
             });
 
             socket.on('status_update', function(msg, cb) {
-                $('#status-window-id').html(msg['data'])
+                $('#status-window').html(msg['data'])
             })
 
             // Interval function that tests message latency by sending a "ping"
@@ -93,21 +93,20 @@
     </div>
 
 
-    <div class="interface-window" id="interface-window">
-        <div id="log">You are not currently connected.</div>
-    
-        <div class="status-window" id="status-window-id">
-        <span>Your character status will be displayed here.</span>
+    <div id="game-window" class="flex-container-play"> 
+        <div id="interface-window">
+            <div id="log">
+You are not currently connected. 
+            </div>
+        </div>
+        <div class="status-window" id="status-window">
+            <span>Your character status will be displayed here.</span>
         </div>
     </div>
 
     <form id="emit" method="POST" action='#'>
         <input type="text" name="emit_data" id="emit_data" placeholder="Action">
         <input type="submit" value="Enter">
-    </form>
-
-    <form id="disconnect" method="POST" action="#">
-        <input type="submit" value="Disconnect">
     </form>
 
 

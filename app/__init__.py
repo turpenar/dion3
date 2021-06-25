@@ -1,5 +1,5 @@
 import eventlet
-from flask import Flask
+from flask import Flask, current_app
 from flask_wtf.csrf import CSRFProtect
 from flask_socketio import SocketIO
 from flask_login import LoginManager
@@ -32,5 +32,7 @@ def create_app(debug=debug):
     db.init_app(app)
     with app.app_context():
         from app.main import main as main_blueprint
+        from app.main import world
         app.register_blueprint(main_blueprint)
+        world.load_world()
     return app

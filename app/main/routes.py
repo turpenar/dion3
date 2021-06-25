@@ -22,7 +22,6 @@ def load_user(id):
 @main.route('/')
 @login_required
 def index():
-    world.create_world(current_app)
     return render_template('index.html')
 
 
@@ -138,7 +137,6 @@ def new_character():
         new_character.char.set_character_attributes()    
         new_character.char.set_gender(new_character.char.gender)
         new_character.char.level_up_skill_points()
-        new_character.char.room = world.world_map.tile_exists(x=new_character.char.location_x, y=new_character.char.location_y, area=new_character.char.area)
 
         current_user.characters.append(new_character)
         
@@ -156,19 +154,30 @@ def my_event(message):
     emit('game_action',
          {'data': message['data']})
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
-    character = character_file.char
-    if character:
-        character.room = world.world_map.tile_exists(x=character.location_x, y=character.location_y, area=character.area)
-        if not character.room.room_filled:
-            character.room.fill_room(character=character)
-    room_file = db.session.query(Room).filter_by(room_number=character.room.room_number).first()
-    action_result = actions.do_action(action_input=message['data'], character=character)
+    if character_file:
+        character = character_file.char
+        test_result = db.session.query(Room).filter_by(x=character.location_x, 
+                                                     y=character.location_y, 
+                                                     area_name=character.area_name
+                                                     )
+        room_file = db.session.query(Room).filter_by(x=character.location_x, 
+                                                     y=character.location_y, 
+                                                     area_name=character.area_name
+                                                     ).first()
+        room = room_file.room
+    else:
+        emit('game_action',
+             {'data': message['You have not loaded a character']})
+        return
+
+    action_result = actions.do_action(action_input=message['data'], character=character, room=room)
 
     if not action_result['action_success']:
         emit('game_event',
             {'data': action_result['action_error']})
     else:
         if action_result['room_change']['room_change_flag'] == True:
+            room_file.characters.remove(character_file)
             emit('game_event',
                 {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']), include_self=False)
             leave_room(room=str(action_result['room_change']['old_room']))
@@ -183,25 +192,21 @@ def my_event(message):
         if action_result['display_room']['display_room_flag']:
             char_names = []
             for char in room_file.characters:
-                char_names.append(char.first_name)
-            char_names.remove(character.first_name)
+                if char == character_file:
+                    pass
+                else:
+                    char_names.append(char.first_name)
             if len(char_names) > 0:
-                action_result['display_room']['display_room_text'] = action_result['display_room']['display_room_text'] + "<br>" + "Also here:  " + " ".join(char_names)
+                action_result['display_room']['display_room_text'] = action_result['display_room']['display_room_text'] + "Also here:  " + " ".join(char_names)
             emit('game_event',
                 {'data': action_result['display_room']['display_room_text']})
         if action_result['room_output']['room_output_flag'] == True:
             emit('game_event',
-                {'data': action_result['room_output']['room_output_text']}, to=str(character.room.room_number), include_self=False)
-        # if action_result['spawn_generator']['spawn_generator_flag'] == True:
-        #     thread = eventlet.spawn(action_result['spawn_generator']['spawn_generator_thread'].spawn_generator(character=character))
+                {'data': action_result['room_output']['room_output_text']}, to=str(character.get_room().room_number), include_self=False)
         emit('status_update',
             {'data': action_result['status_output']})
-
-        # emit('game_event',
-        #     {'data':  rooms()})
-
-    character_file.char = character
-
+    db.session.merge(character_file)
+    db.session.merge(room_file)
     db.session.commit()
 
 @socketio.event
@@ -209,10 +214,14 @@ def connect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     character = character_file.char
     if character:
-        character.join_room()
-    join_room(character.get_room().room_number)
-    room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
-    room_file.characters.append(character_file)
+        join_room(str(character.get_room().room_number))
+        room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
+        room_file.characters.append(character_file)
+    emit('game_event', 
+            {'data':  "{} arrived.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
+        )
+    db.session.merge(character_file)
+    db.session.merge(room_file)
     db.session.commit()
 
 @socketio.event
@@ -221,12 +230,14 @@ def disconnect_room(message):
     character = character_file.char
     if character:
         character.leave_room()
-    leave_room(character.get_room().room_number)
+    leave_room(str(character.get_room().room_number))
     room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
     room_file.characters.remove(character_file)
     emit('game_event', 
-            {'data':  "{} left.".format(character.first_name)}, to=str(character.room.room_number), include_self=False
+            {'data':  "{} left.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
         )
+    db.session.merge(character_file)
+    db.session.merge(room_file)
     db.session.commit()
 
 

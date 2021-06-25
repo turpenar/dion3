@@ -14,17 +14,17 @@
   	<a href="signup" target="_blank">Sign Up</a>
 </div>
 
-<div class="title">
-<h1>Login</h1>
-</div>
-
 {% if session['logged_in'] %}
 
 You're logged in already!
 
 {% else %}
 
-<div class="interface-window">
+<div class="flex-container-login">
+
+	<div class="title">
+		<h1>Login</h1>
+	</div>
 
 	<form action="{{ url_for('main.login') }}" method="post" role="form">
 		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />

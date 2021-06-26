@@ -2,6 +2,7 @@
 import pathlib as pathlib
 import imp as imp
 import random as random
+import eventlet
 
 from app import db
 from app.main import areas, tiles
@@ -89,7 +90,7 @@ def load_world():
                     room_number = int(str(area_count) + str(room_count))
                     room_exists = db.session.query(Room).filter_by(room_number=room_number).first()
                     if not room_exists:
-                        room = Room(room=tiles.create_tile(area_name=area_name.replace(" ", ""), 
+                        room = Room(room=tiles.create_tile(area_name=area_name, 
                                                         room_name=tile_name, 
                                                         room_number=room_number, 
                                                         x=x, 
@@ -115,14 +116,18 @@ def initiate_enemies():
     areas = db.session.query(Area).all()
     for area in areas:
         if len(area.area._area_enemies) > 0:
-            for room in area.rooms:
-                rooms.append(room.room)
-            spawn_room = random.choice(rooms)
-            area.area.spawn_enemies(room=spawn_room)
+            eventlet.spawn(area.area.spawn_enemies)
+
+
+        # if len(area.area._area_enemies) > 0:
+        #     for room in area.rooms:
+        #         rooms.append(room.room)
+        #     spawn_room = random.choice(rooms)
+        #     area.area.spawn_enemies(room=spawn_room)
 
 
 def tile_exists(x, y, area):
-    room = db.session.query(Room).filter_by(x=x, y=y, area_name=area.replace(" ", "")).first()
+    room = db.session.query(Room).filter_by(x=x, y=y, area_name=area).first()
     if room:
         return room.room
     else:

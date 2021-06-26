@@ -99,9 +99,9 @@ class MapTile(mixins.DataFileMixin):
     @classmethod
     def tile(cls, area_name, room_name, room_number, **kwargs):
         """Method used to initiate an action"""
-        if area_name not in cls.areas:
+        if area_name.replace(" ", "") not in cls.areas:
             return
-        return cls.areas[area_name](area_name=area_name, room_name=room_name, room_number=room_number, **kwargs)
+        return cls.areas[area_name.replace(" ", "")](area_name=area_name, room_name=room_name, room_number=room_number, **kwargs)
 
     def update_room(self, character, old_room_number):
         self.room_result['room_change']['room_change_flag'] = True

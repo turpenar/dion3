@@ -101,6 +101,9 @@ body {
 	font-weight: 500;
     color: #0f3242;
 	background-color: #bbc9d3;
+    border-style: solid;
+    border-color: #5085A5;
+    border-width: thin; 
 	overflow: auto;
     display: flex;
     flex-direction: column-reverse;
@@ -113,8 +116,11 @@ body {
     width: 18%;
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
 	font-size:  13px;
-    color: #F7F9FB;
-	background-color: #687864;
+    color: #0f3242;
+	background-color: #b9c9b5;
+    border-style: solid;
+    border-color: #5085A5;
+    border-width: thin; 
     float: right;
 }
 
@@ -131,6 +137,5 @@ body {
 
 #emit_data {
     border-radius: 5px;
-    box-shadow: 0 0 15px 4px rgba(0,0,0,0.06);
     width: 75%;
 }

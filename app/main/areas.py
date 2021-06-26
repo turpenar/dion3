@@ -7,7 +7,7 @@ import random as random
 import eventlet
 
 from app import db
-from app.main import tiles, enemies, mixins
+from app.main import tiles, enemies, mixins, routes
 from app.main.models import Room, Area
 
 
@@ -28,18 +28,23 @@ class Area(mixins.DataFileMixin):
         self._room_count = 100
 
     def area_rooms(self):
-        area = db.session.query(Area).filter_by(area_name=self.area_name.replace(" ", "")).first()
+        area = db.session.query(Area).filter_by(area_name=self.area_name).first()
         rooms = area.rooms
         print(rooms)
 
-    def spawn_enemies(self, room):
-        room.enemies.append(enemies.Enemy(enemy_name=self._area_enemies[0],
-                                        target=None,
-                                        location_x=room.x,
-                                        location_y=room.y,
-                                        area=self.area_name))
+    def spawn_enemies(self):
+        while True:
+            routes.enemy_spawn(enter_text="An enemy has spawned.",
+                                room_number=self.area_name)
+            eventlet.sleep(10)
+
+        # room.enemies.append(enemies.Enemy(enemy_name=self._area_enemies[0],
+        #                                 target=None,
+        #                                 location_x=room.x,
+        #                                 location_y=room.y,
+        #                                 area=self.area_name))
                             
-        thread = eventlet.spawn(room.enemies[-1].run)
+        # thread = eventlet.spawn(room.enemies[-1].run)
         return
 
 

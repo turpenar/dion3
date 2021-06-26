@@ -104,13 +104,14 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         if len(self._player_data['left_hand']['item_name']) != 0:
             self._left_hand_inv.append(items.create_item(item_category=self._player_data['left_hand']['item_category'], item_name=self._player_data['left_hand']['item_name']))
 
-        self.dominance = "right_hand"
-        self.non_dominance = "left_hand"
+        self.dominance = "right"
+        self.non_dominance = "left"
 
         self.location_x, self.location_y = world.starting_position
         self.area_name = world.starting_area
 
         self._in_shop = False
+        self._shop_item_selected = None
 
         self.target = None
         self.rt_start = 0
@@ -458,42 +459,49 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             self._left_hand_inv = item
           
     def get_dominant_hand_inv(self):
-        if self.dominance == 'right_hand':
+        if self.dominance == 'right':
             return self.right_hand_inv
-        if self.dominance == 'left_hand':
+        if self.dominance == 'left':
             return self.left_hand_inv
         
     def get_non_dominant_hand_inv(self):
-        if self.dominance == 'right_hand':
+        if self.dominance == 'right':
             return self.left_hand_inv
-        if self.dominance == 'left_hand':
+        if self.dominance == 'left':
             return self.right_hand_inv
             
     def set_dominant_hand_inv(self, item):
-        if self.dominance == 'right_hand':
+        if self.dominance == 'right':
             self.right_hand_inv = item
-        if self.dominance == 'left_hand':
+        if self.dominance == 'left':
             self.left_hand_inv = item
             
     def set_non_dominant_hand_inv(self, item):
-        if self.dominance == 'right_hand':
+        if self.dominance == 'right':
             self.left_hand_inv = item
-        if self.dominance == 'left_hand':
+        if self.dominance == 'left':
             self.right_hand_inv = item
             
     @property
     def armor(self):
-            return self._armor
+        return self._armor
     @armor.setter
     def armor(self, armor):
-            self._armor = armor
+        self._armor = armor
 
     @property
     def in_shop(self):
-            return self._in_shop
+        return self._in_shop
     @in_shop.setter
     def in_shop(self, in_shop):
-            self._in_shop = in_shop
+        self._in_shop = in_shop
+
+    @property
+    def shop_item_selected(self):
+        return self._shop_item_selected
+    @shop_item_selected.setter
+    def shop_item_selected(self, shop_item_selected):
+        self._shop_item_selected = shop_item_selected
         
     def move(self, dx, dy):
         self.location_x += dx

@@ -316,7 +316,7 @@
 			"name": "a short sword", 
 			"description": "a normal short sword", 
 			"value": 0, 
-			"handle": ["iron"], 
+			"handle": ["sword"], 
 			"adjectives": ["short"], 
 			"material": "steel",
 			"container": false, 

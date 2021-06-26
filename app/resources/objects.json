@@ -14,7 +14,7 @@
 			},
 			"location_2": {
 				"name": "Foyer",
-				"area": "DochasLeatherworks",
+				"area": "Dochas Leatherworks",
 				"x": 1,
 				"y": 2
 			},
@@ -42,7 +42,7 @@
 			},
 			"location_2": {
 				"name": "Doorstep",
-				"area": "DochasSmallHouse",
+				"area": "Dochas Small House",
 				"x": 0,
 				"y": 0
 			},
@@ -64,13 +64,13 @@
 			"visibility": 100,
 			"location_1": {
 				"name": "Doorstep",
-				"area": "DochasSmallHouse",
+				"area": "Dochas Small House",
 				"x": 0,
 				"y": 0
 			},
 			"location_2": {
 				"name": "Triage",
-				"area": "DochasSmallHouse",
+				"area": "Dochas Small House",
 				"x": 0,
 				"y": 2
 			},
@@ -98,7 +98,7 @@
 			},
 			"location_2": {
 				"name": "Outside Gate",
-				"area": "DochasGrounds",
+				"area": "Dochas Grounds",
 				"x": 2,
 				"y": 1
 			},
@@ -126,7 +126,7 @@
 			},
 			"location_2": {
 				"name": "Entryway",
-				"area": "DochasWeaponsmith",
+				"area": "Dochas Weaponsmith",
 				"x": 0,
 				"y": 0
 			},
@@ -176,13 +176,13 @@
 			"visibility": 100,
 			"location_1": {
 				"name": "A Depression",
-				"area": "DochasGrounds",
+				"area": "Dochas Grounds",
 				"x": 5,
 				"y": 1
 			},
 			"location_2": {
 				"name": "A Forest Path",
-				"area": "EdgewoodForest",
+				"area": "Edgewood Forest",
 				"x": 0,
 				"y": 1
 			},

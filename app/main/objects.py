@@ -25,6 +25,11 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
                                     "new_room":  None,
                                     "enter_room_text":  None
                                 },
+                                "area_change": {
+                                    "area_change_flag":  False,
+                                    "old_area":  None,
+                                    "new_area":  None
+                                },
                                 "display_room":  {
                                     "display_room_flag":  False,
                                     "display_room_text":  None,
@@ -83,6 +88,12 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
         self.object_result['room_change']['new_room'] = new_room_number
         self.object_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
         self.object_result['display_room_flag'] = True
+        return
+
+    def update_area(self, new_area, old_area):
+        self.object_result['area_change']['area_change_flag'] = True
+        self.object_result['area_change']['old_area'] = old_area
+        self.object_result['area_change']['new_area'] = new_area
         return
 
     def update_character_output(self, character_output_text):
@@ -156,13 +167,15 @@ class Door(Object):
         elif room.room_name == self.object_data['location_2']['name']:
             new_location = self.object_data['location_1']
         if room.shop_filled == True:
-            if room.shop.in_shop == True:
+            if character.in_shop == True:
+                character.in_shop = False
                 room.shop.exit_shop() 
         character.change_room(x=new_location['x'], y=new_location['y'], area=new_location['area'])
         new_room = character.get_room()
         if new_room:
             self.object_result.update(new_room.intro_text())
             self.update_room(character=character, new_room_number=new_room.room_number, old_room_number=room.room_number)
+            self.update_area(new_area=new_room.area, old_area=room.area)
             self.update_status(status_text=character.get_status())
             return self.object_result
         else:

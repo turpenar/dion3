@@ -49,6 +49,11 @@ class DoActions:
                 "new_room":  None,
                 "enter_room_text":  None
             },
+            "area_change":  {
+                "area_change_flag":  False,
+                "old_area": None,
+                "new_area": None
+            },
             "display_room":  {
                 "display_room_flag":  False,
                 "display_room_text": None
@@ -100,6 +105,12 @@ class DoActions:
         self.action_result['room_change']['new_room'] = character.get_room().room_number
         self.action_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
         self.action_result['display_room_flag'] = True
+        return
+
+    def update_area(self, character, old_area):
+        self.action_result['area_change']['area_change_flag'] = True
+        self.action_result['area_change']['old_area'] = old_area
+        self.action_result['area_change']['new_area'] = character.area_name
         return
     
     def update_character_output(self, character_output_text):
@@ -253,10 +264,14 @@ class Buy(DoActions):
             self.update_status(character.get_status())
             return 
         if character.get_dominant_hand_inv() is not None:
-            self.update_character_output("You will need to empty your right hand first.")
+            character.in_shop = False
+            self.update_character_output("You will need to empty your right hand first. You exit the shop so you can empty your hand.")
             self.update_status(character.get_status())
             return
-        self.action_result.update(room.shop.buy_item(number=kwargs['number_1']))
+        if not kwargs['number_1']:
+            self.action_result.update(room.shop.buy_item(number=character.shop_item_selected))
+        else:
+            self.action_result.update(room.shop.buy_item(number=kwargs['number_1']))
         if self.action_result['shop_item']['shop_item_flag']:
             try:
                 character.set_dominant_hand_inv(self.action_result['shop_item']['shop_item'])
@@ -370,6 +385,7 @@ class Exit(DoActions):
             self.update_status(character.get_status())
             return            
         else:
+            character.in_shop = False
             self.action_result.update(room.shop.exit_shop())
             self.update_status(character.get_status())
             return
@@ -557,7 +573,7 @@ class Go(DoActions):
         for room_object in room.objects:
             if set(room_object.handle) & set(kwargs['direct_object']):
                 self.update_character_output("You move toward {}.".format(room_object.name))
-                self.update_room_output("{} moves toward {}.".format(character.first_name, room_object.name))   
+                self.update_room_output("{} moves toward {}.".format(character.first_name, room_object.name)) 
                 self.action_result.update(room_object.go_object(character=character, room=room))
                 return
         for room_item in room.items:
@@ -924,6 +940,7 @@ class Order(DoActions):
                 character.in_shop = True
                 self.action_result.update(room.shop.enter_shop())
                 return
+            character.shop_item_selected = kwargs['number_1']
             self.action_result.update(room.shop.order_item(kwargs['number_1']))
             return
 

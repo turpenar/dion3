@@ -557,7 +557,7 @@
 			}
 		}
 	},
-	"DochasLeatherworks": {
+	"Dochas Leatherworks": {
 		"name":  "Dochas Leatherworks",
 		"enemies":  [],
 		"rooms":  {
@@ -793,7 +793,7 @@
 			}
 		}
 	},
-	"DochasSmallHouse": {
+	"Dochas Small House": {
 		"name":  "Dochas Small House",
 		"enemies":  [],
 		"rooms":  {
@@ -983,7 +983,7 @@
 			}
 		}
 	}, 
-	"DochasWeaponsmith": {
+	"Dochas Weaponsmith": {
 		"name":  "Dochas Weaponsmith",
 		"enemies":  [],
 		"rooms":  {
@@ -1455,7 +1455,7 @@
 			}
 		}
 	}, 
-	"DochasGrounds": {
+	"Dochas Grounds": {
 		"name":  "Dochas Grounds",
 		"enemies":  [],
 		"rooms":  {
@@ -1691,7 +1691,7 @@
 			}
 		}
 	}, 
-	"EdgewoodForest": {
+	"Edgewood Forest": {
 		"name":  "Edgewood Forest",
 		"enemies":  ["wild_boar"],
 		"rooms":  {

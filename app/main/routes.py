@@ -191,6 +191,9 @@ def my_event(message):
             emit('game_event',
                 {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']), include_self=False
                 )
+        if action_result['area_change']['area_change_flag'] == True:
+            leave_room(room=str(action_result['area_change']['old_area']))
+            join_room(room=str(action_result['area_change']['new_area']))
         if action_result['character_output']['character_output_flag'] == True:
             emit('game_event',
                 {'data': action_result['character_output']['character_output_text']}
@@ -203,7 +206,7 @@ def my_event(message):
                 else:
                     char_names.append(char.first_name)
             if len(char_names) > 0:
-                action_result['display_room']['display_room_text'] = action_result['display_room']['display_room_text'] + "Also here:  " + " ".join(char_names)
+                action_result['display_room']['display_room_text'] = action_result['display_room']['display_room_text'] + "<br>Also here:  " + " ".join(char_names)
             emit('game_event',
                 {'data': action_result['display_room']['display_room_text']}
                 )
@@ -224,6 +227,7 @@ def connect_room(message):
     character = character_file.char
     if character:
         join_room(str(character.get_room().room_number))
+        join_room(str(character.area_name))
         room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
         room_file.characters.append(character_file)
         emit('game_event', 
@@ -241,6 +245,7 @@ def disconnect_room(message):
     if character:
         character.leave_room()
         leave_room(str(character.get_room().room_number))
+        leave_room(str(character.area_name))
         room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
         room_file.characters.remove(character_file)
         emit('game_event', 

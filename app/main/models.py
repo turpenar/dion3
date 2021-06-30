@@ -134,13 +134,13 @@ class Character(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_number'), nullable=True)
 
 
-class Enemy(db.Model):
+class EnemySpawn(db.Model):
     __tablename__ = "enemies"
     __table_args__ = {'extend_existing':  True}
 
     id = db.Column(db.Integer, primary_key=True)
     enemy = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
-    room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_number'), nullable=False)
+    room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_number'), nullable=True)
 
 
 class Room(db.Model):
@@ -154,11 +154,11 @@ class Room(db.Model):
     x=db.Column(db.Integer)
     y=db.Column(db.Integer)
     characters = db.relationship('Character', backref='room', lazy=True)
-    enemies = db.relationship('Enemy', backref='room', lazy=True)
+    enemies = db.relationship('EnemySpawn', backref='room', lazy=True)
     area_name = db.Column(db.String, db.ForeignKey('areas.area_name'), nullable=False)
 
 
-class Area(db.Model):
+class WorldArea(db.Model):
 
     __tablename__ = "areas"
     __table_args__ = {'extend_existing': True}

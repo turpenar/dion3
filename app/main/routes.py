@@ -172,7 +172,7 @@ def my_event(message):
              )
         return
 
-    action_result = actions.do_action(action_input=message['data'], character=character, room=room)
+    action_result = actions.do_action(action_input=message['data'], character=character, room_file=room_file)
 
     if not action_result['action_success']:
         emit('game_event',

@@ -168,8 +168,6 @@ class MapTile(mixins.DataFileMixin):
             return ""
         for char in self.npcs:
             all_objects.append(char.name)
-        for char in self.enemies:
-            all_objects.append(char.name)
         for item in self.items:
             all_objects.append(item.name)
         for object in self.objects:
@@ -186,8 +184,6 @@ class MapTile(mixins.DataFileMixin):
         if len(self.items) + len(self.npcs) + len(self.objects) + len(self.enemies) == 0:
             return ""
         for char in self.npcs:
-            all_object_handles.append(char.name)
-        for char in self.enemies:
             all_object_handles.append(char.name)
         for item in self.items:
             all_object_handles.append(item.name)
@@ -326,19 +322,37 @@ class MapTile(mixins.DataFileMixin):
         self.enemies.remove(enemy)
         return
 
+    def get_enemies(self, room_file):
+        enemy_names = []
+        for enemy_file in room_file.enemies:
+            enemy_names.append(enemy_file.enemy.name)
+        if len(enemy_names) > 1:
+            all_enemies_output = ', '.join(enemy_names[:-1])
+            all_enemies_output = all_enemies_output + ', and ' + enemy_names[-1]
+            return all_enemies_output
+        if len(enemy_names) == 1:
+            all_enemies_output = enemy_names[0]
+            return all_enemies_output
+        else:
+            all_enemies_output = "None"
+            return all_enemies_output
 
-    def intro_text(self):
+    def intro_text(self, character, room_file):
         self.reset_result()
         intro_text = """\
 <b>{}, {}</b>
 {}
 {}
-{}\
-        """.format(self.area,
+{}
+{}
+{}
+""".format(self.area,
                    self.room_name,
                    wrapper.fill(text=self.description),
                    self.obvious_exits(),
-                   self.all_objects())
+                   self.all_objects(),
+                   "Enemies:  " + self.get_enemies(room_file),
+                   "other people in the room will go here."),
         self.update_display_room(display_room_text=intro_text)
         return self.room_result
 

@@ -32,7 +32,7 @@
 		"spawn_location": "Wilds",
 		"text": {
 			"entrance_text": "A wild boar has arrived!",
-			"move_out_text": "A wild boar rushes out of the area.",
+			"move_out_text": "A wild boar rushes ",
 			"move_in_text": "A wild boar rushes into the area.",
 			"engage_text": "A wild boar stamps its feet.",
 			"death_text": "A wild boar staggers and eventually slumps to the ground, motionless."

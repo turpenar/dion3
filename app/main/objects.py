@@ -160,22 +160,22 @@ class Door(Object):
 
         self.room = room
 
-    def go_object(self, character, room):
+    def go_object(self, character, room_file):
         self.reset_result()
-        if room.room_name == self.object_data['location_1']['name']:
+        if room_file.room.room_name == self.object_data['location_1']['name']:
             new_location = self.object_data['location_2']
-        elif room.room_name == self.object_data['location_2']['name']:
+        elif room_file.room.room_name == self.object_data['location_2']['name']:
             new_location = self.object_data['location_1']
-        if room.shop_filled == True:
+        if room_file.room.shop_filled == True:
             if character.in_shop == True:
                 character.in_shop = False
-                room.shop.exit_shop() 
+                room_file.room.shop.exit_shop() 
         character.change_room(x=new_location['x'], y=new_location['y'], area=new_location['area'])
         new_room = character.get_room()
         if new_room:
-            self.object_result.update(new_room.intro_text())
-            self.update_room(character=character, new_room_number=new_room.room_number, old_room_number=room.room_number)
-            self.update_area(new_area=new_room.area, old_area=room.area)
+            self.object_result.update(new_room.intro_text(character=character, room_file=room_file))
+            self.update_room(character=character, new_room_number=new_room.room_number, old_room_number=room_file.room.room_number)
+            self.update_area(new_area=new_room.area, old_area=room_file.room.area)
             self.update_status(status_text=character.get_status())
             return self.object_result
         else:

@@ -6,7 +6,7 @@ import eventlet
 
 from app import db
 from app.main import areas, tiles
-from app.main.models import Area, Room
+from app.main.models import WorldArea, Room
 
 path_maps = pathlib.Path.cwd() / "app" / "resources" / "maps"
 map_list = path_maps.glob('*.txt')
@@ -29,7 +29,7 @@ class World:
                 area_object = areas.Area(area_name=area_name, 
                                         area_path=path, 
                                         area_number=self._area_count)
-                area = Area(area=areas.Area(area_name=area_name, 
+                area = WorldArea(area=areas.Area(area_name=area_name, 
                                             area_path=path, 
                                             area_number=self._area_count,
                             ),
@@ -52,8 +52,6 @@ class World:
         area = area.replace(" ", "")
         return self._world[area].area_enemies(area)
 
-    # for area in world_map._world:
-    #     world_map._world[area].spawn_enemies(app)
 
 def load_world():
     area_count = 10
@@ -61,9 +59,9 @@ def load_world():
     """Parses a file that describes the world space into the database."""
     for path in map_list:
         area_name = path.stem.split('.')[0]
-        area_exists = db.session.query(Area).filter_by(area_name=area_name).first()
+        area_exists = db.session.query(WorldArea).filter_by(area_name=area_name).first()
         if not area_exists:
-            area = Area(area=areas.Area(area_name=area_name, 
+            area = WorldArea(area=areas.Area(area_name=area_name, 
                                         area_path=path, 
                                         area_number=area_count,
                         ),
@@ -111,20 +109,12 @@ def load_world():
     db.session.commit()
     return
 
-def initiate_enemies():
-    rooms = []
-    areas = db.session.query(Area).all()
-    for area in areas:
-        if len(area.area._area_enemies) > 0:
-            eventlet.spawn(area.area.spawn_enemies)
-
-
-        # if len(area.area._area_enemies) > 0:
-        #     for room in area.rooms:
-        #         rooms.append(room.room)
-        #     spawn_room = random.choice(rooms)
-        #     area.area.spawn_enemies(room=spawn_room)
-
+def initiate_enemies(app):
+    areas = db.session.query(WorldArea).all()
+    for area_file in areas:
+        if len(area_file.area._area_enemies) > 0:
+            eventlet.spawn(area_file.area.spawn_enemies, app)
+    
 
 def tile_exists(x, y, area):
     room = db.session.query(Room).filter_by(x=x, y=y, area_name=area).first()

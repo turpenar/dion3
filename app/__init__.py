@@ -35,5 +35,5 @@ def create_app(debug=debug):
         from app.main import world
         app.register_blueprint(main_blueprint)
         world.load_world()
-        world.initiate_enemies()
+        world.initiate_enemies(app)
     return app

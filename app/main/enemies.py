@@ -12,7 +12,7 @@ import eventlet
 
 from app import db
 from app.main import mixins, actions, combat, objects, world, config, items
-from app.main.models import Room
+from app.main.models import Room, EnemySpawn
 
 
 enemy_level_base = config.enemy_level_base
@@ -66,6 +66,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         self.location_x = location_x
         self.location_y = location_y
         self.area = area
+        self._enemy_id = None
 
         self.target = target
 
@@ -314,6 +315,13 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     def left_hand_inv(self, item):
             self._left_hand_inv = item
 
+    @property
+    def enemy_id(self):
+            return self._enemy_id
+    @enemy_id.setter
+    def enemy_id(self, enemy_id):
+            self._enemy_id = enemy_id
+
     def is_alive(self):
         return self.health > 0
 
@@ -332,16 +340,30 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
             else:
                 print("Game Error:  when replacing a dead enemy with a corpse, the enemy was not in mapped to the proper room")
 
-    def run(self):
-        actions.do_enemy_action(action_input='spawn', enemy=self)
-        db.session.commit()
-        eventlet.sleep(seconds=self.round_time_move)
-        while self.is_alive():
-                available_movement_actions = self.adjacent_moves()
-                action = random.choice(available_movement_actions)
-                actions.do_enemy_action(action_input=action, enemy=self)
+    def run(self, app, enemy_id):
+        with app.app_context():
+                enemy_id = enemy_id
+                enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
+                actions.do_enemy_action(action_input='spawn')
+                db.session.merge(enemy_file)
                 db.session.commit()
-                eventlet.sleep(seconds=self.round_time_move)
+                eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
+                print("enemy has finished spawning.")
+                while self.is_alive():
+                        available_movement_actions = [] 
+                        enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
+                        available_movement_actions = enemy_file.enemy.adjacent_moves()
+                        action = random.choice(available_movement_actions)
+                        room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
+                        room_file.enemies.remove(enemy_file)
+                        actions.do_enemy_action(action_input=action, enemy=enemy_file.enemy)
+                        room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
+                        room_file.enemies.append(enemy_file)
+                        db.session.merge(room_file)
+                        db.session.merge(enemy_file)
+                        db.session.commit()
+                        print("enemy {} moved to {}.".format(enemy_file.id, enemy_file.enemy.get_room().room_name))
+                        eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
         return
 
     def view_description(self):

@@ -47,6 +47,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         self._text_move_out = self._enemy_data['text']['move_out_text']
         self._text_engage = self._enemy_data['text']['engage_text']
         self._text_death = self._enemy_data['text']['death_text']
+        self._text_leave = self._enemy_data['text']['leave_text']
         
         self._round_time_engage = self._enemy_data['round_time']['engage']
         self._round_time_attack = self._enemy_data['round_time']['attack']
@@ -282,6 +283,10 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @property
     def text_death(self):
             return self._text_death
+
+    @property
+    def text_leave(self):
+            return self._text_leave
         
     @property
     def round_time_engage(self):
@@ -306,6 +311,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @right_hand_inv.setter
     def right_hand_inv(self, item):
             self._right_hand_inv = item
+            return
             
     @property
     def left_hand_inv(self):
@@ -314,6 +320,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @left_hand_inv.setter
     def left_hand_inv(self, item):
             self._left_hand_inv = item
+            return
 
     @property
     def enemy_id(self):
@@ -321,37 +328,48 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @enemy_id.setter
     def enemy_id(self, enemy_id):
             self._enemy_id = enemy_id
+            return
 
-    def is_alive(self):
-        return self.health > 0
+    def is_alive(self, enemy_file):
+        return enemy_file.health > 0
 
-    def is_killed(self):
-        if self.health > 0:
+    def is_killed(self, enemy_file):
+        if enemy_file.health > 0:
             return False
         else:
             return True
         
-    def replace_with_corpse(self):
-            if self in self.room.enemies:
-                self.room.remove_enemy(self)
-                self.room.add_object(objects.Corpse(object_name=self.corpse, room=self.room))
-                self.target = None
-                self.room = None
+    def replace_with_corpse(self, enemy_file):
+            room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
+            if room_file:
+                try:
+                    room_file.remove(enemy_file)
+                    room_file.room.add_object(objects.Corpse(object_name=self.corpse, room=room_file.room))
+                    db.session.merge(room_file)
+                except:
+                    print("Game Error:  when replacing a dead enemy with a corpse, the enemy was not in mapped to the proper room")
+                return
             else:
-                print("Game Error:  when replacing a dead enemy with a corpse, the enemy was not in mapped to the proper room")
+                print("Room was not found when replacing corpse.")
+                return
+                
 
     def run(self, app, enemy_id):
         with app.app_context():
-                enemy_id = enemy_id
                 enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
+                enemy_file.health = self._enemy_data['health']
                 actions.do_enemy_action(action_input='spawn')
                 db.session.merge(enemy_file)
                 db.session.commit()
+                print(f"enemy {enemy_file.enemy.enemy_id} has finished spawning.")
+                print(f"enemy {enemy_file.id} has spawned in room {enemy_file.room_id}")
+                print(f"enemy {enemy_file.enemy.enemy_id} stop flag = {enemy_file.stop}")
                 eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
-                print("enemy has finished spawning.")
-                while self.is_alive():
-                        available_movement_actions = [] 
+                while enemy_file.enemy.is_alive(enemy_file) and not enemy_file.stop:
                         enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
+                        available_movement_actions = [] 
+                        print(f"enemy {enemy_file.id} has been found and ready to move.")
+                        print(f"enemy {enemy_file.id} stop flag = {enemy_file.stop}")
                         available_movement_actions = enemy_file.enemy.adjacent_moves()
                         action = random.choice(available_movement_actions)
                         room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
@@ -362,8 +380,15 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                         db.session.merge(room_file)
                         db.session.merge(enemy_file)
                         db.session.commit()
-                        print("enemy {} moved to {}.".format(enemy_file.id, enemy_file.enemy.get_room().room_name))
+                        print(f"enemy {enemy_file.id} moved to {enemy_file.enemy.get_room().room.room_name}.")
+                        print(f"enemy {enemy_file.enemy.enemy_id} stop flag = {enemy_file.stop}")
                         eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
+                print(f"enemy {enemy_file.enemy.enemy_id} stop flag = {enemy_file.stop}")
+                print(f"enemy {enemy_file.enemy.enemy_id} is alive = {enemy_file.enemy.is_alive(enemy_file)}")
+                room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
+                db.session.delete(enemy_file)
+                db.session.commit()
+                print(f"enemy {enemy_file.id} has been stopped.")
         return
 
     def view_description(self):

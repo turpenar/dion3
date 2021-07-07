@@ -1,6 +1,6 @@
 The workstreams to complete before publication of first version.
 
--Basic enemy movement
+-Basic enemy movement - Done
 -Combat
 -Skill selection and increases
 -Level increases

@@ -14,6 +14,98 @@ experience_adjustment_factors = config.EXPERIENCE_ADJUSTMENT_FACTORS
 position_factors = config.POSITION_FACTORS
 stance_factors = config.STANCE_FACTORS
 
+combat_result = {
+            "action_success": True,
+            "action_error": None,
+            "room_change": {
+                "room_change_flag":  False,
+                "leave_room_text": None,
+                "old_room":  None,
+                "new_room":  None,
+                "enter_room_text":  None
+            },
+            "area_change":  {
+                "area_change_flag":  False,
+                "old_area": None,
+                "new_area": None
+            },
+            "display_room":  {
+                "display_room_flag":  False,
+                "display_room_text": None
+            },
+            "character_output":  {
+                "character_output_flag":  False,
+                "character_output_text":  None
+            },
+            "room_output":  {
+                "room_output_flag":  False,
+                "room_output_text":  None
+            },
+            "area_output":  {
+                "area_output_flag":  False,
+                "area_output_text":  None
+            },
+            "spawn_generator":  {
+                "spawn_generator_flag":  False,
+                "spawn_generator_thread":  None
+            },
+            "status_output":  None
+            }
+
+combat_result_default = combat_result.copy()
+
+def update_room(character, old_room_number):
+    global combat_result
+    combat_result['room_change']['room_change_flag'] = True
+    combat_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
+    combat_result['room_change']['old_room'] = old_room_number
+    combat_result['room_change']['new_room'] = character.get_room().room.room_number
+    combat_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+    combat_result['display_room_flag'] = True
+    return
+
+def update_area(character, old_area):
+    global combat_result
+    combat_result['area_change']['area_change_flag'] = True
+    combat_result['area_change']['old_area'] = old_area
+    combat_result['area_change']['new_area'] = character.area_name
+    return
+
+def update_character_output(character_output_text):
+    global combat_result
+    combat_result['character_output']['character_output_flag'] = True
+    combat_result['character_output']['character_output_text'] = character_output_text
+    return
+
+def update_display_room(display_room_text):
+    global combat_result
+    combat_result['display_room']['display_room_flag'] = True
+    combat_result['display_room']['display_room_text'] = display_room_text
+    return
+    
+def update_room_output(room_output_text):
+    global combat_result
+    combat_result['room_output']['room_output_flag'] = True
+    combat_result['room_output']['room_output_text'] = room_output_text
+    return
+    
+def update_area_output(area_output_text):
+    global combat_result
+    combat_result['area_output']['area_output_flag'] = True
+    combat_result['area_output']['area_output_text'] = area_output_text
+    return
+
+def update_status(status_text):
+    global combat_result
+    combat_result['status_output'] = status_text
+    return
+
+def reset_result():
+    global combat_result
+    global combat_result_default
+    combat_result = combat_result_default.copy()
+    return
+
     
 def calculate_position_factor_for_attack(character):
     position = character.position
@@ -110,42 +202,53 @@ def get_exerience_modifier(self_level, target_level):
     level_variance = int(target_level - self_level)
     return experience_adjustment_factors.loc[level_variance, 'Adjustment_Factor']
 
-def melee_attack_enemy(self, target):
+def melee_attack_enemy(self, target_file):
+    global combat_result
     attack_strength = calculate_attack_strength(self, self.get_dominant_hand_inv())
-    defense_strength = calculate_defense_strength(character=target, weapon=target.weapon)
-    attack_factor = calculate_attack_factor(self.get_dominant_hand_inv(), target.armor)
+    defense_strength = calculate_defense_strength(character=target_file.enemy, weapon=target_file.enemy.weapon)
+    attack_factor = calculate_attack_factor(self.get_dominant_hand_inv(), target_file.enemy.armor)
     att_random = random.randint(0,100)
     att_end_roll = end_roll(attack=attack_strength, defense=defense_strength, attack_factor=attack_factor, random=att_random)
     round_time = self.set_round_time(3)
     
     result = None
     if att_end_roll <= 100:
-        result = """\
-{} evades the attack.
-Round time:  {} seconds
-            """.format(target.name, round_time)
+        result_character = f"""\
+{target_file.enemy.name} evades the attack.
+Round time:  {round_time} seconds
+            """
+        result_room = f"""\
+{self.first_name} swings at {target_file.enemy.name} and misses.
+            """
     else:
-        att_damage = get_damage(att_end_roll, self.get_dominant_hand_inv(), target.armor)
-        target.health = target.health - att_damage
-        if target.is_killed():
-            death_text = target.text_death
-            target.replace_with_corpse()
-            self.experience += int(target.experience * get_exerience_modifier(self.level, target.level))
+        att_damage = get_damage(att_end_roll, self.get_dominant_hand_inv(), target_file.enemy.armor)
+        target_file.health = target_file.health - att_damage
+        if target_file.enemy.is_killed(target_file):
+            death_text = target_file.enemy.text_death
+            target_file.enemy.replace_with_corpse(target_file)
+            self.experience += int(target_file.enemy.experience * get_exerience_modifier(self.level, target_file.enemy.level))
         else:
             death_text = ""
-        result = """\
-{} damages {} by {}.
-Round time:  {} seconds
-{}\
-            """.format(self.name, target.name, att_damage, round_time, death_text)
+        result_character = f"""\
+You damage {target_file.enemy.name} by {att_damage}.
+Round time:  {round_time} seconds
+Target health:  {target_file.health}
+{death_text}\
+            """
+        result_room = f"""\
+{self.name} hits {target_file.enemy.name}.
+{death_text}\
+            """
 
-    events.game_event("""\
-{} attacks {}!
-STR {} - DEF {} + AF {} + D100 ROLL {} = {}
-{}\
-    """.format(self.name, target.name, attack_strength, defense_strength, attack_factor, att_random, att_end_roll, result))
+    update_character_output(character_output_text=f"""\
+You attack {target_file.enemy.name}!
+STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
+{result_character}\
+    """)
     self.check_level_up()
-    return target
+    update_room_output(room_output_text=result_room)
+    reset_result()
+    return combat_result
 
 def melee_attack_character(self, character):
     attack_strength = calculate_attack_strength(self, self.weapon)

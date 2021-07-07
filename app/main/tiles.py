@@ -7,13 +7,11 @@ TODO: Eliminate need to pass character to the npcs.
 
 """
 
-import time as time
-import random as random
 import textwrap as textwrap
 import logging as logging
 import eventlet
 
-from app.main import config, items, actions, world, mixins, objects, shops, npcs
+from app.main import config, items, world, mixins, objects, shops, npcs
 
 
 wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
@@ -337,7 +335,23 @@ class MapTile(mixins.DataFileMixin):
             all_enemies_output = "None"
             return all_enemies_output
 
-    def intro_text(self, character, room_file):
+    def get_characters(self, character_file, room_file):
+        character_names = []
+        for character_file_list in room_file.characters:
+            character_names.append(character_file_list.first_name)
+        character_names.remove(character_file.first_name)
+        if len(character_names) > 1:
+            all_characters_output = ', '.join(character_names[:-1])
+            all_characters_output = all_characters_output + ', and ' + character_names[-1]
+            return all_characters_output
+        if len(character_names) == 1:
+            all_characters_output = character_names[0]
+            return all_characters_output
+        else:
+            all_characters_output = "None"
+            return all_characters_output
+
+    def intro_text(self, character_file, room_file):
         self.reset_result()
         intro_text = """\
 <b>{}, {}</b>
@@ -352,7 +366,7 @@ class MapTile(mixins.DataFileMixin):
                    self.obvious_exits(),
                    self.all_objects(),
                    "Enemies:  " + self.get_enemies(room_file),
-                   "other people in the room will go here."),
+                   "Others:  " + self.get_characters(character_file, room_file)),
         self.update_display_room(display_room_text=intro_text)
         return self.room_result
 

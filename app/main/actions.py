@@ -10,7 +10,9 @@ TODO: Integrate the BUY function into the shops.
 import random as random
 import textwrap as textwrap
 
+from app import db
 from app.main import world, routes, enemies, command_parser, config, npcs, combat
+from app.main.models import Room
 
 
 verbs = config.verbs
@@ -19,9 +21,9 @@ action_history = []
 wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
 
 
-def do_action(action_input, character=None, room_file=None):
+def do_action(action_input, character_file=None, room_file=None):
     action_history.insert(0,action_input)
-    if not character:
+    if not character_file:
         action_result = {"action_success": False,
                          "action_error":  "No character loaded. You will need to create a new character or load an existing character."
         }
@@ -32,12 +34,12 @@ def do_action(action_input, character=None, room_file=None):
         }
         return action_result
     kwargs = command_parser.parser(action_input)
-    return DoActions.do_action(kwargs['action_verb'], character, room_file, **kwargs)
+    return DoActions.do_action(kwargs['action_verb'], character_file, room_file, **kwargs)
 
 
 class DoActions:
-    def __init__(self, character, room_file, **kwargs):
-        self.character = character
+    def __init__(self, character_file, room_file, **kwargs):
+        character = character_file
         self.action_result = {
             "action_success": True,
             "action_error": None,
@@ -88,20 +90,20 @@ class DoActions:
         return decorator
 
     @classmethod
-    def do_action(cls, action, character, room_file, **kwargs):
+    def do_action(cls, action, character_file, room_file, **kwargs):
         """Method used to initiate an action"""
         if action not in cls.do_actions:
             cls.action_result = {"action_success":  False,
                              "action_error":  "I am sorry, I did not understand."
             }
             return cls.action_result
-        return cls.do_actions[action](character, room_file, **kwargs).action_result
+        return cls.do_actions[action](character_file, room_file, **kwargs).action_result
     
     def update_room(self, character, old_room_number):
         self.action_result['room_change']['room_change_flag'] = True
         self.action_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
         self.action_result['room_change']['old_room'] = old_room_number
-        self.action_result['room_change']['new_room'] = character.get_room().room_number
+        self.action_result['room_change']['new_room'] = character.get_room().room.room_number
         self.action_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
         self.action_result['display_room_flag'] = True
         return
@@ -152,8 +154,8 @@ class Ask(DoActions):
     ASK <npc> about <subject>\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
         
         if character.check_round_time():
             return
@@ -185,42 +187,68 @@ class Attack(DoActions):
     ATTACK <enemy> : Engages an enemy and begins combat.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
+            self.update_status(status_text=character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(status_text=character.get_status())
             return
+        if not kwargs['direct_object']:
+            if not character.target:
+                self.update_character_output(character_output_text="Who are you going to attack? You do not have a target.")
+                self.update_status(status_text=character.get_status())
+                return
+            for enemy_file in room.enemies:
+                if set(enemy_file.id) & set(character.target):
+                    self.action_result.update(combat.melee_attack_enemy(self=character, target=enemy_file.enemy))
+                    self.update_status(status_text=character.get_status())
+                    db.session.merge(enemy_file)
+                    return
+                else:
+                    self.update_character_output(character_output_text="Your target doesn't seem to be around here.")
+                    self.update_status(status_text=character.get_status())
+                    return
         if kwargs['direct_object']:
-            character.target = kwargs['direct_object']
-        if not character.target:
-            events.game_event("Who are you going to attack? You do not have a target.")
+            for enemy_file in room_file.enemies:
+                if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
+                    character.target = enemy_file.id
+                    self.action_result.update(combat.melee_attack_enemy(self=character, target_file=enemy_file))
+                    self.update_status(status_text=character.get_status())
+                    db.session.merge(enemy_file)
+                    return
+            for npc in room.npcs:
+                if set(npc.handle) & set(kwargs['direct_object']):
+                    self.update_character_output("{} will probably not appreciate that.".format(npc.name))
+                    self.update_status(status_text=character.get_status())
+                    return
+            self.update_character_output("A {} is not around here.".format(kwargs['direct_object'][0]))
+            self.update_status(status_text=character.get_status())
             return
         else:
-            for npc in character.room.npcs:
-                if set(npc.handle) & set(character.target):
-                    events.game_event("{} will probably not appreciate that.".format(npc.name))
-                    return
-            enemy_found = False
-            for enemy in character.room.enemies:
-                if set(enemy.handle) & set(character.target):
-                    enemy_found = True
-                    combat.melee_attack_enemy(character, enemy)
-                    return
-            if not enemy_found:
-                events.game_event("{} is not around here.".format(kwargs['direct_object']))
-                return
+            self.update_character_output("I'm sorry, I don't understand.")
+            self.update_status(status_text=character.get_status())
+            return
             
-        
+            
 @DoActions.register_subclass('attribute')
 class Attributes(DoActions):
     """\
     ATTRIBUTES allows you to view various attributes\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         self.update_character_output('''
 Attribute:  {}
@@ -238,11 +266,14 @@ class Buy(DoActions):
     BUY <#>:  Finalize purchase of the selected item.\
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
          
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -292,11 +323,14 @@ class Drop(DoActions):
     or item is stackable.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -331,11 +365,14 @@ class East(DoActions):
     Moves you east, if you can move in that direction.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)   
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)   
+
+        character = character_file.char
+        room = room_file.room
         
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -347,12 +384,16 @@ class East(DoActions):
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area_name):
-            if room_file.room.shop_filled == True:
+            if room.shop_filled == True:
                 if character.in_shop == True:
                     character.in_shop = False
+                    room.shop.exit_shop()
             old_room_number = room_file.room.room_number 
+            room_file.characters.remove(character_file)
             character.move_east()
-            self.action_result.update(character.get_room().intro_text(character=character, room_file=room_file))
+            room_file = character.get_room()
+            room_file.characters.append(character_file)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
             self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
@@ -368,8 +409,11 @@ class Exit(DoActions):
     When ordering in a shop, EXIT leaves the order menu. In order to see the menu again, you will need to ORDER again.\
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
         if room.is_shop == False:
             self.update_character_output("You have nothing to exit.")
@@ -397,8 +441,11 @@ class Experience(DoActions):
     Displays your experience information.\
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         self.update_character_output('''\
 Experience:  {}
@@ -413,11 +460,14 @@ class Flee(DoActions):
     FLEE sends you in a random direction in your environment. FLEE can only be used when not in round time.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)    
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)    
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -450,11 +500,14 @@ class Get(DoActions):
     GET <item>\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -468,6 +521,10 @@ class Get(DoActions):
         for room_object in room.objects:
             if set(room_object.handle) & set(kwargs['direct_object']):
                 self.update_character_output("Perhaps picking up {} is not a good idea.".format(room_object.name))
+                return
+        for enemy_file in room_file.enemies:
+            if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
+                self.update_character_output("Perhaps pickping up {} is not a good idea.".format(enemy_file.enemy.name))
                 return
         if character.get_dominant_hand_inv() is None:
             item_found = False
@@ -508,12 +565,19 @@ class Give(DoActions):
     GIVE <item> to <npc> : Gives the item to the npc if the npc has the ability to accept the item.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         elif not kwargs['direct_object']:
             events.game_event("What are you trying to give?")
@@ -550,11 +614,14 @@ class Go(DoActions):
     GO <object> : move toward or through an object.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -569,24 +636,39 @@ class Go(DoActions):
             self.update_character_output("Go where?")
             self.update_status(character.get_status())
             return
+        found_object = False
         for room_object in room_file.room.objects:
             if set(room_object.handle) & set(kwargs['direct_object']):
+                found_object = True
                 self.update_character_output("You move toward {}.".format(room_object.name))
                 self.update_room_output("{} moves toward {}.".format(character.first_name, room_object.name)) 
-                self.action_result.update(room_object.go_object(character=character, room_file=room_file))
+                self.action_result.update(room_object.go_object(character_file=character_file, room_file=room_file))
                 return
         for room_item in room_file.room.items:
             if set(room_item.handle) & set(kwargs['direct_object']):
+                found_object = True
                 self.update_character_output("You move toward {}.".format(room_item.name))
                 self.update_room_output("{} moves toward {}.".format(character.first_name, room_item.name))
                 self.update_status(character.get_status())
                 return
         for room_npc in room_file.room.npcs:
             if set(room_npc.handle) & set(kwargs['direct_object']):
+                found_object = True
                 self.update_character_output("You move toward {}.".format(room_npc.name))
                 self.update_room_output("{} moves toward {}.".format(character.first_name, room_npc.name))
                 self.update_status(character.get_status())
                 return
+        for enemy_file in room_file.enemies:
+            if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
+                found_object = True
+                self.update_character_output("You move toward {}.".format(enemy_file.enemy.name))
+                self.update_room_output("{} moves toward {}.".format(character.first_name, enemy_file.enemy.name))
+                self.update_status(character.get_status())
+                return
+        if found_object == False:
+            self.update_character_output("You cannot seem to find a {}".format(kwargs['direct_object'][0]))
+            return
+
         
 @DoActions.register_subclass('health')
 class Health(DoActions):
@@ -594,8 +676,11 @@ class Health(DoActions):
     HEALTH shows your current health attributes.\
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
         self.update_character_output('''
 Health:  {} of {} hit points
@@ -615,8 +700,11 @@ class Help(DoActions):
     HELP <subject> : Output help on a specific subject.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
         verb_list = ""
 
@@ -648,8 +736,11 @@ class Information(DoActions):
     Provides general information on your character including level, experience, and other attributes.\
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
         self.update_character_output('''
 Name:  {} {}
@@ -673,8 +764,11 @@ class Inventory(DoActions):
     will not list the items within any containers you have.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.get_dominant_hand_inv():
             right_hand = "You have {} in your {} hand.".format(character.get_dominant_hand_inv().name, character.dominance)
@@ -724,11 +818,14 @@ class Kneel(DoActions):
     movement is not possible.
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
     
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -754,11 +851,14 @@ class Lie(DoActions):
     movement is not possible.
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -789,11 +889,13 @@ class Look(DoActions):
     LOOK <npc> : shows the description of the npc at which you want to look.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
 
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -801,7 +903,7 @@ class Look(DoActions):
             self.update_status(character.get_status())
             return
         if kwargs['preposition'] == None:
-            self.action_result.update(character.get_room().intro_text(character=character, room_file=room_file))
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
             self.update_status(character.get_status())
             return
         if kwargs['preposition'][0] == 'in':
@@ -819,6 +921,11 @@ class Look(DoActions):
                     self.action_result.update(item.contents())
                     self.update_status(character.get_status())
                     return
+            for enemy_file in room_file.enemies:
+                if set(enemy_file.enemy.handle) & set(kwargs['indirect_object']):
+                    self.update_character_output("It wouldn't be advisable to look in " + enemy_file.enemy.name)
+                    self.update_status(character.get_status())
+                    return
             if item_found is False:
                 self.update_character_output("A {} is nowhere to be found.".format(kwargs['indirect_object'][0]))
                 self.update_status(character.get_status())
@@ -829,33 +936,22 @@ class Look(DoActions):
                 self.update_character_output("I am not sure what you are referring to.")
                 self.update_status(character.get_status())
                 return
-            for item in room_file.room.items + room_file.room.objects + room_file.room.npcs + room_file.room.enemies + character.inventory + [character.get_dominant_hand_inv()] + [character.get_non_dominant_hand_inv()]:
+            for item in room_file.room.items + room_file.room.objects + room_file.room.npcs + character.inventory + [character.get_dominant_hand_inv()] + [character.get_non_dominant_hand_inv()]:
                 if not item:
                     pass
                 elif set(item.handle) & set(kwargs['indirect_object']):
                     self.action_result.update(item.view_description())
                     self.update_status(character.get_status())
                     return
-            for item in character.inventory:
-                if set(item.handle) & set(kwargs['indirect_object']):
-                    self.action_result.update(item.view_description())
+            for enemy_file in room_file.enemies:
+                if set(enemy_file.enemy.handle) & set(kwargs['indirect_object']):
+                    self.action_result.update(enemy_file.enemy.view_description())
                     self.update_status(character.get_status())
                     return
-            for object in room_file.room.objects:
-                if set(object.handle) & set(kwargs['indirect_object']):
-                    self.action_result.update(object.view_description())
-                    self.update_status(character.get_status())
-                    return
-            for npc in room_file.room.npcs:
-                if set(npc.handle) & set(kwargs['indirect_object']):
-                    self.update_character_output(npc.view_description())
-                    self.update_status(character.get_status())
-                    return
-            for enemy in room_file.room.enemies:
-                if set(npc.handle) & set(kwargs['indirect_object']):
-                    self.update_character_output(enemy.view_description())
-                    self.update_status(character.get_status())
-                    return
+            for character_file_search in room_file.characters:
+                if character_file_search.char.first_name == character_file.char.first_name:
+                    self.update_character_output(character_output_text="You take a long look at yourself.")
+                    self.update_room_output(room_output_text="{} looks {}self over.".format(character.first_name, character.possessive_pronoun))
             if item_found is False:
                 self.update_character_output("At what did you want to look?")
                 self.update_status(character.get_status())
@@ -873,11 +969,14 @@ class North(DoActions):
     Moves you north, if you can move in that direction.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)   
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)   
+
+        character = character_file.char
+        room = room_file.room
         
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())            
             return
         if character.is_dead():
@@ -889,12 +988,16 @@ class North(DoActions):
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x, y=character.location_y - 1, area=character.area_name):
-            if room_file.room.shop_filled == True:
+            if room.shop_filled == True:
                 if character.in_shop == True:
                     character.in_shop = False
-            old_room_number = room_file.room.room_number 
+                    room.shop.exit_shop()
+            old_room_number = room.room_number 
+            room_file.characters.remove(character_file)
             character.move_north()
-            self.action_result.update(character.get_room().intro_text(character=character, room_file=room_file))
+            room_file = character.get_room()
+            room_file.characters.append(character_file)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
             self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
@@ -914,11 +1017,14 @@ class Order(DoActions):
     ORDER <#>:  Orders the relevant item. You cannot order a specific item until you have entered the shop using the ORDER command by itself.
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
          
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())            
             return
         if character.is_dead():
@@ -952,10 +1058,13 @@ class Position(DoActions):
     Displays the position you are currently in.\
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
-        self.update_character_output('''You are currently in the {} position.'''.format(self.character.position))
+        self.update_character_output('''You are currently in the {} position.'''.format(character.position))
         self.update_status(character.get_status())
 
 
@@ -972,11 +1081,14 @@ class Put(DoActions):
     or item is stackable.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())            
             return
         if character.is_dead():
@@ -1025,6 +1137,11 @@ class Put(DoActions):
                     character.set_dominant_hand_inv(item=None)
                     self.update_status(character.get_status())
                     return
+            for enemy_file in room_file.enemies:
+                if set(enemy_file.enemy.handle) & set(kwargs['indirect_object']):
+                    self.update_character_output("That might not be a good idea.")
+                    self.update_status(character.get_status())
+                    return
         elif kwargs['preposition'][0] == "on":
             self.update_character_output("You cannot stack items yet.")
             self.update_status(character.get_status())
@@ -1041,11 +1158,44 @@ class Quit(DoActions):
     Exits the game.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         self.update_character_output("You will need to find a way to exit the game.")
+        return
 
+
+@DoActions.register_subclass('say')
+class Say(DoActions):
+    """\
+    SAY allows you to communicate with other characters in the game.
+
+    Usage:
+    SAY <text>:  Communicate the <text> to the room.
+    """
+
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
+
+        if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
+            self.update_status(character.get_status())            
+            return
+        if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
+            return
+        self.update_character_output("You say '{}'".format(kwargs['say_text']))
+        self.update_room_output("{} says '{}'".format(character.first_name, kwargs['say_text']))
+        self.update_status(character.get_status())
+        return
+        
 
 @DoActions.register_subclass('search')
 class Search(DoActions):
@@ -1058,8 +1208,11 @@ class Search(DoActions):
     them in your environment.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
             return
@@ -1104,8 +1257,11 @@ class Sell(DoActions):
     SELL <item> to <npc>  : Exchanges items for gulden with an npc if an item can be exchanged.
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
             return
@@ -1129,11 +1285,14 @@ class Sit(DoActions):
     movement is no possible.
     """        
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -1145,7 +1304,7 @@ class Sit(DoActions):
             self.update_status(status_text=character.get_status())
             return
         else:
-            self.character.position = 'sitting'
+            character.position = 'sitting'
             self.update_character_output(character_output_text="You move yourself to a sitting position.")
             self.update_room_output(room_output_text="{} moves {}self to a sitting position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
@@ -1155,15 +1314,18 @@ class Sit(DoActions):
 @DoActions.register_subclass('skills')
 class Skills(DoActions):
     """\
-    SKILLS displays the skills available to you as well as the skill rating for your character. Different skills
+    SKILLS displays the skills available to you as well as the skill rating for your character_file. Different skills
     allow you to accomplish different tasks.
 
     Usage:
     SKILLS:  Shows your available skills and their rating.
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         self.update_character_output(character_output_text='''
 Edged Weapons:    {}  ({})          Shield:             {}  ({})
@@ -1195,8 +1357,11 @@ class Skin(DoActions):
     SKIN <enemy> : Skins an enemy and, if successful, leaves a skin.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if character.check_round_time():
             return
@@ -1227,11 +1392,14 @@ class South(DoActions):
     Moves you south, if you can move in that direction.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)      
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)    
+
+        character = character_file.char
+        room = room_file.room
         
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())            
             return
         if character.is_dead():
@@ -1243,13 +1411,16 @@ class South(DoActions):
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x, y=character.location_y + 1, area=character.area_name):
-            if room_file.room.shop_filled == True:
+            if room.shop_filled == True:
                 if character.in_shop == True:
                     character.in_shop = False
-                    room_file.room.shop.exit_shop()
-            old_room_number = room_file.room.room_number 
-            self.character.move_south()
-            self.action_result.update(character.get_room().intro_text(character=character, room_file=room_file))
+                    room.shop.exit_shop()
+            old_room_number = room.room_number 
+            room_file.characters.remove(character_file)
+            character.move_south()
+            room_file = character.get_room()
+            room_file.characters.append(character_file)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
             self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
@@ -1277,8 +1448,11 @@ class Stance(DoActions):
     defense\
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
         
         desired_stance=kwargs['adjective_1']
 
@@ -1303,28 +1477,26 @@ class Stand(DoActions):
     Raises you to the standing position if you are not already in the standing position.
     """
     
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
         
-        self.character = character
+        character = character_file.char
+        room = room_file.room
         
-        self.stand(character=self.character)
-        
-    def stand(self, character):
-        if self.character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+        if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
-        if self.character.is_dead():
+        if character.is_dead():
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(character.get_status())
             return
-        if self.character.position == 'standing':
+        if character.position == 'standing':
             self.update_character_output(character_output_text="You seem to already be standing.")
             self.update_status(status_text=character.get_status())
             return
         else:
-            self.character.position = 'standing'
+            character.position = 'standing'
             self.update_character_output(character_output_text="You raise yourself to a standing position.")
             self.update_room_output(room_output_text="{} raises {}self to a standing position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
@@ -1337,8 +1509,11 @@ class Stats(DoActions):
     Displays your general statistics.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         self.update_character_output('''
 Name:  {} {}
@@ -1375,8 +1550,11 @@ class Target(DoActions):
     TARGET <enemy> : Targets an enemy.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
 
         if not kwargs['direct_object']:
             events.game_event("What do you want to target?")
@@ -1394,11 +1572,14 @@ class West(DoActions):
     Moves you west, if you can move in that direction.\
     """
 
-    def __init__(self, character, room_file, **kwargs):
-        DoActions.__init__(self, character, room_file, **kwargs)     
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)    
+
+        character = character_file.char
+        room = room_file.room 
         
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(self.character.get_round_time()))
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -1410,13 +1591,16 @@ class West(DoActions):
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x - 1, y=character.location_y, area=character.area_name):
-            if room_file.room.shop_filled == True:
+            if room.shop_filled == True:
                 if character.in_shop == True:
                     character.in_shop = False
-                    room_file.room.shop.exit_shop()
-            old_room_number = room_file.room.room_number 
-            self.character.move_west()
-            self.action_result.update(character.get_room().intro_text(character=character, room_file=room_file))
+                    room.shop.exit_shop()
+            old_room_number = room.room_number 
+            room_file.characters.remove(character_file)
+            character.move_west()
+            room_file = character.get_room()
+            room_file.characters.append(character_file)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
             self.update_room(character=character, old_room_number=old_room_number)
             self.update_status(character.get_status())
             return
@@ -1505,7 +1689,7 @@ class EnemyAction:
         self.action_result['room_change']['room_change_flag'] = True
         self.action_result['room_change']['leave_room_text'] = leave_text
         self.action_result['room_change']['old_room'] = old_room_number
-        self.action_result['room_change']['new_room'] = enemy.get_room().room_number
+        self.action_result['room_change']['new_room'] = enemy.get_room().room.room_number
         self.action_result['room_change']['enter_room_text'] = enter_text
         self.action_result['display_room_flag'] = True
         return
@@ -1536,14 +1720,17 @@ class EnemyAction:
         return "{}: {}".format(self.action, self.name)
 
 
-@EnemyAction.register_subclass('spawn')
-class Spawn(EnemyAction):
+@EnemyAction.register_subclass('leave')
+class Leave(EnemyAction):
     def __init__(self, enemy, **kwargs):
         super().__init__(enemy=enemy,
                          kwargs=kwargs)
+
         self.enemy = enemy
-        routes.enemy_spawn(enter_text=self.enemy.text_entrance, room_number=self.enemy.get_room().room_number)
-        return
+
+        if world.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
+            self.update_room_output(room_output_text=enemy.text_leave, room_output_number=enemy.get_room().room.room_number)
+
 
 @EnemyAction.register_subclass('east')
 class MoveEastEnemy(EnemyAction):
@@ -1553,7 +1740,7 @@ class MoveEastEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
-            old_room = self.enemy.get_room().room_number
+            old_room = enemy.get_room().room.room_number
             self.enemy.move_east()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "east.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
@@ -1568,7 +1755,7 @@ class MoveNorthEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.tile_exists(x=enemy.location_x, y=enemy.location_y - 1, area=enemy.area):
-            old_room = self.enemy.get_room().room_number
+            old_room = enemy.get_room().room.room_number
             self.enemy.move_north()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "north.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
@@ -1583,7 +1770,7 @@ class MoveSouthEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.tile_exists(x=enemy.location_x, y=enemy.location_y + 1, area=enemy.area):
-            old_room = self.enemy.get_room().room_number
+            old_room = enemy.get_room().room.room_number
             self.enemy.move_south()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "south.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
@@ -1598,9 +1785,19 @@ class MoveWestEnemy(EnemyAction):
         self.enemy = enemy
 
         if world.tile_exists(x=enemy.location_x - 1, y=enemy.location_y, area=enemy.area):
-            old_room = self.enemy.get_room().room_number
+            old_room = enemy.get_room().room.room_number
             self.enemy.move_west()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "west.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
             return
+
+
+@EnemyAction.register_subclass('spawn')
+class Spawn(EnemyAction):
+    def __init__(self, enemy, **kwargs):
+        super().__init__(enemy=enemy,
+                         kwargs=kwargs)
+        self.enemy = enemy
+        routes.enemy_spawn(enter_text=self.enemy.text_entrance, room_number=self.enemy.get_room().room.room_number)
+        return
 

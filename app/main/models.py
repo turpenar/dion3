@@ -141,6 +141,8 @@ class EnemySpawn(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     enemy = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
     room_id = db.Column(db.Integer, db.ForeignKey('rooms.room_number'), nullable=True)
+    stop = db.Column(db.Boolean)
+    health = db.Column(db.Integer, nullable=True)
 
 
 class Room(db.Model):

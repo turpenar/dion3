@@ -6,51 +6,13 @@ import eventlet
 
 from app import db
 from app.main import areas, tiles
-from app.main.models import WorldArea, Room
+from app.main.models import WorldArea, Room, EnemySpawn
 
 path_maps = pathlib.Path.cwd() / "app" / "resources" / "maps"
 map_list = path_maps.glob('*.txt')
 module = imp.load_source('tiles', 'app/main/tiles.py')
 starting_position = (0,0)
 starting_area = 'Field'
-
-class World:
-    def __init__(self, **kwargs):
-        self._world = {}
-        self.starting_position = (0, 0)
-        self._area_count = 10
-
-    def load_areas(self):
-        """Parses a file that describes the world space into the database."""
-        for path in map_list:
-            area_name = path.stem.split('.')[0]
-            area_exists = db.session.query(Area).filter_by(area_name=area_name).first()
-            if not area_exists:
-                area_object = areas.Area(area_name=area_name, 
-                                        area_path=path, 
-                                        area_number=self._area_count)
-                area = WorldArea(area=areas.Area(area_name=area_name, 
-                                            area_path=path, 
-                                            area_number=self._area_count,
-                            ),
-                            area_name=area_name
-                )
-                db.session.add(area)
-                self._world[area_name] = area_object
-                self._area_count += 1
-        return
-
-    def load_rooms(self):
-        for area in self._world:
-            self._world[area].create_rooms()
-
-    def area_rooms(self, area):
-        area = area.replace(" ", "")
-        return self._world[area]
-
-    def area_enemies(self, area):
-        area = area.replace(" ", "")
-        return self._world[area].area_enemies(area)
 
 
 def load_world():
@@ -114,12 +76,26 @@ def initiate_enemies(app):
     for area_file in areas:
         if len(area_file.area._area_enemies) > 0:
             eventlet.spawn(area_file.area.spawn_enemies, app)
+    return
+
+def clear_enemies(app):
+    all_enemies = db.session.query(EnemySpawn).all()
+    print(all_enemies)
+    for enemy_file in all_enemies:
+        print(enemy_file)
+        print(enemy_file.id)
+        enemy_file.stop = True
+        db.session.merge(enemy_file)
+        print(f"after stop flag changed for enemy {enemy_file.id}")
+        print(f"enemy {enemy_file.id} stop flag = {enemy_file.stop}")
+    db.session.commit()
+    return
     
 
 def tile_exists(x, y, area):
     room = db.session.query(Room).filter_by(x=x, y=y, area_name=area).first()
     if room:
-        return room.room
+        return room
     else:
         return None
     

@@ -43,27 +43,13 @@ class Area(mixins.DataFileMixin):
                                                 target=None,
                                                 location_x=spawn_room_file.x,
                                                 location_y=spawn_room_file.y,
-                                                area=self.area_name))
+                                                area=self.area_name),
+                                        stop=False)
                 spawn_room_file.enemies.append(new_enemy)
+                db.session.add(new_enemy)
                 db.session.merge(spawn_room_file)
                 db.session.flush()
+                new_enemy.enemy.enemy_id = new_enemy.id
                 eventlet.spawn(new_enemy.enemy.run, app, new_enemy.id)
                 db.session.commit()
                 # eventlet.sleep(10)
-
-
-        # while character.area == self.area.replace(" ", ""):
-        #     time.sleep(5)
-        #     area_enemies = world.area_enemies(self.area)
-        #     if len(area_enemies) < 1:
-        #         area_rooms = {keys: value for keys, value in area_rooms.items() if value is not None}
-        #         spawn_room_coords = random.choice(list(area_rooms))
-        #         if random.randint(0,100) > 50:
-        #             spawn_room = self.tile_exists(x=spawn_room_coords[0], y=spawn_room_coords[1], area=self.area)
-        #             spawn_room.enemies.append(
-        #                 enemies.Enemy(enemy_name=self._room_data['spawn'][0],
-        #                                 target=character,
-        #                                 room=spawn_room,
-        #                                 location_x=spawn_room_coords[0],
-        #                                 location_y=spawn_room_coords[1],
-        #                                 area=self.area))

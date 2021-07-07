@@ -157,22 +157,17 @@ def my_event(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
     if character_file:
         character = character_file.char
-        test_result = db.session.query(Room).filter_by(x=character.location_x, 
-                                                     y=character.location_y, 
-                                                     area_name=character.area_name
-                                                     )
         room_file = db.session.query(Room).filter_by(x=character.location_x, 
                                                      y=character.location_y, 
                                                      area_name=character.area_name
                                                      ).first()
-        room = room_file.room
     else:
         emit('game_action',
              {'data': 'You have not loaded a character'}
              )
         return
 
-    action_result = actions.do_action(action_input=message['data'], character=character, room_file=room_file)
+    action_result = actions.do_action(action_input=message['data'], character_file=character_file, room_file=room_file)
 
     if not action_result['action_success']:
         emit('game_event',
@@ -180,14 +175,11 @@ def my_event(message):
             )
     else:
         if action_result['room_change']['room_change_flag'] == True:
-            room_file.characters.remove(character_file)
             emit('game_event',
                 {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']), include_self=False
                 )
             leave_room(room=str(action_result['room_change']['old_room']))
             join_room(room=str(action_result['room_change']['new_room']))
-            room_file = db.session.query(Room).filter_by(room_number=action_result['room_change']['new_room']).first()
-            room_file.characters.append(character_file)
             emit('game_event',
                 {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']), include_self=False
                 )
@@ -199,14 +191,6 @@ def my_event(message):
                 {'data': action_result['character_output']['character_output_text']}
                 )
         if action_result['display_room']['display_room_flag']:
-            char_names = []
-            for char in room_file.characters:
-                if char == character_file:
-                    pass
-                else:
-                    char_names.append(char.first_name)
-            if len(char_names) > 0:
-                action_result['display_room']['display_room_text'] = action_result['display_room']['display_room_text'] + "<br>Also here:  " + " ".join(char_names)
             emit('game_event',
                 {'data': action_result['display_room']['display_room_text']}
                 )

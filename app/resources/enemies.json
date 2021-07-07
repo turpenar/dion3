@@ -27,7 +27,7 @@
 		"round_time": {
 			"engage": 5,
 			"attack": 10,
-			"move": 5
+			"move": 10
 			},
 		"spawn_location": "Wilds",
 		"text": {
@@ -35,7 +35,8 @@
 			"move_out_text": "A wild boar rushes ",
 			"move_in_text": "A wild boar rushes into the area.",
 			"engage_text": "A wild boar stamps its feet.",
-			"death_text": "A wild boar staggers and eventually slumps to the ground, motionless."
+			"death_text": "A wild boar staggers and eventually slumps to the ground, motionless.",
+			"leave_text": "A wild boar rushes off through the trees."
 			},
 		"corpse": "wild_boar_corpse"
 	}

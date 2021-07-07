@@ -157,8 +157,8 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
                 self._object_pronoun = "she"
                 self._possessive_pronoun = "her"
             if gender.lower() == "male":
-                self._object_pronoun = "she"
-                self._possessive_pronoun = "his"
+                self._object_pronoun = "he"
+                self._possessive_pronoun = "him"
                 
     @property
     def race(self):
@@ -401,7 +401,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         return round_time
 
     def get_round_time(self):
-            return self.rt_end - time.time()
+            return int(self.rt_end - time.time())
 
     def set_round_time(self, seconds):
         self.rt_start = time.time()

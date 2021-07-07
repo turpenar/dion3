@@ -40,9 +40,18 @@ def find_index(input_list, list_of_matches):
     return [i for i, item in enumerate(input_list) if item in list_of_matches]
 
 def parser(input):
+
+    kwargs = {}
+
     input = input.lower()
     tokens = input.split()
     tokens = [x for x in tokens if x not in articles]
+
+    if tokens[0] == 'say':
+        kwargs['action_verb'] = tokens[0]
+        kwargs['say_text'] = ' '.join(tokens[1:])
+        print(kwargs)
+        return kwargs
 
     relevant_verbs = set(tokens).intersection(verbs)
     relevant_nouns = set(tokens).intersection(nouns)
@@ -57,8 +66,6 @@ def parser(input):
     preposition_index = find_index(tokens, relevant_prepositions)
     determiner_index = find_index(tokens, relevant_determiners)
     numbers = relevant_numbers
-
-    kwargs = {}
 
     if len(verb_index) == 0:
         kwargs['action_verb'] = tokens[0]

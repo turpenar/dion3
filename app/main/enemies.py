@@ -46,6 +46,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         self._text_move_in = self._enemy_data['text']['move_in_text']
         self._text_move_out = self._enemy_data['text']['move_out_text']
         self._text_engage = self._enemy_data['text']['engage_text']
+        self._text_attack = self._enemy_data['text']['attack_text']
         self._text_death = self._enemy_data['text']['death_text']
         self._text_leave = self._enemy_data['text']['leave_text']
         
@@ -279,6 +280,10 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @property
     def text_engage(self):
             return self._text_engage
+
+    @property
+    def text_attack(self):
+            return self._text_attack
             
     @property
     def text_death(self):
@@ -343,9 +348,9 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
             room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
             if room_file:
                 try:
-                    room_file.remove(enemy_file)
-                    room_file.room.add_object(objects.Corpse(object_name=self.corpse, room=room_file.room))
-                    db.session.merge(room_file)
+                    room_file.enemies.remove(enemy_file)
+                    print(f"enemy {enemy_file.id} has been removed from the room.")
+                    room_file.room.add_object(objects.create_object(object_category="corpse", object_name=self.corpse, room=room_file))
                 except:
                     print("Game Error:  when replacing a dead enemy with a corpse, the enemy was not in mapped to the proper room")
                 return
@@ -359,32 +364,33 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                 enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
                 enemy_file.health = self._enemy_data['health']
                 actions.do_enemy_action(action_input='spawn')
-                db.session.merge(enemy_file)
                 db.session.commit()
-                print(f"enemy {enemy_file.enemy.enemy_id} has finished spawning.")
-                print(f"enemy {enemy_file.id} has spawned in room {enemy_file.room_id}")
-                print(f"enemy {enemy_file.enemy.enemy_id} stop flag = {enemy_file.stop}")
                 eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
-                while enemy_file.enemy.is_alive(enemy_file) and not enemy_file.stop:
+                db.session.commit()
+                enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
+                while True:
+                        if enemy_file.health <= 0:
+                                break 
+                        if enemy_file.stop:
+                                break
+                        room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
+                        if len(room_file.characters) > 0:
+                                actions.do_enemy_action('attack', enemy_file=enemy_file, character_file=room_file.characters[0], room_file=room_file)
+                                db.session.commit()
+                                eventlet.sleep(seconds=enemy_file.enemy.round_time_attack)
+                                db.session.commit()
+                        else:
+                                available_movement_actions = []
+                                available_movement_actions = enemy_file.enemy.adjacent_moves()
+                                action = random.choice(available_movement_actions)
+                                room_file.enemies.remove(enemy_file)
+                                actions.do_enemy_action(action_input=action, enemy=enemy_file.enemy)
+                                room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
+                                room_file.enemies.append(enemy_file)
+                                db.session.commit()
+                                eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
+                                db.session.commit()
                         enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
-                        available_movement_actions = [] 
-                        print(f"enemy {enemy_file.id} has been found and ready to move.")
-                        print(f"enemy {enemy_file.id} stop flag = {enemy_file.stop}")
-                        available_movement_actions = enemy_file.enemy.adjacent_moves()
-                        action = random.choice(available_movement_actions)
-                        room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
-                        room_file.enemies.remove(enemy_file)
-                        actions.do_enemy_action(action_input=action, enemy=enemy_file.enemy)
-                        room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
-                        room_file.enemies.append(enemy_file)
-                        db.session.merge(room_file)
-                        db.session.merge(enemy_file)
-                        db.session.commit()
-                        print(f"enemy {enemy_file.id} moved to {enemy_file.enemy.get_room().room.room_name}.")
-                        print(f"enemy {enemy_file.enemy.enemy_id} stop flag = {enemy_file.stop}")
-                        eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
-                print(f"enemy {enemy_file.enemy.enemy_id} stop flag = {enemy_file.stop}")
-                print(f"enemy {enemy_file.enemy.enemy_id} is alive = {enemy_file.enemy.is_alive(enemy_file)}")
                 room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
                 db.session.delete(enemy_file)
                 db.session.commit()

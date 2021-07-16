@@ -1,5 +1,5 @@
 import eventlet
-from flask import Flask, current_app
+from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from flask_socketio import SocketIO
 from flask_login import LoginManager
@@ -8,21 +8,15 @@ from flask_sqlalchemy import SQLAlchemy
 eventlet.monkey_patch()
 
 async_mode = 'eventlet'
-debug = True
 
 csrf = CSRFProtect()
 socketio = SocketIO()
 login = LoginManager()
 db = SQLAlchemy()
 
-def create_app(debug=debug):
+def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'Your Kung-Fu is Very Good'
-    app.config['DEBUG'] = debug
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main/users.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SESSION_TYPE'] = "sqlalchemy"
-    app.config['SESSION_SQLALCHEMY'] = db
+    app.config.from_object("config.DevelopmentConfig")
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
     csrf.init_app(app)
@@ -38,3 +32,7 @@ def create_app(debug=debug):
         world.load_world()
         world.initiate_enemies(app=app)
     return app
+
+    engine = create_engine(
+    "postgresql+pg8000://scott:tiger@localhost/test",
+    isolation_level="READ UNCOMMITTED")

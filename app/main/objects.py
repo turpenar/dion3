@@ -158,8 +158,6 @@ class Door(Object):
         object_data = category_data[object_name]
         Object.__init__(self, object_data=object_data, **kwargs)
 
-        self.room = room
-
     def go_object(self, character_file, room_file):
         self.reset_result()
         character = character_file.char
@@ -197,8 +195,6 @@ class Furniture(Object):
         object_data = category_data[object_name]
         Object.__init__(self, object_data=object_data, **kwargs)
 
-        self.room = room
-
     def search(self, character):
         self.reset_result()
         pass
@@ -209,8 +205,6 @@ class Miscellaneous(Object):
         category_data = self.get_object_by_name('Miscellaneous')
         object_data = category_data[object_name]
         Object.__init__(self, object_data=object_data, **kwargs)
-
-        self.room = room
 
     def search(self, character):
         self.reset_result()
@@ -224,25 +218,30 @@ class Corpse(Object):
         object_data = category_data[object_name]
         Object.__init__(self, object_data=object_data, **kwargs)
 
-        self.room = room
-
         self.level = self.object_data['level']
 
         self.skin = self.object_data['skin']
         self.loot_drop_rate = self.object_data['loot']['drop_rate']
-        self.loot_categories = self.object_data['loot']['items']
+        self.loot_categories = self.object_data['loot']['item_categories']
         self.loot_money = self.object_data['loot']['money']
 
-    def skin_corpse(self):
+    def skin_corpse(self, character_file, room_file):
         self.reset_result()
         if self.skin == None:
-            events.game_event("You cannot skin {}".format(self.name))
+            self.update_character_output(f"You cannot skin {self.name}")
         else:
-            events.game_event("You skin {} to yield {}.".format(self.name, all_items_categories['skin'][self.skin]['name']))
-            self.room.add_item(items.create_item(item_category='skin', item_name=self.skin))
-        return
+            # room_file.room.add_item(items.create_item(item_category='skin', item_name=self.skin))
+            # self.update_character_output(character_output_text=f"You skin {self.name} to yield {all_items_categories['skin'][self.skin]['name']}.")
+            # self.update_room_output(room_output_text=f"{character_file.char.first_name} skinned {self.name}.")
+            try:
+                self.update_character_output(character_output_text=f"You skin {self.name} to yield {all_items_categories['skin'][self.skin]['name']}.")
+                self.update_room_output(room_output_text=f"{character_file.char.first_name} skinned {self.name}.")
+                room_file.room.add_item(items.create_item(item_category='skin', item_name=self.skin))
+            except:
+                print(f"WARNING:  Could not create {self.skin} for {self.name}")
+        return self.object_result
 
-    def search(self, character):
+    def search(self, character_file, room_file):
         self.reset_result()        
         possible_items = {}
         area = "Wilds"
@@ -251,18 +250,24 @@ class Corpse(Object):
                 if all_items_categories[category][item]['level'] <= self.level and all_items_categories[category][item]['area'] == area:
                     possible_items[item] = all_items_categories[category][item]
         if len(possible_items) == 0:
-            events.game_event("You did not find any items on {}.".format(self.name))
+            found_item_text = f"You did not find any items on {self.name}."
         else:
-            found_item = random.choice(list(possible_items))
-            found_item = getattr(__import__('items'), possible_items[found_item]['category'])(item_name=found_item)
-            events.game_event("You found {}!".format(found_item.name))
-            self.room.add_item(found_item)
+            found_item_category, found_item_name = random.choice(list(possible_items))
+            found_item = items.create_item(item_category=found_item_category, item_name=found_item_name)
+            room_file.room.add_item(found_item)
+            found_item_text = f"You found {found_item.name}!"
         if self.loot_money == 0:
-            events.game_event("You did not find any gulden on {}.".format(self.name))
+            found_loot_text = f"You did not find any gulden on {self.name}."
         else:
-            character.add_money(self.loot_money)
-            events.game_event("You found {} gulden on {}!".format(self.loot_money, self.name))
-        self.room.remove_object(self)
-        self.room = None
-        return
+            character_file.char.add_money(self.loot_money)
+            found_loot_text = f"You found {self.loot_money} gulden on {self.name}!"
+        room_file.room.remove_object(self)
+        self.update_character_output(character_output_text=f"""
+You search {self.name}.
+{found_item_text}
+{found_loot_text}
+{self.name.capitalize()} decays into compost.
+        """)
+        self.update_room_output(room_output_text=f"{character_file.char.first_name} searched {self.name}.")
+        return self.object_result
 

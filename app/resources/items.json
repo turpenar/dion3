@@ -388,7 +388,7 @@
 			"capacity": 0,
 			"category": "weapon", 
 			"sub_category": "edged_weapons",
-			"classification": "handaxe",
+			"classification": "han_daxe",
 			"visibility": 100,
 			"enchant": false,
 			"rarity": "common",

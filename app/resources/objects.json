@@ -292,7 +292,7 @@
 			"level": 0,
 			"loot": {
 				"drop_rate": 100,
-				"items": [],
+				"item_categories": [],
 				"money": 10
 			},
 			"skin": "boar_hide",

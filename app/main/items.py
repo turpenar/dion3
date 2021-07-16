@@ -148,8 +148,10 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
     def new_item(cls, item_category, item_name, **kwargs):
         """Method used to initiate an action"""
         if item_category not in cls.item_categories:
-            events.game_event("I am sorry, I did not understand.")
-            return
+            cls.item_result = {"action_success":  False,
+                             "action_error":  "I am sorry, I did not understand."
+            }
+            return cls.item_result
         return cls.item_categories[item_category](item_name, **kwargs)
 
 

@@ -80,14 +80,8 @@ def initiate_enemies(app):
 
 def clear_enemies(app):
     all_enemies = db.session.query(EnemySpawn).all()
-    print(all_enemies)
     for enemy_file in all_enemies:
-        print(enemy_file)
-        print(enemy_file.id)
         enemy_file.stop = True
-        db.session.merge(enemy_file)
-        print(f"after stop flag changed for enemy {enemy_file.id}")
-        print(f"enemy {enemy_file.id} stop flag = {enemy_file.stop}")
     db.session.commit()
     return
     

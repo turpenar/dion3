@@ -47,9 +47,9 @@ class Area(mixins.DataFileMixin):
                                         stop=False)
                 spawn_room_file.enemies.append(new_enemy)
                 db.session.add(new_enemy)
-                db.session.merge(spawn_room_file)
                 db.session.flush()
                 new_enemy.enemy.enemy_id = new_enemy.id
                 eventlet.spawn(new_enemy.enemy.run, app, new_enemy.id)
+                print(f"enemy {new_enemy.id} created.")
                 db.session.commit()
                 # eventlet.sleep(10)

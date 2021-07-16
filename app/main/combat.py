@@ -6,7 +6,9 @@
 
 import random as random
 
+from app import db
 from app.main import items, config
+from app.main.models import Room
 
 weapon_damage_factors = config.WEAPON_DAMAGE_FACTORS
 weapon_attack_factors = config.WEAPON_ATTACK_FACTORS
@@ -83,10 +85,11 @@ def update_display_room(display_room_text):
     combat_result['display_room']['display_room_text'] = display_room_text
     return
     
-def update_room_output(room_output_text):
+def update_room_output(room_output_text, room_output_number=None):
     global combat_result
     combat_result['room_output']['room_output_flag'] = True
     combat_result['room_output']['room_output_text'] = room_output_text
+    combat_result['room_output']['room_output_number'] = room_output_number
     return
     
 def update_area_output(area_output_text):
@@ -204,6 +207,7 @@ def get_exerience_modifier(self_level, target_level):
 
 def melee_attack_enemy(self, target_file):
     global combat_result
+    reset_result()
     attack_strength = calculate_attack_strength(self, self.get_dominant_hand_inv())
     defense_strength = calculate_defense_strength(character=target_file.enemy, weapon=target_file.enemy.weapon)
     attack_factor = calculate_attack_factor(self.get_dominant_hand_inv(), target_file.enemy.armor)
@@ -213,12 +217,12 @@ def melee_attack_enemy(self, target_file):
     
     result = None
     if att_end_roll <= 100:
-        result_character = f"""\
+        result_character = f"""
 {target_file.enemy.name} evades the attack.
 Round time:  {round_time} seconds
             """
-        result_room = f"""\
-{self.first_name} swings at {target_file.enemy.name} and misses.
+        result_room = f"""
+{self.first_name} swings {self.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.
             """
     else:
         att_damage = get_damage(att_end_roll, self.get_dominant_hand_inv(), target_file.enemy.armor)
@@ -233,53 +237,65 @@ Round time:  {round_time} seconds
 You damage {target_file.enemy.name} by {att_damage}.
 Round time:  {round_time} seconds
 Target health:  {target_file.health}
-{death_text}\
+{death_text}
             """
-        result_room = f"""\
-{self.name} hits {target_file.enemy.name}.
-{death_text}\
+        result_room = f"""
+{self.name} strikes {target_file.enemy.name} with {self.get_dominant_hand_inv().name}!
+{death_text}
             """
 
-    update_character_output(character_output_text=f"""\
-You attack {target_file.enemy.name}!
+    update_character_output(character_output_text=f"""
+You swing {self.get_dominant_hand_inv().name} at {target_file.enemy.name}!
 STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
-{result_character}\
+{result_character}
     """)
-    self.check_level_up()
+    # self.check_level_up()
     update_room_output(room_output_text=result_room)
-    reset_result()
     return combat_result
 
-def melee_attack_character(self, character):
-    attack_strength = calculate_attack_strength(self, self.weapon)
-    defense_strength = calculate_defense_strength(character=character, weapon=character.get_dominant_hand_inv())
-    attack_factor = calculate_attack_factor(self.weapon, character.armor)
+def melee_attack_character(enemy_file, character_file, room_file):
+    global combat_result
+    reset_result()
+    attack_strength = calculate_attack_strength(enemy_file.enemy, enemy_file.enemy.weapon)
+    defense_strength = calculate_defense_strength(character=character_file.char, weapon=character_file.char.get_dominant_hand_inv())
+    attack_factor = calculate_attack_factor(enemy_file.enemy.weapon, character_file.char.armor)
     att_random = random.randint(0,100)
     att_end_roll = end_roll(attack=attack_strength,defense=defense_strength, attack_factor=attack_factor, random=att_random)
 
     result = None
     death_text = None
     if att_end_roll <= 100:
-        result = """\
-{} evades the attack.\
-            """.format(character.name)
+        result_character = f"""\
+You evade the attack.\
+            """
+        result_room = f"""\
+{character_file.char.first_name} evades the attack.\
+        """
     else:
-        att_damage = get_damage(att_end_roll, self.weapon, character.armor)
-        character.health = character.health - att_damage
-        death_text = character.is_killed()
-        result = """\
-{} damages {} by {}.
-{}\
-            """.format(self.name, character.name, att_damage, death_text)
+        att_damage = get_damage(att_end_roll, enemy_file.enemy.weapon, character_file.char.armor)
+        character_file.char.health = character_file.char.health - att_damage
+        death_text = character_file.char.is_killed()
+        result_character = f"""\
+{enemy_file.enemy.name} damages you by {att_damage}.
+{death_text}\
+            """
+        result_room = f"""\
+{enemy_file.enemy.name} hits {character_file.char.first_name} with a {enemy_file.enemy.weapon}\
+        """
 
-    events.game_event("""\
-{} attacks {}!
-STR {} - DEF {} + AF {} + D100 ROLL {} = {}
-{}
+    update_character_output(character_output_text=f"""\
+{enemy_file.enemy.name} {enemy_file.enemy.text_attack} you!
+STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
+{result_character}
 \
-    """.format(self.name, character.name, attack_strength, defense_strength, attack_factor, att_random, att_end_roll, result))
+    """)
+    update_room_output(room_output_text=f"""\
+{enemy_file.enemy.name.capitalize()} swing {enemy_file.enemy.weapon} at {character_file.char.first_name}
+{result_room}
+    """,
+                       room_output_number=room_file.room_number)
 
-    return character
+    return combat_result
 
 
 

@@ -12,7 +12,7 @@ import textwrap as textwrap
 
 from app import db
 from app.main import world, routes, enemies, command_parser, config, npcs, combat
-from app.main.models import Room
+from app.main.models import EnemySpawn, Room
 
 
 verbs = config.verbs
@@ -210,7 +210,6 @@ class Attack(DoActions):
                 if set(enemy_file.id) & set(character.target):
                     self.action_result.update(combat.melee_attack_enemy(self=character, target=enemy_file.enemy))
                     self.update_status(status_text=character.get_status())
-                    db.session.merge(enemy_file)
                     return
                 else:
                     self.update_character_output(character_output_text="Your target doesn't seem to be around here.")
@@ -219,10 +218,11 @@ class Attack(DoActions):
         if kwargs['direct_object']:
             for enemy_file in room_file.enemies:
                 if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
-                    character.target = enemy_file.id
-                    self.action_result.update(combat.melee_attack_enemy(self=character, target_file=enemy_file))
+                    target_file = db.session.query(EnemySpawn).filter_by(id=enemy_file.id).first()
+                    character.target = target_file.id
+                    self.action_result.update(combat.melee_attack_enemy(self=character, target_file=target_file))
                     self.update_status(status_text=character.get_status())
-                    db.session.merge(enemy_file)
+                    db.session.commit()
                     return
             for npc in room.npcs:
                 if set(npc.handle) & set(kwargs['direct_object']):
@@ -1215,8 +1215,12 @@ class Search(DoActions):
         room = room_file.room
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
+            self.update_status(character.get_status())            
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
             return
         if not kwargs['direct_object']:
             items_found = 0
@@ -1224,26 +1228,26 @@ class Search(DoActions):
                 if 100 - character.level >= hidden_item.visibility:
                     character.room.add_item(hidden_item)
                     character.room.remove_hidden_item(hidden_item)
-                    events.game_event('You found {}!'.format(hidden_item.name))
+                    self.update_character_output(f'You found {hidden_item.name}!')
                     items_found += 1
             if items_found == 0:
-                events.game_event("There doesn't seem to be anything around here.")
+                self.update_character_output("There doesn't seem to be anything around here.")
             return
         else:
-            for object in character.room.objects:
+            for object in room.objects:
                 if set(object.handle) & set(kwargs['direct_object']):
-                    object.search(character=character)
+                    self.action_result.update(object.search(character_file=character_file, room_file=room_file))
                     return
-            for item in character.room.items:
+            for item in room.items:
                 if set(item.handle) & set(kwargs['direct_object']):
-                    events.game_event("Searching {} will not do you much good.".format(item.name))
+                    self.update_character_output(f"Searching {item.name} will not do you much good.")
                     return
-            for char in character.room.enemies + character.room.npcs:
+            for char in room.enemies + character.room.npcs:
                 if set(char.handle) & set(kwargs['direct_object']):
-                    events.game_event("{} probably will not appreciate that.".format(char.first_name))
+                    self.update_character_output(f"{char.first_name} probably will not appreciate that.")
                     return
             else:
-                events.game_event("That doesn't seem to be around here.")
+                self.update_character_output("That doesn't seem to be around here.")
                 return
 
 
@@ -1364,24 +1368,32 @@ class Skin(DoActions):
         room = room_file.room
 
         if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
+            self.update_status(character.get_status())
             return
         if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
+            return
+        if character.position == 'sitting':
+            self.update_character_output(character_output_text="You seem to already be sitting.")
+            self.update_status(status_text=character.get_status())
             return
         elif not kwargs['direct_object']:
-            events.game_event("What are you trying to skin?")
+            self.update_character_output("What are you trying to skin?")
             return
         else:
-            for object in character.room.objects:
+            for object in room.objects:
                 if set(object.handle) & set(kwargs['direct_object']):
-                    object.skin_corpse()
+                    self.action_result.update(object.skin_corpse(character_file=character_file, room_file=room_file))
                     return
-            for item in character.room.items:
+            for item in room.items:
                 if set(item.handle) & set(kwargs['direct_object']):
-                    events.game_event("You can seem to find any way to skin {}.".format(item.name))
+                    self.update_character_output("You can seem to find any way to skin {}.".format(item.name))
                     return
-            for npc in character.room.npcs:
+            for npc in room.npcs:
                 if set(npc.handle) & set(kwargs['direct_object']):
-                    events.game_event("You approach {}, but think better of it.".format(npc.name))
+                    self.update_character_output("You approach {}, but think better of it.".format(npc.name))
                     return
 
 
@@ -1441,11 +1453,11 @@ class Stance(DoActions):
     STANCE <type>: Changes your stance to the desired stance.
     
     Types of Stances:
-    offense
-    forward
-    neutral
-    guarded
-    defense\
+    OFFENSE
+    FORWARD
+    NEUTRAL
+    GUARDED
+    DEFENSE\
     """
     
     def __init__(self, character_file, room_file, **kwargs):
@@ -1611,9 +1623,9 @@ class West(DoActions):
 
 
 
-def do_enemy_action(action_input, enemy=None):
+def do_enemy_action(action_input, enemy_file=None, character_file=None, room_file=None, **kwargs):
     action_history.insert(0,action_input)
-    if not enemy:
+    if not enemy_file:
         action_result = {"action_success": False,
                          "action_error":  "No enemy loaded. You will need to create a new character or load an existing character."
         }
@@ -1624,12 +1636,11 @@ def do_enemy_action(action_input, enemy=None):
         }
         return action_result
     kwargs = command_parser.parser(action_input)
-    return EnemyAction.do_enemy_action(kwargs['action_verb'], enemy, **kwargs)
+    return EnemyAction.do_enemy_action(kwargs['action_verb'], enemy_file, character_file, room_file, **kwargs)
 
 
 class EnemyAction:
-    def __init__(self, enemy, **kwargs):
-        self.enemy = enemy
+    def __init__(self, enemy, character_file, room_file, **kwargs):
         self.kwargs = kwargs        
         self.action_result = {
             "action_success": True,
@@ -1676,14 +1687,14 @@ class EnemyAction:
         return decorator
 
     @classmethod
-    def do_enemy_action(cls, action, enemy, **kwargs):
+    def do_enemy_action(cls, action, enemy_file, character_file, room_file, **kwargs):
         """Method used to initiate an action"""
         if action not in cls.do_enemy_actions:
             cls.action_result = {"action_success":  False,
                              "action_error":  "I am sorry, I did not understand."
             }
             return cls.action_result
-        return cls.do_enemy_actions[action](enemy, **kwargs).action_result
+        return cls.do_enemy_actions[action](enemy_file, character_file, room_file, **kwargs).action_result
 
     def update_room(self, enemy, leave_text, enter_text, old_room_number):
         self.action_result['room_change']['room_change_flag'] = True
@@ -1719,25 +1730,45 @@ class EnemyAction:
     def __str__(self):
         return "{}: {}".format(self.action, self.name)
 
+@EnemyAction.register_subclass('attack')
+class Attack(EnemyAction):
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
+                         kwargs=kwargs)
+        enemy = enemy_file.enemy
+
+        if character_file:
+            self.action_result.update(combat.melee_attack_character(enemy_file=enemy_file, character_file=character_file, room_file=room_file))
+            routes.enemy_event(action_result=self.action_result)
+            return
+
+
 
 @EnemyAction.register_subclass('leave')
 class Leave(EnemyAction):
-    def __init__(self, enemy, **kwargs):
-        super().__init__(enemy=enemy,
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
                          kwargs=kwargs)
-
-        self.enemy = enemy
+        enemy = enemy_file.enemy
 
         if world.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
             self.update_room_output(room_output_text=enemy.text_leave, room_output_number=enemy.get_room().room.room_number)
+            routes.enemy_event(action_result=self.action_result)
+            return
 
 
 @EnemyAction.register_subclass('east')
 class MoveEastEnemy(EnemyAction):
-    def __init__(self, enemy, **kwargs):
-        super().__init__(enemy=enemy,
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
                          kwargs=kwargs)
-        self.enemy = enemy
+        enemy = enemy_file.enemy
 
         if world.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
             old_room = enemy.get_room().room.room_number
@@ -1749,10 +1780,12 @@ class MoveEastEnemy(EnemyAction):
 
 @EnemyAction.register_subclass('north')
 class MoveNorthEnemy(EnemyAction):
-    def __init__(self, enemy, **kwargs):
-        super().__init__(enemy=enemy,
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
                          kwargs=kwargs)
-        self.enemy = enemy
+        enemy = enemy_file.enemy
 
         if world.tile_exists(x=enemy.location_x, y=enemy.location_y - 1, area=enemy.area):
             old_room = enemy.get_room().room.room_number
@@ -1764,10 +1797,12 @@ class MoveNorthEnemy(EnemyAction):
 
 @EnemyAction.register_subclass('south')
 class MoveSouthEnemy(EnemyAction):
-    def __init__(self, enemy, **kwargs):
-        super().__init__(enemy=enemy,
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
                          kwargs=kwargs)
-        self.enemy = enemy
+        enemy = enemy_file.enemy
 
         if world.tile_exists(x=enemy.location_x, y=enemy.location_y + 1, area=enemy.area):
             old_room = enemy.get_room().room.room_number
@@ -1779,10 +1814,12 @@ class MoveSouthEnemy(EnemyAction):
 
 @EnemyAction.register_subclass('west')
 class MoveWestEnemy(EnemyAction):
-    def __init__(self, enemy, **kwargs):
-        super().__init__(enemy=enemy,
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
                          kwargs=kwargs)
-        self.enemy = enemy
+        enemy = enemy_file.enemy
 
         if world.tile_exists(x=enemy.location_x - 1, y=enemy.location_y, area=enemy.area):
             old_room = enemy.get_room().room.room_number
@@ -1794,10 +1831,13 @@ class MoveWestEnemy(EnemyAction):
 
 @EnemyAction.register_subclass('spawn')
 class Spawn(EnemyAction):
-    def __init__(self, enemy, **kwargs):
-        super().__init__(enemy=enemy,
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
                          kwargs=kwargs)
-        self.enemy = enemy
+        enemy = enemy_file.enemy
+
         routes.enemy_spawn(enter_text=self.enemy.text_entrance, room_number=self.enemy.get_room().room.room_number)
         return
 

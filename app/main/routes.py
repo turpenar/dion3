@@ -201,8 +201,6 @@ def my_event(message):
         emit('status_update',
             {'data': action_result['status_output']}
             )
-        db.session.merge(character_file)
-        db.session.merge(room_file)
         db.session.commit()
 
 @socketio.event
@@ -217,8 +215,6 @@ def connect_room(message):
         emit('game_event', 
                 {'data':  "{} arrived.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
             )
-        db.session.merge(character_file)
-        db.session.merge(room_file)
         db.session.commit()
     return
 
@@ -235,8 +231,6 @@ def disconnect_room(message):
         emit('game_event', 
                 {'data':  "{} left.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
             )
-        db.session.merge(character_file)
-        db.session.merge(room_file)
         db.session.commit()
 
 
@@ -279,7 +273,8 @@ def enemy_event(action_result):
             {'data': action_result['character_output']['character_output_text']})
     if action_result['room_output']['room_output_flag'] == True:
         socketio.emit('game_event',
-            {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']))
+            {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), include_self=False
+            )
 
         # emit('game_event',
         #     {'data':  rooms()})

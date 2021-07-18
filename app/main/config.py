@@ -38,7 +38,7 @@ EXPERIENCE_ADJUSTMENT_FACTORS.set_index('Level_Variance', inplace=True)
 POSITION_FACTORS = pd.read_csv(DATA_DIR / "Position_Factors.csv")
 POSITION_FACTORS.set_index('position', inplace=True)
 
-STANCE_FACTORS = pd.read_csv(DATA_DIR / "Stance_factors.csv")
+STANCE_FACTORS = pd.read_csv(DATA_DIR / "Stance_Factors.csv")
 STANCE_FACTORS.set_index('stance', inplace=True)
 
 SKILLS_MAX_FACTORS = pd.read_csv(DATA_DIR / "Skills_Max_Factors.csv")

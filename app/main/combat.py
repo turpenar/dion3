@@ -201,19 +201,19 @@ def get_damage(end_roll, weapon, armor):
     damage_factor = weapon_damage_factors.loc[weapon_classification, armor_classification]
     return int(round((end_roll - 100) * damage_factor))
 
-def get_exerience_modifier(self_level, target_level):
-    level_variance = int(target_level - self_level)
+def get_exerience_modifier(character_level, target_level):
+    level_variance = int(target_level - character_level)
     return experience_adjustment_factors.loc[level_variance, 'Adjustment_Factor']
 
-def melee_attack_enemy(self, target_file):
+def melee_attack_enemy(character, target_file):
     global combat_result
     reset_result()
-    attack_strength = calculate_attack_strength(self, self.get_dominant_hand_inv())
+    attack_strength = calculate_attack_strength(character, character.get_dominant_hand_inv())
     defense_strength = calculate_defense_strength(character=target_file.enemy, weapon=target_file.enemy.weapon)
-    attack_factor = calculate_attack_factor(self.get_dominant_hand_inv(), target_file.enemy.armor)
+    attack_factor = calculate_attack_factor(character.get_dominant_hand_inv(), target_file.enemy.armor)
     att_random = random.randint(0,100)
     att_end_roll = end_roll(attack=attack_strength, defense=defense_strength, attack_factor=attack_factor, random=att_random)
-    round_time = self.set_round_time(3)
+    round_time = character.set_round_time(3)
     
     result = None
     if att_end_roll <= 100:
@@ -222,15 +222,15 @@ def melee_attack_enemy(self, target_file):
 Round time:  {round_time} seconds
             """
         result_room = f"""
-{self.first_name} swings {self.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.
+{character.first_name} swings {character.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.
             """
     else:
-        att_damage = get_damage(att_end_roll, self.get_dominant_hand_inv(), target_file.enemy.armor)
+        att_damage = get_damage(att_end_roll, character.get_dominant_hand_inv(), target_file.enemy.armor)
         target_file.health = target_file.health - att_damage
         if target_file.enemy.is_killed(target_file):
             death_text = target_file.enemy.text_death
             target_file.enemy.replace_with_corpse(target_file)
-            self.experience += int(target_file.enemy.experience * get_exerience_modifier(self.level, target_file.enemy.level))
+            character.experience += int(target_file.enemy.experience * get_exerience_modifier(character.level, target_file.enemy.level))
         else:
             death_text = ""
         result_character = f"""\
@@ -240,16 +240,16 @@ Target health:  {target_file.health}
 {death_text}
             """
         result_room = f"""
-{self.name} strikes {target_file.enemy.name} with {self.get_dominant_hand_inv().name}!
+{character.name} strikes {target_file.enemy.name} with {character.get_dominant_hand_inv().name}!
 {death_text}
             """
 
     update_character_output(character_output_text=f"""
-You swing {self.get_dominant_hand_inv().name} at {target_file.enemy.name}!
+You swing {character.get_dominant_hand_inv().name} at {target_file.enemy.name}!
 STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
 {result_character}
     """)
-    # self.check_level_up()
+    character.check_level_up()
     update_room_output(room_output_text=result_room)
     return combat_result
 

@@ -99,6 +99,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String)
     password = db.Column(db.String)
     characters = db.relationship('Character', backref='user', lazy=True, cascade='all, delete-orphan')
+    current_character_first_name = db.Column(db.String, nullable=True)
+    current_character_last_name = db.Column(db.String, nullable=True)
     
     def __init__(self, username):
         self.username = username

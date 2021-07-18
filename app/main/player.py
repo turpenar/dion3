@@ -7,15 +7,12 @@ TODO:  Define health leveling function after 0.
 TODO:  Add lie and stand action.
 """
 
-import random as random
 import time as time
 import textwrap as textwrap
-import pathlib as pathlib
-import pickle as pickle
 import math as math
 
 from app import db
-from app.main import config, world, mixins, items
+from app.main import config, world, mixins, items, skills, routes
 
 
 wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
@@ -29,6 +26,7 @@ profession_skillpoint_bonus_file = config.PROFESSION_SKILLPOINT_BONUS_FILE
 base_training_points = config.base_training_points
 positions = config.positions
 stances = config.stances
+skills_max_factors = config.SKILLS_MAX_FACTORS
 all_items = mixins.all_items
 all_items_categories = mixins.items
 
@@ -68,7 +66,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self._mental_training_points = self._player_data['training']['mental_points']
 
         self._skills = self._player_data['skills']
-        self._skills_base = self._player_data['skills_base']
+        self._skills_max = self._player_data['skills_max']
         self._skills_bonus = self._player_data['skills_bonus']
         
         self._health = self._player_data['health']
@@ -267,11 +265,11 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             self._skills_bonus
         
     @property
-    def skills_base(self):
-            return self._skills_base
-    @skills_base.setter    
-    def skills_base(self):
-            self._skills_base
+    def skills_max(self):
+            return self._skills_max
+    @skills_max.setter    
+    def skills_max(self):
+            self._skills_max
         
     @property
     def health(self):
@@ -332,18 +330,16 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
                 self.stats[stat] = 100
         
             self.stats_bonus[stat] = ((self.stats[stat] - available_stat_points / 8) / 2 + int(race_stats_file.loc[self.race][stat]))
-        
-        skills.level_up_skill_points()
-        
+        self.level_up_skill_points()
         self.health = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
         self.health_max = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
-        
+
         self.attack_strength_base = int(round(self.stats_bonus['strength'],0))
         self.defense_strength_evade_base = int(round(self.stats_bonus['agility'] + self.stats_bonus['intellect'] / 4 + self.skills['dodging'],0))
         self.defense_strength_block_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] /4,0))
         self.defense_strength_parry_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] / 4,0))
         
-        events.game_event("Ding! You are now level {}!".format(self.level)) 
+        routes.character_announcement(f"Ding! You are now level {self.level}!") 
 
     def set_character_attributes(self):
         for stat in self.stats:
@@ -372,8 +368,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.physical_training_points = self.physical_training_points + added_physical_points
         self.mental_training_points = self.mental_training_points + added_mental_points
         for skill in self.skills:
-            self.skills_base[skill] = self.skills[skill]
-    
+            self.skills_max[skill] = (self.level + 1) * skills_max_factors.loc[skill, self.profession]
     
     def add_money(self, amount):
             self.money += amount

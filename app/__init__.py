@@ -32,7 +32,3 @@ def create_app():
         world.load_world()
         world.initiate_enemies(app=app)
     return app
-
-    engine = create_engine(
-    "postgresql+pg8000://scott:tiger@localhost/test",
-    isolation_level="READ UNCOMMITTED")

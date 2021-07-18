@@ -41,6 +41,9 @@ POSITION_FACTORS.set_index('position', inplace=True)
 STANCE_FACTORS = pd.read_csv(DATA_DIR / "Stance_factors.csv")
 STANCE_FACTORS.set_index('stance', inplace=True)
 
+SKILLS_MAX_FACTORS = pd.read_csv(DATA_DIR / "Skills_Max_Factors.csv")
+SKILLS_MAX_FACTORS.set_index('skills', inplace=True)
+
 verbs_path = DATA_DIR / 'verbs.txt'
 with verbs_path.open(mode='r') as file:
     verbs = file.readlines()

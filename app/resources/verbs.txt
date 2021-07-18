@@ -1,11 +1,9 @@
-ask
 attribute
 attack
 drop
 east
 flee
 get
-give
 go
 health
 help
@@ -20,7 +18,6 @@ put
 quit
 say
 search
-sell
 sit
 skills
 skin
@@ -29,5 +26,4 @@ stance
 stand
 stats
 take
-target
 west

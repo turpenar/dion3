@@ -58,7 +58,7 @@
 			"physical_fitness": 0,
 			"perception": 0
 			},
-		"skills_base": {
+		"skills_max": {
 			"edged_weapons": 0,
 			"blunt_weapons": 0,
 			"polearm_weapons": 0,

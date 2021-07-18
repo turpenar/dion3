@@ -208,7 +208,8 @@ class Attack(DoActions):
                 return
             for enemy_file in room.enemies:
                 if set(enemy_file.id) & set(character.target):
-                    self.action_result.update(combat.melee_attack_enemy(self=character, target=enemy_file.enemy))
+                    target_file = db.session.query(EnemySpawn).filter_by(id=enemy_file.id).first()
+                    self.action_result.update(combat.melee_attack_enemy(character=character, target_file=target_file))
                     self.update_status(status_text=character.get_status())
                     return
                 else:
@@ -220,7 +221,7 @@ class Attack(DoActions):
                 if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
                     target_file = db.session.query(EnemySpawn).filter_by(id=enemy_file.id).first()
                     character.target = target_file.id
-                    self.action_result.update(combat.melee_attack_enemy(self=character, target_file=target_file))
+                    self.action_result.update(combat.melee_attack_enemy(character=character, target_file=target_file))
                     self.update_status(status_text=character.get_status())
                     db.session.commit()
                     return
@@ -1224,10 +1225,10 @@ class Search(DoActions):
             return
         if not kwargs['direct_object']:
             items_found = 0
-            for hidden_item in character.room.hidden:
+            for hidden_item in room.hidden:
                 if 100 - character.level >= hidden_item.visibility:
-                    character.room.add_item(hidden_item)
-                    character.room.remove_hidden_item(hidden_item)
+                    room.add_item(hidden_item)
+                    room.remove_hidden_item(hidden_item)
                     self.update_character_output(f'You found {hidden_item.name}!')
                     items_found += 1
             if items_found == 0:
@@ -1331,23 +1332,12 @@ class Skills(DoActions):
         character = character_file.char
         room = room_file.room
 
-        self.update_character_output(character_output_text='''
-Edged Weapons:    {}  ({})          Shield:             {}  ({})
-Blunt Weapons:    {}  ({})          Dodging:            {}  ({})
-Polearm Weapons:  {}  ({})          Physical Fitness:   {}  ({})
-Armor:            {}  ({})          Perception:         {}  ({})      
-         
-         
-
-            '''.format(character.skills['edged_weapons'], character.skills_bonus['edged_weapons'],
-                       character.skills['blunt_weapons'], character.skills_bonus['blunt_weapons'],
-                       character.skills['polearm_weapons'], character.skills_bonus['polearm_weapons'],
-                       character.skills['armor'], character.skills_bonus['armor'],
-                       character.skills['shield'], character.skills_bonus['shield'],
-                       character.skills['dodging'], character.skills_bonus['dodging'],
-                       character.skills['physical_fitness'], character.skills_bonus['physical_fitness'],
-                       character.skills['perception'], character.skills_bonus['perception'])
-              )
+        self.update_character_output(character_output_text=f"""\
+Edged Weapons:    {character.skills['edged_weapons']}  ({character.skills_bonus['edged_weapons']})          Shield:             {character.skills['shield']}  ({character.skills_bonus['shield']})
+Blunt Weapons:    {character.skills['blunt_weapons']}  ({character.skills_bonus['blunt_weapons']})          Dodging:            {character.skills['dodging']}  ({character.skills_bonus['dodging']})
+Polearm Weapons:  {character.skills['polearm_weapons']}  ({character.skills_bonus['polearm_weapons']})          Physical Fitness:   {character.skills['physical_fitness']}  ({character.skills_bonus['physical_fitness']})
+Armor:            {character.skills['armor']}  ({character.skills_bonus['armor']})          Perception:         {character.skills['perception']}  ({character.skills_bonus['perception']})\
+         """)
         self.update_status(character.get_status())
 
 
@@ -1547,34 +1537,6 @@ Agility:        {}  ({})        Spirit:         {}  ({})
                    character.stats['spirit'], character.stats_bonus['spirit'])
               )
         self.update_status(character.get_status())
-
-
-
-
-@DoActions.register_subclass('target')
-class Target(DoActions):
-    """\
-    When in combat, you must TARGET an enemy before you can ATTACK them. Use the TARGET verb to set the enemy
-    for which you want to ATTACK. TARGET only needs to be set once for the duration of the combat. The enemy
-    does not have to be within sight in order for you to TARGET it.
-
-    Usage:
-    TARGET <enemy> : Targets an enemy.\
-    """
-
-    def __init__(self, character_file, room_file, **kwargs):
-        DoActions.__init__(self, character_file, room_file, **kwargs)
-
-        character = character_file.char
-        room = room_file.room
-
-        if not kwargs['direct_object']:
-            events.game_event("What do you want to target?")
-            return
-        else:
-            character.target = kwargs['direct_object']
-            events.game_event("You are now targeting {}".format(self.target[0]))
-            return
         
 
 @DoActions.register_subclass('west')
@@ -1838,6 +1800,8 @@ class Spawn(EnemyAction):
                          kwargs=kwargs)
         enemy = enemy_file.enemy
 
-        routes.enemy_spawn(enter_text=self.enemy.text_entrance, room_number=self.enemy.get_room().room.room_number)
+        if world.tile_exists(x=enemy.location_x - 1, y=enemy.location_y, area=enemy.area):
+            self.update_room_output(room_output_text=enemy.text_entrance, room_output_number=enemy.get_room().room.room_number)
+            routes.enemy_event(action_result=self.action_result)
         return
 

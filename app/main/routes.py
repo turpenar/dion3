@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-from flask.globals import current_app
-import eventlet
-from flask import Flask, render_template, redirect, url_for, session, request, copy_current_request_context
-from flask_socketio import emit, join_room, leave_room, rooms, disconnect
+
+from flask import render_template, redirect, url_for, session, request, copy_current_request_context
+from flask_socketio import emit, join_room, leave_room, disconnect
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import socketio, login, db
-from app.main import main, config, player, world, actions
+from app.main import main, config, player, actions
 from app.main.models import User, Character, Room
-from app.main.forms import LoginForm, SignUpForm, NewCharacterForm
+from app.main.forms import LoginForm, SignUpForm, NewCharacterForm, SkillsForm
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -22,21 +21,23 @@ def load_user(id):
 @main.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
+
+@main.route('/home')
+@login_required
+def home():
+    return render_template('home.html')
 
 
 @main.route('/login', methods=['POST', 'GET'])
 def login():
-    
     form = LoginForm()
-    
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
             if user.check_password(form.password.data):
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('main.index'))
-
         return '<h1>Invalid username or password</h1>'
     return render_template('/login.html', form=form)
 
@@ -75,7 +76,7 @@ def characters():
     characters = []
     character_names = []
 
-    user = User.query.filter_by(username=current_user.username).first()
+    user = db.session.query(User).filter_by(username=current_user.username).first()
 
     if user: 
         if user.characters:
@@ -87,7 +88,10 @@ def characters():
             current_character = request.form.get('character')
             current_character_split = current_character.split()
             current_character_firstname = current_character_split[0]
+            user.current_character_first_name = current_character_split[0]
             current_character_lastname = current_character_split[1]
+            user.current_character_last_name = current_character_split[1]
+            db.session.commit()
             return render_template('/play.html', 
                     user=current_user.username,
                     character_first_name=current_character_firstname,
@@ -99,8 +103,6 @@ def characters():
 @main.route('/new_character', methods=['POST', 'GET'])
 @login_required
 def new_character():
-    
-    message = ""
         
     form = NewCharacterForm()
     
@@ -146,6 +148,43 @@ def new_character():
         return '<h1>Character Created! Please close the window and return to the main page.</h1>'
         
     return render_template('/new_character.html', form=form, Stats=stats)
+
+
+@main.route('/skills', methods=['POST', 'GET'])
+@login_required
+def skills_modify():
+
+    user = db.session.query(User).filter_by(username=current_user.username).first()
+    
+    if not user.current_character_first_name:
+        return '<h1>You do not yet have a character. Please create a new character or load a character.</h1>'
+
+    character_file = db.session.query(Character).filter_by(first_name=user.current_character_first_name, last_name=user.current_character_last_name).first()
+    
+    print(character_file)
+
+    form = SkillsForm()
+    skill_data_file = config.get_skill_data_file()
+    
+    if form.validate_on_submit():
+        
+        result = request.form
+        
+        character_file.char.physical_training_points = result['physical_training_points_var']
+        character_file.char.mental_training_points = result['mental_training_points_var']
+        
+        for skill in character_file.char.skills:
+            character_file.char.skills[skill] = int(result[skill])
+
+        db.session.commit()
+
+        character_announcement(announcement=f"""\
+You have updated your skills! Type SKILLS to see your new skill values and bonuses.\
+        """)
+
+        return '<h1>Skills updated! Please close the window and return to the game window.</h1>'
+    
+    return render_template('/skills.html', form=form, player=character_file.char, skillDataFile=skill_data_file)
 
 
 
@@ -202,6 +241,8 @@ def my_event(message):
             {'data': action_result['status_output']}
             )
         db.session.commit()
+    return
+
 
 @socketio.event
 def connect_room(message):
@@ -218,6 +259,7 @@ def connect_room(message):
         db.session.commit()
     return
 
+
 @socketio.event
 def disconnect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
@@ -232,7 +274,7 @@ def disconnect_room(message):
                 {'data':  "{} left.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
             )
         db.session.commit()
-
+    return
 
 
 @socketio.event
@@ -240,6 +282,7 @@ def disconnect_request():
     @copy_current_request_context
     def can_disconnect():
         disconnect()
+        return
 
     session['receive_count'] = session.get('receive_count', 0) + 1
     # for this emit we use a callback function
@@ -248,19 +291,21 @@ def disconnect_request():
     emit('my_response',
          {'data': 'Disconnected!', 'count': session['receive_count']},
          callback=can_disconnect)
+    return
+
 
 @socketio.on('connect')
 def test_connect():
     emit('game_event', {'data': 'You are now connected'})
     print('Client connected', request.sid)
+    return
+
 
 @socketio.on('disconnect')
 def test_disconnect():
     print('Client disconnected', request.sid)
+    return
 
-def enemy_spawn(enter_text, room_number):
-    socketio.emit('game_event',
-        {'data': enter_text}, to=str(room_number))
 
 def enemy_event(action_result):
     if action_result['room_change']['room_change_flag'] == True:
@@ -275,8 +320,12 @@ def enemy_event(action_result):
         socketio.emit('game_event',
             {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), include_self=False
             )
+    return
 
-        # emit('game_event',
-        #     {'data':  rooms()})
+def character_announcement(announcement):
+    socketio.emit('game_event',
+            {'data': announcement}
+            )
+    return
 
 

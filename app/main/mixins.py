@@ -7,7 +7,7 @@ from app.main import config
 
 
 # importing all objects
-objects_path = pathlib.Path.cwd() / "app" / 'Resources' / 'objects.json'
+objects_path = pathlib.Path.cwd() / "app" / 'resources' / 'objects.json'
 with objects_path.open(mode='r') as file:
     objects = json.load(file)
     
@@ -17,7 +17,7 @@ for category in objects:
         all_objects[object] = objects[category][object]
 
 # importing all items
-items_path = pathlib.Path.cwd() / "app" / 'Resources' / 'items.json'
+items_path = pathlib.Path.cwd() / "app" / 'resources' / 'items.json'
 with items_path.open(mode='r') as file:
     items = json.load(file)
 
@@ -27,12 +27,12 @@ for category in items:
         all_items[item] = items[category][item]
 
 # importing all npcs
-npcs_path = pathlib.Path.cwd() / "app" / 'Resources' / 'npcs.json'
+npcs_path = pathlib.Path.cwd() / "app" / 'resources' / 'npcs.json'
 with npcs_path.open(mode='r') as file:
     npcs = json.load(file)
 
 # importing all enemies
-enemies_path = pathlib.Path.cwd() / "app" / 'Resources' / 'enemies.json'
+enemies_path = pathlib.Path.cwd() / "app" / 'resources' / 'enemies.json'
 with enemies_path.open(mode='r') as file:
     enemies = json.load(file)
 

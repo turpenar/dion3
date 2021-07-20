@@ -2,8 +2,8 @@ import os
 import gzip
 
 
-INPUT_PATH = os.path.join(os.path.dirname(__file__), "static")
-OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "staticfiles")
+INPUT_PATH = os.path.join(os.path.dirname(__file__), "app/static")
+OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "app/staticfiles")
 SKIP_COMPRESS_EXTENSIONS = [
     # Images
     ".jpg",

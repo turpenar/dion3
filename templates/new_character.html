@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+<title>Dion - New Character</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+	$(document).ready(function(){
+	  $(".stat").mouseenter(function() {
+	    $("#"+this.id).addClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat").mouseout(function() {
+		$("#"+this.id).removeClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat").click(function() {
+		$(".stat").removeClass('stat-click');
+		$("#"+this.id).addClass('stat-click');
+		$(".stats-description").hide();
+		$("#stats-description-"+this.id).show();
+	  });
+	  	
+	});
+</script>
+
+{% endblock %}
+
+{% block body %}
+
+<div class="topnav">
+	<div class="page_title">Dion</div>
+  	<a href="logout">Log Out</a>
+	<a href="home">Home</a>
+	<a href="characters">Characters</a>
+</div>
+
+<div class="title">
+<h1>New Character</h1>
+</div>
+
+<div class="menu">
+
+</div>
+
+<div class="flex-container-newcharacter">
+
+	<form action="{{ url_for('main.new_character') }}" method="post" role="form">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+		{{ form.hidden_tag() }}
+		<div>
+			{{form.first_name.label}} <br>
+			{{form.first_name(size=30)}}
+		</div>
+		<br>
+		<div>
+			{{form.last_name.label}} <br>
+			{{form.last_name(size=30)}}
+		</div>
+		<br>
+		<div>
+			{{form.gender.label}} <br>
+			{{form.gender(size=1)}}
+		</div>
+		<br>
+		<div>
+			{{form.profession.label}} <br>
+			{{form.profession(size=1)}}
+		</div>
+		<br>
+		<div id="stats-instruction">
+			Please choose your stats. You have 528 stat points to place where you see fit. You may not have a stat lower than 20 or higher than 100.
+		</div>
+		<div class="flex-container-stats">
+			<div id="stats-left">
+				{% for stat in Stats %}
+					<div class="stat" id="{{stat}}">
+					{{form[stat].label}}
+					{{form[stat](size=5)}}
+					</div>
+					<div class="error">
+					{% for error in form[stat].errors %}
+			    		{{ error }}
+					{% endfor %}
+					</div>
+				{% endfor %}
+				
+				<div class="error">
+				{%for error in form.stat_total_validation.errors %}
+					{{error}}
+				{% endfor %}
+				</div>
+				
+			</div>
+			
+			<div class="stats-description">
+			Please select a stat to learn more.
+			</div>
+	
+ 			{% for stat in Stats %}	
+				<div class="stats-description" id="stats-description-{{stat}}" style="display: none">
+				{{Stats[stat]['description']}}
+				</div>
+			{% endfor %}
+				
+		</div>
+			
+		<p>{{form.submit()}}</p>
+
+	</form>
+
+</div>
+
+
+{% endblock %}

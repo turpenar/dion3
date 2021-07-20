@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Dion - Skills</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="topnav">
+	<div class="page_title">Skills</div>
+</div>
+
+<br>
+<br>
+
+<div class="interface-window">
+
+	<form class="form" id="skills_form" action="{{ url_for('main.skills_modify') }}" method="POST">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+		{{form.physical_training_points_var.label}}
+		{{form.physical_training_points_var(value=player.physical_training_points, type="hidden")}}
+		<span id="physical_training_points">{{player.physical_training_points|int}}</span>
+		<div class="error">
+			{% for error in form.physical_training_points_var.errors %}
+				{{error}}
+			{% endfor %}
+		</div>
+		
+		{{form.mental_training_points_var.label}}
+		{{form.mental_training_points_var(value=player.mental_training_points, type="hidden")}}
+		<span id="mental_training_points">{{player.mental_training_points|int}}</span>
+		<div class="error">
+			{% for error in form.mental_training_points_var.errors %}
+				{{error}}
+			{% endfor %}
+		</div>
+		
+		<br>
+		
+		{% for category in skillDataFile %}
+			<label for="{{category}}" class="skill_category"><strong>{{category}}</strong></label>
+			<br>
+			{% for skill in skillDataFile[category] %}
+				<label for="{{skill}}" class="skill_name" id="skill_name_{{skill}}">{{skill|replace("_", " ")|title}}</label>
+				<label for="{{skill}}" class="physical_points_cost_label" id="skill_physical_cost_label_{{skill}}">Physical Points Cost</label>
+				<span class="physical_points_cost" id="skill_physical_cost_{{skill}}">{{skillDataFile[category][skill]['physical_points']}}</span>
+				<label for="{{skill}}" class="mental_points_cost_label" id="skill_mental_cost_label_{{skill}}">Mental Points Cost</label>
+				<span class="mental_points_cost" id="skill_mental_cost_{{skill}}">{{skillDataFile[category][skill]['mental_points']}}</span>
+				<button type="button" id="skill_add_{{skill}}" onClick="increase_skill_value('{{skill}}', '{{skillDataFile[category][skill]['physical_points']}}', '{{skillDataFile[category][skill]['mental_points']}}', '{{player.skills_max[skill]}}')">+</button>
+				<span id="skill_value_{{skill}}">{{player.skills[skill]}}</span>
+				{{form[skill](value=player["skills"][skill], type="hidden")}}
+				<button type="button" id="skill_subtract_{{skill}}" onClick="decrease_skill_value('{{skill}}', '{{skillDataFile[category][skill]['physical_points']}}', '{{skillDataFile[category][skill]['mental_points']}}', '{{player.skills_max[skill]}}')">-</button>
+				
+				<br>
+			{% endfor %}
+			<br>
+		{% endfor %}
+		<br>
+		
+		<p>{{form.submit()}}<p>
+	
+	</form>
+
+</div>
+
+<script>
+	var total_physical_training_points = parseInt(document.getElementById("physical_training_points_var").value);
+	var total_mental_training_points = parseInt(document.getElementById("mental_training_points_var").value);
+	
+	function increase_skill_value(skill, physical_points, mental_points, skill_max) {
+		var value = parseInt(document.getElementById("skill_value_var_" + skill).value);
+		if (value >= parseInt(skill_max)) {
+			return false;
+		}
+		if (total_physical_training_points - parseInt(physical_points) < 0) {
+			return false;
+		}
+		if (total_mental_training_points - parseInt(mental_points) < 0) {
+			return false;
+		}
+		value ++;
+		total_physical_training_points = total_physical_training_points - parseInt(physical_points);
+		total_mental_training_points = total_mental_training_points - parseInt(mental_points);
+		document.getElementById("skill_value_var_" + skill).value = value;
+		
+		document.getElementById("skill_value_" + skill).innerHTML = document.getElementById("skill_value_var_" + skill).value
+		
+		document.getElementById("physical_training_points_var").value = parseInt(total_physical_training_points);
+		document.getElementById("mental_training_points_var").value = parseInt(total_mental_training_points);
+		
+		document.getElementById("physical_training_points").innerHTML = document.getElementById("physical_training_points_var").value;
+		document.getElementById("mental_training_points").innerHTML = document.getElementById("mental_training_points_var").value;
+		
+		return false;
+	}
+	
+	function decrease_skill_value(skill, physical_points, mental_points, skill_max) {
+		var value = parseInt(document.getElementById("skill_value_var_" + skill).value);
+		if (value == 0) {
+			return false;
+		}
+		value--;
+		total_physical_training_points = total_physical_training_points + parseInt(physical_points);
+		total_mental_training_points = total_mental_training_points + parseInt(mental_points);
+		document.getElementById("skill_value_var_" + skill).value = value;
+		
+		document.getElementById("skill_value_" + skill).innerHTML = document.getElementById("skill_value_var_" + skill).value
+		
+		document.getElementById("physical_training_points").innerHTML = total_physical_training_points;
+		document.getElementById("mental_training_points").innerHTML = total_mental_training_points;
+		
+		document.getElementById("physical_training_points_var").value = total_physical_training_points;
+		document.getElementById("mental_training_points_var").value = total_mental_training_points;
+		
+		return false;
+	}
+	
+</script>
+
+
+{% endblock %}

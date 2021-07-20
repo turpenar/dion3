@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Sign Up</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="topnav">
+	<div class="page_title">Dion</div>
+  	<a href="login">Log In</a>
+</div>
+
+<div class="flex-container-signup">
+
+	<div>
+		<div class="title">
+			<h1>Sign Up</h1>
+		</div>
+
+		<form action="{{ url_for('main.signup') }}" method="post" role="form">
+			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+			{{ form.hidden_tag() }}
+			<div>
+				{{form.username.label}} <br>
+				{{form.username(size=30)}}
+			</div>
+			<br>
+			<div>
+				{{form.password.label}} <br>
+				{{form.password(size=30)}}
+			</div>
+			<br>
+			
+			<p>{{form.submit()}}</p>
+
+		</form>
+	</div>
+
+</div>
+
+{% endblock %}

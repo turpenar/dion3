@@ -1,9 +1,11 @@
+import os
 import eventlet
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from flask_socketio import SocketIO
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from whitenoise import WhiteNoise
 
 eventlet.monkey_patch()
 
@@ -28,6 +30,13 @@ def create_app():
         from app.main import main as main_blueprint
         from app.main import world
         app.register_blueprint(main_blueprint)
+        WHITENOISE_MAX_AGE = 31536000 if not app.config["DEBUG"] else 0
+        app.wsgi_app = WhiteNoise(
+            app.wsgi_app,
+            root=os.path.join(os.path.dirname(__file__), "staticfiles"),
+            prefix="assets/",
+            max_age=WHITENOISE_MAX_AGE,
+        )
         world.clear_enemies(app=app)
         world.load_world()
         world.initiate_enemies(app=app)

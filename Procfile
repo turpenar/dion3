@@ -1,1 +1,1 @@
-web: gunicorn --worker-class eventlet dion:app
+web: gunicorn --worker-class eventlet -w 1 dion:app

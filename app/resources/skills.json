@@ -38,6 +38,16 @@
 			"physical_points": 1,
 			"mental_points": 3
 			}
+	},
+	"Magic": {
+		"spell_research": {
+			"physical_points": 0,
+			"mental_points": 6
+		},
+		"magic_harnessing": {
+			"physical_points": 1,
+			"mental_points": 3
+		}
 	}		 
 }
 

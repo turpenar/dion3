@@ -14,8 +14,11 @@ from app.main.forms import LoginForm, SignUpForm, NewCharacterForm, SkillsForm
 # the best option based on installed packages.
 
 @login.user_loader
-def load_user(id):
-    return User(id)
+def load_user(user_id):
+    try:
+        return User.query.get(user_id)
+    except:
+        return None
 
 
 @main.route('/')
@@ -26,6 +29,7 @@ def index():
 @main.route('/home')
 @login_required
 def home():
+    print(current_user)
     return render_template('home.html')
 
 
@@ -41,26 +45,35 @@ def login():
         return '<h1>Invalid username or password</h1>'
     return render_template('/login.html', form=form)
 
+
 @main.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
+
 @main.route('/signup', methods=['POST', 'GET'])
 def signup():
     form = SignUpForm()
     
     if form.validate_on_submit():
-        existing_user = User.query.filter_by(username=form.username.data).first()
+        existing_user = db.session.query(User).filter_by(username=form.username.data).first()
         if existing_user == None:
             new_user = User(username=form.username.data)
             new_user.set_password(form.password.data)
             db.session.add(new_user)
             db.session.commit()
-            return '<h1>New user has been created!</h1>'
-        return '<h1>User already exists!</h1>'
+            response = "You have created an account! Head back to the Log In screen to sign in."
+        else:
+            response = "User already exists! Head back to the Log in screen to sign in."
+        return render_template('/signup_complete.html', response=response)
     return render_template('/signup.html', form=form)
+
+
+@main.route('/signup_complete')
+def signup_complete():
+    return render_template('/signup_complete.html')
 
 
 @main.route('/play')
@@ -140,14 +153,26 @@ def new_character():
         new_character.char.set_gender(new_character.char.gender)
         new_character.char.level_up_skill_points()
 
-        current_user.characters.append(new_character)
+        print(new_character.char)
+        print(current_user.username)
+
+        user = db.session.query(User).filter_by(username=current_user.username).first()
+        user.characters.append(new_character)
         
         db.session.add(new_character)
         db.session.commit()
+
+        response = f"{first_name} {last_name} has been created! Head back to the characters to select and play."
               
-        return '<h1>Character Created! Please close the window and return to the main page.</h1>'
+        return render_template('/character_created.html', response=response)
         
     return render_template('/new_character.html', form=form, Stats=stats)
+
+
+@main.route('/character_created')
+@login_required
+def character_created():
+    return render_template('/character_created.html')
 
 
 @main.route('/skills', methods=['POST', 'GET'])
@@ -160,8 +185,6 @@ def skills_modify():
         return '<h1>You do not yet have a character. Please create a new character or load a character.</h1>'
 
     character_file = db.session.query(Character).filter_by(first_name=user.current_character_first_name, last_name=user.current_character_last_name).first()
-    
-    print(character_file)
 
     form = SkillsForm()
     skill_data_file = config.get_skill_data_file()
@@ -182,10 +205,16 @@ def skills_modify():
 You have updated your skills! Type SKILLS to see your new skill values and bonuses.\
         """)
 
-        return '<h1>Skills updated! Please close the window and return to the game window.</h1>'
+        response = "Skills updated! Please close the window and return to the game window."
+
+        return render_template('/skills_updated.html', response=response)
     
     return render_template('/skills.html', form=form, player=character_file.char, skillDataFile=skill_data_file)
 
+
+@main.route('/skills_updated')
+def skills_updated():
+    return render_template('/skills_updated.html')
 
 
 @socketio.event

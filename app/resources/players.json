@@ -56,7 +56,9 @@
 			"shield": 0,
 			"dodging": 0,
 			"physical_fitness": 0,
-			"perception": 0
+			"perception": 0,
+			"spell_research": 0,
+			"magic_harnessing": 0
 			},
 		"skills_max": {
 			"edged_weapons": 0,
@@ -66,7 +68,9 @@
 			"shield": 0,
 			"dodging": 0,
 			"physical_fitness": 0,
-			"perception": 0
+			"perception": 0,
+			"spell_research": 0,
+			"magic_harnessing": 0
 			},
 		"skills_bonus": {
 			"edged_weapons": 0,
@@ -76,7 +80,9 @@
 			"shield": 0,
 			"dodging": 0,
 			"physical_fitness": 0,
-			"perception": 0
+			"perception": 0,
+			"spell_research": 0,
+			"magic_harnessing": 0
 			},
 		"health": 0,
 		"health_max": 0,

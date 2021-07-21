@@ -5,5 +5,6 @@ The workstreams to complete before publication of first version.
 -Skill selection and increases - Done
 -Level increases - Done
 -All professions and abilities work
+-Increase skill bonuses
 -Basic spells
 -Basic currency system

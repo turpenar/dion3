@@ -3,7 +3,6 @@
 """
 
 TODO: In Fill Room, replace npc search with simpler Sub-Class search
-TODO: Eliminate need to pass character to the npcs.
 
 """
 

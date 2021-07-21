@@ -1333,10 +1333,11 @@ class Skills(DoActions):
         room = room_file.room
 
         self.update_character_output(character_output_text=f"""\
-Edged Weapons:    {character.skills['edged_weapons']}  ({character.skills_bonus['edged_weapons']})          Shield:             {character.skills['shield']}  ({character.skills_bonus['shield']})
-Blunt Weapons:    {character.skills['blunt_weapons']}  ({character.skills_bonus['blunt_weapons']})          Dodging:            {character.skills['dodging']}  ({character.skills_bonus['dodging']})
-Polearm Weapons:  {character.skills['polearm_weapons']}  ({character.skills_bonus['polearm_weapons']})          Physical Fitness:   {character.skills['physical_fitness']}  ({character.skills_bonus['physical_fitness']})
-Armor:            {character.skills['armor']}  ({character.skills_bonus['armor']})          Perception:         {character.skills['perception']}  ({character.skills_bonus['perception']})\
+Edged Weapons:    {character.skills['edged_weapons']}  ({character.skills_bonus['edged_weapons']})          Dodging:            {character.skills['dodging']}  ({character.skills_bonus['dodging']})
+Blunt Weapons:    {character.skills['blunt_weapons']}  ({character.skills_bonus['blunt_weapons']})          Physical Fitness:   {character.skills['physical_fitness']}  ({character.skills_bonus['physical_fitness']})
+Polearm Weapons:  {character.skills['polearm_weapons']}  ({character.skills_bonus['polearm_weapons']})          Perception:         {character.skills['perception']}  ({character.skills_bonus['perception']})
+Armor:            {character.skills['armor']}  ({character.skills_bonus['armor']})                     Spell Research:         {character.skills['spell_research']}  ({character.skills_bonus['spell_research']})
+Shield:           {character.skills['shield']}  ({character.skills_bonus['shield']})                     Magic Harnessing:         {character.skills['magic_harnessing']}  ({character.skills_bonus['magic_harnessing']})
          """)
         self.update_status(character.get_status())
 

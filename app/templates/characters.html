@@ -10,7 +10,7 @@
 	<div class="page_title">Dion</div>
   	<a href="logout">Log Out</a>
 	<a href="home">Home</a>
-  	<a href="new_character" target="_blank">New Character</a>
+  	<a href="new_character">New Character</a>
 </div>
 
 <div class="title">
@@ -32,7 +32,6 @@
 		<option value="" selected="selected" disabled>Select One</option>
 		{% for character in Characters %}
 		<option value="{{character}}">{{character}}</option>
-		<br>
 		{% endfor %}
 		</select>
 		

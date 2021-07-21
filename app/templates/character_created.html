@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+<title>Dion - New Character</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+	$(document).ready(function(){
+	  $(".stat").mouseenter(function() {
+	    $("#"+this.id).addClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat").mouseout(function() {
+		$("#"+this.id).removeClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat").click(function() {
+		$(".stat").removeClass('stat-click');
+		$("#"+this.id).addClass('stat-click');
+		$(".stats-description").hide();
+		$("#stats-description-"+this.id).show();
+	  });
+	  	
+	});
+</script>
+
+{% endblock %}
+
+{% block body %}
+
+<div class="topnav">
+	<div class="page_title">Dion</div>
+  	<a href="logout">Log Out</a>
+	<a href="home">Home</a>
+	<a href="characters">Characters</a>
+</div>
+
+<div class="title">
+<h1>New Character</h1>
+</div>
+
+<div class="menu">
+
+</div>
+
+<div class="flex-container-newcharacter">
+
+    {{response}}
+
+</div>
+
+
+{% endblock %}

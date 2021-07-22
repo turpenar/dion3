@@ -203,6 +203,7 @@ class MapTile(mixins.DataFileMixin):
                     except:
                         print("WARNING:  Could not create item " + item.name + " in room " + self.room_name + " in " + self.area)
             for npc in self._room_data['npcs']:
+                npcs.create_npc(npc_category=npc, npc_name=npc, room=self)
                 try:
                     self.npcs.append(npcs.create_npc(npc_category=npc, npc_name=npc, room=self))
                 except:

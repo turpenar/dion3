@@ -93,7 +93,9 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
     def new_npc(cls, npc_category, npc_name, **kwargs):
         """Method used to initiate an npc"""
         if npc_category not in cls.npc_categories:
-            events.game_event("I am sorry, I did not understand.")
+            cls.npc_result = {"action_success":  False,
+                             "action_error":  "I am sorry, I did not understand."
+            }
             return
         return cls.npc_categories[npc_category](npc_name, **kwargs)
 
@@ -191,7 +193,7 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
 
 @NPC.register_subclass('SanndRedra')
 class SanndRedra(NPC):
-    def __init__(self, npc_name: str, character: object, room: object, **kwargs):
+    def __init__(self, npc_name: str, room: object, **kwargs):
         super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def ask_about(self, object):
@@ -270,7 +272,7 @@ class SanndRedra(NPC):
 
 @NPC.register_subclass('GanderDiggle')
 class GanderDiggle(NPC):
-    def __init__(self, npc_name: str, character: object, room: object, **kwargs):
+    def __init__(self, npc_name: str, room: object, **kwargs):
         super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def sell_item(self, item):
@@ -428,7 +430,7 @@ Gander looks you up and down. "Did someone tell you to come to me? No? Then I ca
 
 @NPC.register_subclass('EmmeraSadana')        
 class EmmeraSadana(NPC):
-    def __init__(self, npc_name: str, character: object, room: object, **kwargs):
+    def __init__(self, npc_name: str, room: object, **kwargs):
         super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def ask_about(self, object):
@@ -606,7 +608,7 @@ class EmmeraSadana(NPC):
 
 @NPC.register_subclass('DochasTownGuard')
 class DochasTownGuard(NPC):
-    def __init__(self, npc_name: str, character: object, room: object, **kwargs):
+    def __init__(self, npc_name: str, room: object, **kwargs):
         super().__init__(npc_name=npc_name, room=room, **kwargs)
 
     def ask_about(self, object):

@@ -7,6 +7,6 @@ The workstreams to complete before publication of first version.
 -All professions and abilities work - Done
 -Increase skill bonuses - Done
 -Basic spells - Done
--Basic currency system
 -Spawn enemies based on character density - Done
--Insert Race in character selection
+-Insert Race in character selection - Done
+-Basic NPCs (town guards) - Done

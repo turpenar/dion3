@@ -130,7 +130,8 @@ def new_character():
         first_name = result['first_name']
         last_name = result['last_name']
         gender = result['gender']
-        profession = result['profession']  
+        profession = result['profession']
+        heritage = result['heritage']
         
         for stat in stats:
             stats_initial[stat.lower()] = int(result[stat])
@@ -145,6 +146,7 @@ def new_character():
         new_character.char.last_name = last_name
         new_character.char.gender = gender
         new_character.char.profession = profession
+        new_character.char.heritage = heritage
         
         for stat in new_character.char.stats:
             new_character.char.stats[stat] = stats_initial[stat]
@@ -194,9 +196,18 @@ def skills_modify():
         character_file.char.mental_training_points = result['mental_training_points_var']
         for skill in character_file.char.skills:
             character_file.char.skills[skill] = int(result[skill])
+            if character_file.char.skills[skill] > 40:
+                character_file.char.skills_bonus[skill] = 140 + character_file.char.skills[skill] - 40
+            elif character_file.char.skills[skill] > 30:
+                character_file.char.skills_bonus[skill] = 120 + (character_file.char.skills[skill] - 30) * 2
+            elif character_file.char.skills[skill] > 20:
+                character_file.char.skills_bonus[skill] = 90 + (character_file.char.skills[skill] - 20) * 3
+            elif character_file.char.skills[skill] > 10:
+                character_file.char.skills_bonus[skill] = 50 + (character_file.char.skills[skill] - 10) * 4
+            else:
+                character_file.char.skills_bonus[skill] = character_file.char.skills[skill] * 5
             if skill == "spell_research":
                 all_base_spells = spells.get_spells_skill_level(spell_base=character_file.char.profession, skill_level=int(result[skill]))
-                print(all_base_spells)
                 spells_forget = character_file.char.check_spells_forget(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
                 spells_learned = character_file.char.check_spells_learned(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
                 character_file.char.learn_spells(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
@@ -207,7 +218,7 @@ You unlearned the following spells:
                     """
                 elif spells_learned:
                     spell_message = f"""\
-You learned new spells!
+You learned new spells! Type SPELLS to access a list of all spells you know.
 {spells_learned}\
                     """
                 else:
@@ -288,6 +299,8 @@ def my_event(message):
 @socketio.event
 def connect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
+    user_file = db.session.query(User).filter_by(id=character_file.user_id).first()
+    user_file.current_sid = request.sid
     character = character_file.char
     if character:
         join_room(str(character.get_room().room_number))
@@ -304,6 +317,8 @@ def connect_room(message):
 @socketio.event
 def disconnect_room(message):
     character_file = db.session.query(Character).filter_by(first_name=message['first_name'], last_name=message['last_name']).first()
+    user_file = db.session.query(User).filter_by(id=character_file.user_id).first()
+    user_file.current_sid = None
     character = character_file.char
     if character:
         character.leave_room()
@@ -339,6 +354,7 @@ def disconnect_request():
 def test_connect():
     emit('game_event', {'data': 'You are now connected'})
     print('Client connected', request.sid)
+    db.session.query(User)
     return
 
 
@@ -348,7 +364,9 @@ def test_disconnect():
     return
 
 
-def enemy_event(action_result):
+def enemy_event(action_result, character_file=None):
+    if character_file:
+        user_file = db.session.query(User).filter_by(id=character_file.user_id).first()
     if action_result['room_change']['room_change_flag'] == True:
         socketio.emit('game_event',
             {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']))
@@ -356,11 +374,10 @@ def enemy_event(action_result):
             {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']))
     if action_result['character_output']['character_output_flag'] == True:
         socketio.emit('game_event',
-            {'data': action_result['character_output']['character_output_text']})
+            {'data': action_result['character_output']['character_output_text']}, to=str(user_file.current_sid))
     if action_result['room_output']['room_output_flag'] == True:
         socketio.emit('game_event',
-            {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), include_self=False
-            )
+            {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), skip_sid=user_file.current_sid)
     return
 
 def character_announcement(announcement):

@@ -98,6 +98,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement='auto')
     username = db.Column(db.String)
     password = db.Column(db.String)
+    current_sid = db.Column(db.String)
     characters = db.relationship('Character', backref='user', lazy=True, cascade='save-update')
     current_character_first_name = db.Column(db.String, nullable=True)
     current_character_last_name = db.Column(db.String, nullable=True)

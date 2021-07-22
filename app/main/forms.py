@@ -24,6 +24,7 @@ class NewCharacterForm(FlaskForm):
     last_name = StringField('Last Name', [DataRequired()])
     gender = SelectField(u'Gender', choices=config.gender_choices)
     profession = SelectField(u'Profession', choices=config.profession_choices)
+    heritage = SelectField(u'Heritage', choices=config.heritage_choices)
     
     stat_total_validation = IntegerField('stat_total_validation')
     

@@ -21,7 +21,7 @@ available_stat_points = config.available_stat_points
 experience_points_base = config.experience_points_base
 experience_growth = config.experience_growth
 profession_stats_growth_file = config.PROFESSION_STATS_GROWTH_FILE
-race_stats_file = config.RACE_STATS_FILE
+heritage_stats_file = config.HERITAGE_STATS_FILE
 profession_skillpoint_bonus_file = config.PROFESSION_SKILLPOINT_BONUS_FILE
 base_training_points = config.base_training_points
 positions = config.positions
@@ -47,7 +47,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self._gender = self._player_data['gender']
         self._object_pronoun = None
         self._possessive_pronoun = None
-        self._race = self._player_data['race']
+        self._heritage = self._player_data['heritage']
         self._profession = self._player_data['profession']
         self._category = self._player_data['category']
         self._position = self._player_data['position']
@@ -116,6 +116,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self._shop_item_selected = None
 
         self.target = None
+        self._rt_base = 5
         self._rt_start = 0
         self._rt_end = 0
         self._cast_rt_start = 0
@@ -165,8 +166,11 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
                 self._possessive_pronoun = "him"
                 
     @property
-    def race(self):
-            return self._race
+    def heritage(self):
+            return self._heritage
+    @heritage.setter
+    def heritage(self, heritage):
+        self._heritage = heritage
 
     @property            
     def profession(self):
@@ -356,7 +360,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             if self.stats[stat] > 100:
                 self.stats[stat] = 100
         
-            self.stats_bonus[stat] = ((self.stats[stat] - available_stat_points / 8) / 2 + int(race_stats_file.loc[self.race][stat]))
+            self.stats_bonus[stat] = ((self.stats[stat] - available_stat_points / 8) / 2 + int(heritage_stats_file.loc[self.heritage][stat]))
         self.level_up_skill_points()
         self.health = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
         self.health_max = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
@@ -371,7 +375,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
 
     def set_character_attributes(self):
         for stat in self.stats:
-            self.stats_bonus[stat] = ((self.stats[stat] - 50 / 8) / 2 + int(race_stats_file.loc[self.race][stat]))
+            self.stats_bonus[stat] = ((self.stats[stat] - 50 / 8) / 2 + int(heritage_stats_file.loc[self.heritage][stat]))
 
         self.health = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
         self.health_max = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
@@ -398,18 +402,31 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.mental_training_points = self.mental_training_points + added_mental_points
         for skill in self.skills:
             self.skills_max[skill] = (self.level + 1) * skills_max_factors.loc[skill, self.profession]
+        return
 
     def check_spells_forget(self, spell_base, spell_numbers):
         spells_forget = list(set(self.spells[spell_base.lower()]) - set(spell_numbers))
         if len(spells_forget) > 0:
-            return spells_forget
+            spell_data_file = config.get_spell_data_file()
+            spell_output = ""
+            for spell in spells_forget:
+                spell_output = spell_output + f"""\
+    {spell} - {spell_data_file[spell_base.lower()][str(spell)]["name"]}\
+                    """
+            return spell_output
         else:
             return None
 
     def check_spells_learned(self, spell_base, spell_numbers):
         spells_learned = list(set(spell_numbers) - set(self.spells[spell_base.lower()]))
         if len(spells_learned) > 0:
-            return spells_learned
+            spell_data_file = config.get_spell_data_file()
+            spell_output = ""
+            for spell in spells_learned:
+                spell_output = spell_output + f"""\
+    {spell} - {spell_data_file[spell_base.lower()][str(spell)]["name"]}\
+                    """
+            return spell_output
         else:
             return None
 
@@ -447,6 +464,13 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             return "Your body falls to the ground with a *slump*. You are dead."
 
     @property
+    def rt_base(self):
+        return self._rt_base
+    @rt_base.setter
+    def rt_base(self, rt_base):
+        self._rt_base = rt_base
+
+    @property
     def rt_start(self):
         return self._rt_start
     @rt_start.setter
@@ -473,6 +497,9 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @cast_rt_end.setter
     def cast_rt_end(self, cast_rt_end):
         self._cast_rt_end = cast_rt_end
+
+    def get_round_time_base(self):
+        return self.rt_base
 
     def check_round_time(self):
         round_time = False

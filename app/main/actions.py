@@ -324,6 +324,10 @@ class Cast(DoActions):
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(status_text=character.get_status())
             return
+        if character.active_spell == None:
+            self.update_character_output(character_output_text=f"You do not have a spell ready to cast. You need to PREPARE one.")
+            self.update_status(status_text=character.get_status())
+            return
         if character.check_cast_round_time():
             self.update_character_output(character_output_text=f"Your spell is not yet ready. Cast round time remaining... {character.get_cast_round_time()} seconds.")
             self.update_status(status_text=character.get_status())
@@ -788,17 +792,13 @@ class Information(DoActions):
         character = character_file.char
         room = room_file.room
         
-        self.update_character_output('''
-Name:  {} {}
-Gender:  {}
-Race:  {}
-Profession:  {}
-Level:  {}
-            '''.format(character.first_name, character.last_name,
-                       character.gender,
-                       character.race,
-                       character.profession,
-                       character.level))
+        self.update_character_output(f'''\
+Name:  {character.first_name} {character.last_name}
+Gender:  {character.gender}
+Race:  {character.heritage}
+Profession:  {character.profession}
+Level:  {character.level}\
+            ''')
         self.update_status(character.get_status())
         return
 
@@ -1417,6 +1417,7 @@ class Skills(DoActions):
         room = room_file.room
 
         self.update_character_output(character_output_text=f"""\
+[Skill]:        [Rank] ([Bonus])
 Edged Weapons:    {character.skills['edged_weapons']}  ({character.skills_bonus['edged_weapons']})          Dodging:            {character.skills['dodging']}  ({character.skills_bonus['dodging']})
 Blunt Weapons:    {character.skills['blunt_weapons']}  ({character.skills_bonus['blunt_weapons']})          Physical Fitness:   {character.skills['physical_fitness']}  ({character.skills_bonus['physical_fitness']})
 Polearm Weapons:  {character.skills['polearm_weapons']}  ({character.skills_bonus['polearm_weapons']})          Perception:         {character.skills['perception']}  ({character.skills_bonus['perception']})
@@ -1827,9 +1828,8 @@ class Attack(EnemyAction):
 
         if character_file:
             self.action_result.update(combat.melee_attack_character(enemy_file=enemy_file, character_file=character_file, room_file=room_file))
-            routes.enemy_event(action_result=self.action_result)
+            routes.enemy_event(action_result=self.action_result, character_file=character_file)
             return
-
 
 
 @EnemyAction.register_subclass('leave')
@@ -1858,7 +1858,7 @@ class MoveEastEnemy(EnemyAction):
 
         if world.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
             old_room = enemy.get_room().room.room_number
-            self.enemy.move_east()
+            enemy.move_east()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "east.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
             return
@@ -1875,7 +1875,7 @@ class MoveNorthEnemy(EnemyAction):
 
         if world.tile_exists(x=enemy.location_x, y=enemy.location_y - 1, area=enemy.area):
             old_room = enemy.get_room().room.room_number
-            self.enemy.move_north()
+            enemy.move_north()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "north.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
             return
@@ -1892,7 +1892,7 @@ class MoveSouthEnemy(EnemyAction):
 
         if world.tile_exists(x=enemy.location_x, y=enemy.location_y + 1, area=enemy.area):
             old_room = enemy.get_room().room.room_number
-            self.enemy.move_south()
+            enemy.move_south()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "south.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
             return
@@ -1909,7 +1909,7 @@ class MoveWestEnemy(EnemyAction):
 
         if world.tile_exists(x=enemy.location_x - 1, y=enemy.location_y, area=enemy.area):
             old_room = enemy.get_room().room.room_number
-            self.enemy.move_west()
+            enemy.move_west()
             self.update_room(enemy=enemy, leave_text=enemy.text_move_out + "west.", enter_text=enemy.text_move_in, old_room_number=old_room)
             routes.enemy_event(action_result=self.action_result)
             return

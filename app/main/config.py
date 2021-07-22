@@ -24,8 +24,8 @@ PROFESSION_STATS_GROWTH_FILE.set_index('Profession', inplace=True)
 PROFESSION_SKILLPOINT_BONUS_FILE = pd.read_csv(DATA_DIR / "Profession_SkillPoint_Bonus.csv")
 PROFESSION_SKILLPOINT_BONUS_FILE.set_index('Profession', inplace=True)
 
-RACE_STATS_FILE = pd.read_csv(DATA_DIR / "Race_Stats.csv")
-RACE_STATS_FILE.set_index('Race', inplace=True)
+HERITAGE_STATS_FILE = pd.read_csv(DATA_DIR / "Heritage_Stats.csv")
+HERITAGE_STATS_FILE.set_index('heritage', inplace=True)
 
 WEAPON_DAMAGE_FACTORS = pd.read_csv(DATA_DIR / "Weapon_Damage_Factors.csv")
 WEAPON_DAMAGE_FACTORS.set_index('classification', inplace=True)
@@ -90,6 +90,7 @@ enemy_level_base = 10
 enemy_growth = 1
 profession_choices = ['Enchanter', 'Warrior']
 future_profession_choices = ['Clairvoyant', 'Illusionist', 'Paladin', 'Ranger', 'Rogue', 'Inyanga']
+heritage_choices = ['Human', 'Elf']
 stats = ['Strength', 'Constitution', 'Dexterity', 'Agility', 'Intellect', 'Wisdom', 'Logic', 'Spirit']
 gender_choices = ['Female', 'Male']
 positions = ['standing', 'kneeling', 'sitting', 'lying']

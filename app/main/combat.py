@@ -234,7 +234,11 @@ def melee_attack_enemy(character_file, target_file):
     attack_factor = calculate_attack_factor_weapon(character_file.char.get_dominant_hand_inv(), target_file.enemy.armor)
     att_random = random.randint(0,100)
     att_end_roll = end_roll(attack=attack_strength, defense=defense_strength, attack_factor=attack_factor, random=att_random)
-    round_time = character_file.char.set_round_time()
+    round_time = character_file.char.set_round_time(character_file.char.get_round_time_base())
+    try:
+        weapon_name = character_file.char.get_dominant_hand_inv().name
+    except:
+        weapon_name = "a closed fist"
     
     result = None
     if att_end_roll <= 100:
@@ -243,7 +247,7 @@ def melee_attack_enemy(character_file, target_file):
 Round time:  {round_time} seconds\
             """
         result_room = f"""\
-{character_file.char.first_name} swings {character_file.char.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.\
+{character_file.char.first_name} swings {weapon_name} at {target_file.enemy.name} and misses.\
             """
     else:
         att_damage = get_damage_weapon(att_end_roll, character_file.char.get_dominant_hand_inv(), target_file.enemy.armor)
@@ -260,12 +264,12 @@ Round time:  {round_time} seconds
 {death_text}\
             """
         result_room = f"""\
-{character_file.char.name} strikes {target_file.enemy.name} with {character_file.char.get_dominant_hand_inv().name}!
+{character_file.char.name} strikes {target_file.enemy.name} with {weapon_name}!
 {death_text}\
             """
 
     update_character_output(character_output_text=f"""\
-You swing {character_file.char.get_dominant_hand_inv().name} at {target_file.enemy.name}!
+You swing {weapon_name} at {target_file.enemy.name}!
 STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
 {result_character}\
     """)
@@ -308,7 +312,7 @@ STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL 
 {result_character}\
     """)
     update_room_output(room_output_text=f"""\
-{enemy_file.enemy.name.capitalize()} swing {enemy_file.enemy.weapon} at {character_file.char.first_name}
+{enemy_file.enemy.name.capitalize()} {enemy_file.enemy.text_attack} at {character_file.char.first_name}
 {result_room}\
     """,
                        room_output_number=room_file.room_number)

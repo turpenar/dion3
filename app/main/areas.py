@@ -36,20 +36,25 @@ class Area(mixins.DataFileMixin):
 
     def spawn_enemies(self, app):
         with app.app_context():
-        #     while True:
+            while True:
                 area_file = db.session.query(WorldArea).filter_by(area_name=self.area_name).first()
-                spawn_room_file = random.choice(area_file.rooms)
-                new_enemy = EnemySpawn(enemy=enemies.Enemy(enemy_name=self._area_enemies[0],
-                                                target=None,
-                                                location_x=spawn_room_file.x,
-                                                location_y=spawn_room_file.y,
-                                                area=self.area_name),
-                                        stop=False)
-                spawn_room_file.enemies.append(new_enemy)
-                db.session.add(new_enemy)
-                db.session.flush()
-                new_enemy.enemy.enemy_id = new_enemy.id
-                eventlet.spawn(new_enemy.enemy.run, app, new_enemy.id)
-                print(f"enemy {new_enemy.id} created.")
+                number_to_spawn = 0
+                for room in area_file.rooms:
+                    number_to_spawn += len(room.characters) - len(room.enemies)
+                if number_to_spawn > 0:
+                    spawn_room_file = random.choice(area_file.rooms)
+                    new_enemy = EnemySpawn(enemy=enemies.Enemy(enemy_name=self._area_enemies[0],
+                                                    target=None,
+                                                    location_x=spawn_room_file.x,
+                                                    location_y=spawn_room_file.y,
+                                                    area=self.area_name),
+                                            stop=False)
+                    spawn_room_file.enemies.append(new_enemy)
+                    db.session.add(new_enemy)
+                    db.session.flush()
+                    new_enemy.enemy.enemy_id = new_enemy.id
+                    eventlet.spawn(new_enemy.enemy.run, app, new_enemy.id)
+                    print(f"enemy {new_enemy.id} created in {self.area_name}")
                 db.session.commit()
-                # eventlet.sleep(10)
+                eventlet.sleep(10)
+                db.session.commit()

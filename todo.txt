@@ -5,6 +5,8 @@ The workstreams to complete before publication of first version.
 -Skill selection and increases - Done
 -Level increases - Done
 -All professions and abilities work - Done
--Increase skill bonuses
+-Increase skill bonuses - Done
 -Basic spells - Done
 -Basic currency system
+-Spawn enemies based on character density - Done
+-Insert Race in character selection

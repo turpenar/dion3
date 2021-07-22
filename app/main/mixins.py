@@ -71,6 +71,9 @@ class DataFileMixin(metaclass=abc.ABCMeta):
     
     def get_skill_category_by_name(self, name: str, file=config.SKILLS_FILE) -> dict:
         return self._get_by_name(name, 'skills', file)
+
+    def get_spell_category_by_name(self, name: str, file=config.SPELLS_FILE) -> dict:
+        return self._get_by_name(name, 'spells', file)
     
     def get_stat_by_name(self, name: str, file=config.STATS_FILE) -> dict:
         return self._get_by_name(name, 'stats', file)

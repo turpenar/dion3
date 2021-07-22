@@ -5,9 +5,9 @@ from flask_socketio import emit, join_room, leave_room, disconnect
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import socketio, login, db
-from app.main import main, config, player, actions
+from app.main import main, config, player, actions, spells
 from app.main.models import User, Character, Room
-from app.main.forms import LoginForm, SignUpForm, NewCharacterForm, SkillsForm
+from app.main.forms import LoginForm, SignUpForm, NewCharacterForm, SkillsProfessionForm, add_skills_to_skill_form
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -180,33 +180,45 @@ def character_created():
 def skills_modify():
 
     user = db.session.query(User).filter_by(username=current_user.username).first()
-    
     if not user.current_character_first_name:
         return '<h1>You do not yet have a character. Please create a new character or load a character.</h1>'
 
     character_file = db.session.query(Character).filter_by(first_name=user.current_character_first_name, last_name=user.current_character_last_name).first()
-
-    form = SkillsForm()
-    skill_data_file = config.get_skill_data_file()
+    add_skills_to_skill_form(profession=character_file.char.profession)
+    form = SkillsProfessionForm()
+    skill_data_file = config.get_skill_data_file(profession=character_file.char.profession)
     
     if form.validate_on_submit():
-        
         result = request.form
-        
         character_file.char.physical_training_points = result['physical_training_points_var']
         character_file.char.mental_training_points = result['mental_training_points_var']
-        
         for skill in character_file.char.skills:
             character_file.char.skills[skill] = int(result[skill])
-
+            if skill == "spell_research":
+                all_base_spells = spells.get_spells_skill_level(spell_base=character_file.char.profession, skill_level=int(result[skill]))
+                print(all_base_spells)
+                spells_forget = character_file.char.check_spells_forget(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
+                spells_learned = character_file.char.check_spells_learned(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
+                character_file.char.learn_spells(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
+                if spells_forget:
+                    spell_message = f""""\
+You unlearned the following spells:
+{spells_forget}\
+                    """
+                elif spells_learned:
+                    spell_message = f"""\
+You learned new spells!
+{spells_learned}\
+                    """
+                else:
+                    spell_message = """"""
         db.session.commit()
-
         character_announcement(announcement=f"""\
-You have updated your skills! Type SKILLS to see your new skill values and bonuses.\
+You have updated your skills! Type SKILLS to see your new skill values and bonuses.
+
+{spell_message}\
         """)
-
         response = "Skills updated! Please close the window and return to the game window."
-
         return render_template('/skills_updated.html', response=response)
     
     return render_template('/skills.html', form=form, player=character_file.char, skillDataFile=skill_data_file)

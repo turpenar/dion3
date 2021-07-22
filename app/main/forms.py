@@ -1,11 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, PasswordField, SubmitField, HiddenField, BooleanField
+from wtforms import StringField, IntegerField, SelectField, PasswordField, SubmitField, HiddenField, BooleanField, FieldList, FormField
 from wtforms.validators import DataRequired, NumberRange
 
 from app.main import config
 
 stats_list = config.get_stats_data_file()
-skills_data_file = config.get_skill_data_file()
 
 class LoginForm(FlaskForm):
     username = StringField('username', [DataRequired()])
@@ -49,13 +48,24 @@ for stat in stats_list:
     setattr(NewCharacterForm, stat, IntegerField(stat, validators=[DataRequired(), NumberRange(min=20, max=100, message="Please choose a number between 20 and 100")]))
   
   
+class SkillEntryForm(FlaskForm):
+    def __init__(self, skill_name):
+        skill = IntegerField(skill_name, id="skill_value_var_" + skill_name)
+
+
 class SkillsForm(FlaskForm):
-    
     physical_training_points_var = IntegerField('Physical Training Points', id="physical_training_points_var", validators=[NumberRange(min=0, message="You do not have enough physical training points")])
     mental_training_points_var = IntegerField('Mental Training Points', id="mental_training_points_var", validators=[NumberRange(min=0, message="You do not have enough mental training points")])
-
     submit = SubmitField('Update Skills')
-    
-for category in skills_data_file:
-    for skill in skills_data_file[category]:
-        setattr(SkillsForm, skill, IntegerField(skill, id="skill_value_var_" + skill))
+
+
+class SkillsProfessionForm(SkillsForm):
+    pass
+
+
+def add_skills_to_skill_form(profession):
+    skill_data_file = config.get_skill_data_file(profession=profession)
+    for category in skill_data_file:
+        for skill in skill_data_file[category]:
+            setattr(SkillsProfessionForm, skill, IntegerField(skill, id="skill_value_var_" + skill))
+    return

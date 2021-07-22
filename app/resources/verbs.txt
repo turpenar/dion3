@@ -22,8 +22,10 @@ sit
 skills
 skin
 south
+spells
 stance
 stand
 stats
 take
+wealth
 west

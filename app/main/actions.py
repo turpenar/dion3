@@ -11,7 +11,7 @@ import random as random
 import textwrap as textwrap
 
 from app import db
-from app.main import world, routes, enemies, command_parser, config, npcs, combat
+from app.main import world, routes, enemies, command_parser, config, npcs, combat, spells
 from app.main.models import EnemySpawn, Room
 
 
@@ -1049,7 +1049,6 @@ class Order(DoActions):
             character.shop_item_selected = kwargs['number_1']
             self.action_result.update(room.shop.order_item(kwargs['number_1']))
             return
-
                 
 
 @DoActions.register_subclass('position')
@@ -1067,6 +1066,46 @@ class Position(DoActions):
         
         self.update_character_output('''You are currently in the {} position.'''.format(character.position))
         self.update_status(character.get_status())
+
+
+@DoActions.register_subclass('prepare')
+@DoActions.register_subclass('prep')
+class Prepare(DoActions):
+    """
+    Prepares a spell for casting. Spell can be cast once soft round time has passed.
+
+    Usage:
+    PREPARE <SPELL #>:  Prepares the spell as long as you have learned the spell.
+    """
+
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
+
+        if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
+            self.update_status(character.get_status())            
+            return
+        if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(character.get_status())
+            return
+        if character.active_spell:
+            self.update_character_output(character_output_text="You currently have a spell prepared.")
+            self.update_status(character.get_status())
+            return
+        if kwargs['number_1']:
+            for spell_category in character.spells:
+                if set(character.spells[spell_category]) & set(kwargs['number_1']):
+                    character.active_spell = spells.create_spell(spell_category=spell_category, spell_number=kwargs['number_1'][0])
+                    self.action_result.update(character.active_spell.prepare_spell(character_file=character_file, room_file=room_file))
+                    self.update_status(character.get_status())
+                    return
+            self.update_character_output(character_output_text="You don't know that spell yet.")
+            self.update_status(character.get_status())
+            return
 
 
 @DoActions.register_subclass('put')
@@ -1431,6 +1470,26 @@ class South(DoActions):
             self.update_character_output("You cannot find a way to move in that direction.")
             self.update_status(character.get_status())
             return
+
+
+@DoActions.register_subclass('spells')
+class Spells(DoActions):
+    """\
+    SPELLS displays the spells your currently know.\
+    """
+    
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
+        
+        self.update_character_output(f'''\
+Spells:
+{character.get_spell_output()}\
+            ''')
+        self.update_status(character.get_status())
+        return
             
             
 @DoActions.register_subclass('stance')
@@ -1538,6 +1597,25 @@ Agility:        {}  ({})        Spirit:         {}  ({})
                    character.stats['spirit'], character.stats_bonus['spirit'])
               )
         self.update_status(character.get_status())
+
+
+@DoActions.register_subclass('wealth')
+class Wealth(DoActions):
+    """\
+    WEALTH shows your current wealth.\
+    """
+    
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
+        
+        self.update_character_output(f'''\
+You currently have {character.money} gulden after searching through your pockets.\
+            ''')
+        self.update_status(character.get_status())
+        return
         
 
 @DoActions.register_subclass('west')

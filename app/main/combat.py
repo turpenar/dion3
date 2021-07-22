@@ -217,12 +217,12 @@ def melee_attack_enemy(character, target_file):
     
     result = None
     if att_end_roll <= 100:
-        result_character = f"""
+        result_character = f"""\
 {target_file.enemy.name} evades the attack.
-Round time:  {round_time} seconds
+Round time:  {round_time} seconds\
             """
-        result_room = f"""
-{character.first_name} swings {character.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.
+        result_room = f"""\
+{character.first_name} swings {character.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.\
             """
     else:
         att_damage = get_damage(att_end_roll, character.get_dominant_hand_inv(), target_file.enemy.armor)
@@ -236,20 +236,18 @@ Round time:  {round_time} seconds
         result_character = f"""\
 You damage {target_file.enemy.name} by {att_damage}.
 Round time:  {round_time} seconds
-Target health:  {target_file.health}
-{death_text}
+{death_text}\
             """
-        result_room = f"""
+        result_room = f"""\
 {character.name} strikes {target_file.enemy.name} with {character.get_dominant_hand_inv().name}!
-{death_text}
+{death_text}\
             """
 
-    update_character_output(character_output_text=f"""
+    update_character_output(character_output_text=f"""\
 You swing {character.get_dominant_hand_inv().name} at {target_file.enemy.name}!
 STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
-{result_character}
+{result_character}\
     """)
-    character.check_level_up()
     update_room_output(room_output_text=result_room)
     return combat_result
 
@@ -286,12 +284,11 @@ You evade the attack.\
     update_character_output(character_output_text=f"""\
 {enemy_file.enemy.name} {enemy_file.enemy.text_attack} you!
 STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
-{result_character}
-\
+{result_character}\
     """)
     update_room_output(room_output_text=f"""\
 {enemy_file.enemy.name.capitalize()} swing {enemy_file.enemy.weapon} at {character_file.char.first_name}
-{result_room}
+{result_room}\
     """,
                        room_output_number=room_file.room_number)
 

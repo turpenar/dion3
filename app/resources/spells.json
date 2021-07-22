@@ -1,0 +1,11 @@
+{
+    "enchanter":  {
+        "401":  {
+            "name":  "Minor Elemental Blast",
+            "description":  "Shoots a blast of elmental energy from the palm of your hand toward your target.",
+            "spell_type":  "bolt",
+            "prepare_round_time":  3,
+            "cast_round_time":  5
+        }
+    }
+}

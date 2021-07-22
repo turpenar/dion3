@@ -50,7 +50,6 @@ def parser(input):
     if tokens[0] == 'say':
         kwargs['action_verb'] = tokens[0]
         kwargs['say_text'] = ' '.join(tokens[1:])
-        print(kwargs)
         return kwargs
 
     relevant_verbs = set(tokens).intersection(verbs)

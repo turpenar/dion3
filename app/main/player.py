@@ -68,6 +68,9 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self._skills = self._player_data['skills']
         self._skills_max = self._player_data['skills_max']
         self._skills_bonus = self._player_data['skills_bonus']
+
+        self._spells = self._player_data['spells']
+        self._active_spell = None
         
         self._health = self._player_data['health']
         self._health_max = self._player_data['health_max']
@@ -270,6 +273,20 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @skills_max.setter    
     def skills_max(self):
             self._skills_max
+
+    @property
+    def spells(self):
+            return self._spells
+    @spells.setter
+    def spells(self):
+        self._spells
+
+    @property
+    def active_spell(self):
+        return self._active_spell
+    @active_spell.setter
+    def active_spell(self, active_spell):
+        self._active_spell = active_spell
         
     @property
     def health(self):
@@ -369,7 +386,40 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.mental_training_points = self.mental_training_points + added_mental_points
         for skill in self.skills:
             self.skills_max[skill] = (self.level + 1) * skills_max_factors.loc[skill, self.profession]
-    
+
+    def check_spells_forget(self, spell_base, spell_numbers):
+        print(self.spells)
+        print(spell_numbers)
+        spells_forget = list(set(self.spells[spell_base.lower()]) - set(spell_numbers))
+        if len(spells_forget) > 0:
+            return spells_forget
+        else:
+            return None
+
+    def check_spells_learned(self, spell_base, spell_numbers):
+        print(self.spells)
+        print(spell_numbers)
+        spells_learned = list(set(spell_numbers) - set(self.spells[spell_base.lower()]))
+        if len(spells_learned) > 0:
+            return spells_learned
+        else:
+            return None
+
+    def learn_spells(self, spell_base, spell_numbers):
+        self.spells[spell_base.lower()] = spell_numbers
+        return
+
+    def get_spell_output(self):
+        spell_data_file = config.get_spell_data_file()
+        print(spell_data_file)
+        spell_output = ""
+        for category in self.spells:
+            for spell in self.spells[category]:
+                spell_output = spell_output + f"""\
+{spell} - {spell_data_file[category][str(spell)]["name"]}\
+                """
+        return spell_output
+                
     def add_money(self, amount):
             self.money += amount
     

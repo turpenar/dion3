@@ -84,6 +84,12 @@
 			"spell_research": 0,
 			"magic_harnessing": 0
 			},
+		"spells": {
+			"enchanter":  [],
+			"elemental":  [],
+			"spiritual":  [],
+			"mental":  []
+		},
 		"health": 0,
 		"health_max": 0,
 		"mana": 0,

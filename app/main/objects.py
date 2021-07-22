@@ -269,5 +269,6 @@ You search {self.name}.
 {self.name.capitalize()} decays into compost.
         """)
         self.update_room_output(room_output_text=f"{character_file.char.first_name} searched {self.name}.")
+        character_file.char.check_level_up()
         return self.object_result
 

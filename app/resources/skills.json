@@ -1,52 +1,127 @@
 {
-	"Weapons": {
-		"edged_weapons": {
-			"physical_points": 3,
-			"mental_points": 1
-			},
-		"blunt_weapons": {
-			"physical_points": 3,
-			"mental_points": 1
-			},
-		"polearm_weapons": {
-			"physical_points": 3,
-			"mental_points": 1
-			}
-	},
-	"Armor": {
-		"armor": {
-			"physical_points": 2,
-			"mental_points": 1
-			},
-		"shield": {
-			"physical_points": 2,
-			"mental_points": 1
-			}
-	},
-	"Combat": {
-		"dodging": {
-			"physical_points": 1,
-			"mental_points": 2
-			}
-	},
-	"Survival": {
-		"physical_fitness": {
-			"physical_points": 3,
-			"mental_points": 0
-			},
-		"perception": {
-			"physical_points": 1,
-			"mental_points": 3
-			}
-	},
-	"Magic": {
-		"spell_research": {
-			"physical_points": 0,
-			"mental_points": 6
+	"Warrior": {
+		"Weapons": {
+			"edged_weapons": {
+				"physical_points": 3,
+				"mental_points": 1,
+				"description":  "Increase your skill using edged weapons. This skills also helps in parrying defense."
+				},
+			"blunt_weapons": {
+				"physical_points": 3,
+				"mental_points": 1,
+				"description":  "Increase your skill using blunt weapons. This skill also helps in parrying defense."
+				},
+			"polearm_weapons": {
+				"physical_points": 3,
+				"mental_points": 1,
+				"description":  "Increase your skill in using polearm weapons. This skill also helps in parrying defense."
+				}
 		},
-		"magic_harnessing": {
-			"physical_points": 1,
-			"mental_points": 3
+		"Armor": {
+			"armor": {
+				"physical_points": 2,
+				"mental_points": 1,
+				"description":  "Armor increases all basic physical defenses."
+				},
+			"shield": {
+				"physical_points": 2,
+				"mental_points": 1,
+				"description":  "Increases you skill in shield use. This skill also inreases your blocking defense."
+				}
+		},
+		"Combat": {
+			"dodging": {
+				"physical_points": 1,
+				"mental_points": 2,
+				"description":  "Dodging increases your evading defense ability."
+				}
+		},
+		"Survival": {
+			"physical_fitness": {
+				"physical_points": 3,
+				"mental_points": 0,
+				"description":  "Physical fitness increases your maximum hit points."
+				},
+			"perception": {
+				"physical_points": 1,
+				"mental_points": 3,
+				"description":  "Perception assists with your ability to search and see hidden objects."
+				}
+		},
+		"Magic": {
+			"spell_research": {
+				"physical_points": 0,
+				"mental_points": 100,
+				"description":  "Warriors have a difficult time learning magic."
+			},
+			"magic_harnessing": {
+				"physical_points": 10,
+				"mental_points": 25,
+				"description":  "Magic Harnessing increases your magical attack ability which can help with magical items."
+			}
+		}
+	},
+	"Enchanter": {
+		"Weapons": {
+			"edged_weapons": {
+				"physical_points": 3,
+				"mental_points": 1,
+				"description":  "Increase your skill using edged weapons. This skills also helps in parrying defense."
+				},
+			"blunt_weapons": {
+				"physical_points": 3,
+				"mental_points": 1,
+				"description":  "Increase your skill using blunt weapons. This skill also helps in parrying defense."
+				},
+			"polearm_weapons": {
+				"physical_points": 3,
+				"mental_points": 1,
+				"description":  "Increase your skill in using polearm weapons. This skill also helps in parrying defense."
+				}
+		},
+		"Armor": {
+			"armor": {
+				"physical_points": 2,
+				"mental_points": 1,
+				"description":  "Armor increases all basic physical defenses."
+				},
+			"shield": {
+				"physical_points": 2,
+				"mental_points": 1,
+				"description":  "Increases you skill in shield use. This skill also inreases your blocking defense."
+				}
+		},
+		"Combat": {
+			"dodging": {
+				"physical_points": 1,
+				"mental_points": 2,
+				"description":  "Dodging increases your evading defense ability."
+				}
+		},
+		"Survival": {
+			"physical_fitness": {
+				"physical_points": 3,
+				"mental_points": 0,
+				"description":  "Physical fitness increases your maximum hit points."
+				},
+			"perception": {
+				"physical_points": 1,
+				"mental_points": 3,
+				"description":  "Perception assists with your ability to search and see hidden objects."
+				}
+		},
+		"Magic": {
+			"spell_research": {
+				"physical_points": 0,
+				"mental_points": 6,
+				"description":  "At level 1, you will learn Elemental Blast (101)"
+			},
+			"magic_harnessing": {
+				"physical_points": 1,
+				"mental_points": 3,
+				"description":  "Magic Harnessing increases your magical attack ability which can help with magical items."
+
+			}
 		}
 	}		 
 }

@@ -13,6 +13,7 @@ QUEST_FILE = str(DATA_DIR / f"quests.{DATA_FORMAT}")
 OBJECT_FILE = str(DATA_DIR / f"objects.{DATA_FORMAT}")
 PLAYER_FILE = str(DATA_DIR / f"players.{DATA_FORMAT}")
 SKILLS_FILE = str(DATA_DIR / f"skills.{DATA_FORMAT}")
+SPELLS_FILE = str(DATA_DIR / f"spells.{DATA_FORMAT}")
 STATS_FILE = str(DATA_DIR / f"stats.{DATA_FORMAT}")
 
 TEXT_WRAPPER_WIDTH = 100
@@ -43,6 +44,9 @@ STANCE_FACTORS.set_index('stance', inplace=True)
 
 SKILLS_MAX_FACTORS = pd.read_csv(DATA_DIR / "Skills_Max_Factors.csv")
 SKILLS_MAX_FACTORS.set_index('skills', inplace=True)
+
+SPELL_LEVELS = pd.read_csv(DATA_DIR / "Spell_Levels.csv")
+SPELL_LEVELS.set_index('skill_level', inplace=True)
 
 verbs_path = DATA_DIR / 'verbs.txt'
 with verbs_path.open(mode='r') as file:
@@ -91,7 +95,15 @@ gender_choices = ['Female', 'Male']
 positions = ['standing', 'kneeling', 'sitting', 'lying']
 stances = ['offense', 'forward', 'neutral', 'guarded', 'defense']
 
-def get_skill_data_file(file=SKILLS_FILE, file_format=DATA_FORMAT) -> dict:
+def get_skill_data_file(profession: str, file=SKILLS_FILE, file_format=DATA_FORMAT) -> dict:
+    with open(file) as fl:
+        if file_format == "json":
+            data = json.load(fl, parse_int=int, parse_float=float)
+        else:
+            raise NotImplementedError(fl, "Missing support for opening files of type: {file_format}")
+    return data[profession]
+
+def get_spell_data_file(file=SPELLS_FILE, file_format=DATA_FORMAT) -> dict:
     with open(file) as fl:
         if file_format == "json":
             data = json.load(fl, parse_int=int, parse_float=float)

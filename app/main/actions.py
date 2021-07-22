@@ -202,26 +202,15 @@ class Attack(DoActions):
             self.update_status(status_text=character.get_status())
             return
         if not kwargs['direct_object']:
-            if not character.target:
-                self.update_character_output(character_output_text="Who are you going to attack? You do not have a target.")
-                self.update_status(status_text=character.get_status())
-                return
-            for enemy_file in room.enemies:
-                if set(enemy_file.id) & set(character.target):
-                    target_file = db.session.query(EnemySpawn).filter_by(id=enemy_file.id).first()
-                    self.action_result.update(combat.melee_attack_enemy(character=character, target_file=target_file))
-                    self.update_status(status_text=character.get_status())
-                    return
-                else:
-                    self.update_character_output(character_output_text="Your target doesn't seem to be around here.")
-                    self.update_status(status_text=character.get_status())
-                    return
+            self.update_character_output(character_output_text="Who are you going to attack? You do not have a target.")
+            self.update_status(status_text=character.get_status())
+            return
         if kwargs['direct_object']:
             for enemy_file in room_file.enemies:
                 if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
                     target_file = db.session.query(EnemySpawn).filter_by(id=enemy_file.id).first()
                     character.target = target_file.id
-                    self.action_result.update(combat.melee_attack_enemy(character=character, target_file=target_file))
+                    self.action_result.update(combat.melee_attack_enemy(character_file=character_file, target_file=target_file))
                     self.update_status(status_text=character.get_status())
                     db.session.commit()
                     return
@@ -309,6 +298,62 @@ class Buy(DoActions):
             except:
                 print("WARNING: Shop did not deliver item")
         return
+
+
+@DoActions.register_subclass('cast')
+class Cast(DoActions):
+    """\
+    CAST allows you to engage in magical combat with an enemy. Provided you are not in round time and that you have property prepared your spell, CAST releases
+    the spell at the enemy. You will not be able cast spells at anyone other than your enemies.
+
+    Usage:
+    CAST <enemy> : Releases a spell at an enemy.\
+    """
+
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
+
+        if character.check_round_time():
+            self.update_character_output(character_output_text=f"Round time remaining... {character.get_round_time()} seconds.")
+            self.update_status(status_text=character.get_status())
+            return
+        if character.is_dead():
+            self.update_character_output(character_output_text="You're dead!")
+            self.update_status(status_text=character.get_status())
+            return
+        if character.check_cast_round_time():
+            self.update_character_output(character_output_text=f"Your spell is not yet ready. Cast round time remaining... {character.get_cast_round_time()} seconds.")
+            self.update_status(status_text=character.get_status())
+            return
+        if not kwargs['direct_object']:
+            self.update_character_output(character_output_text="At whom are you going to cast the spell? You do not have a target.")
+            self.update_status(status_text=character.get_status())
+            return
+        if kwargs['direct_object']:
+            for enemy_file in room_file.enemies:
+                if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
+                    target_file = db.session.query(EnemySpawn).filter_by(id=enemy_file.id).first()
+                    character.target = target_file.id
+                    self.action_result.update(character.active_spell.cast_spell(character_file=character_file, target_file=target_file, room_file=room_file))
+                    character.active_spell = None
+                    self.update_status(status_text=character.get_status())
+                    db.session.commit()
+                    return
+            for npc in room.npcs:
+                if set(npc.handle) & set(kwargs['direct_object']):
+                    self.update_character_output("{} will probably not appreciate that.".format(npc.name))
+                    self.update_status(status_text=character.get_status())
+                    return
+            self.update_character_output("A {} is not around here.".format(kwargs['direct_object'][0]))
+            self.update_status(status_text=character.get_status())
+            return
+        else:
+            self.update_character_output("I'm sorry, I don't understand.")
+            self.update_status(status_text=character.get_status())
+            return
 
 
 @DoActions.register_subclass('drop')

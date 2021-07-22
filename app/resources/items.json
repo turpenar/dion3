@@ -289,7 +289,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"rapier01": {
 			"name": "a rapier", 
@@ -310,7 +311,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"short_sword01": {
 			"name": "a short sword", 
@@ -331,7 +333,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"longsword01": {
 			"name": "a longsword", 
@@ -352,7 +355,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"broadsword01": {
 			"name": "a broadsword", 
@@ -373,7 +377,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"handaxe01": {
 			"name": "a handaxe", 
@@ -394,7 +399,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"battle_axe01": {
 			"name": "a battle axe", 
@@ -415,7 +421,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"whip01": {
 			"name": "a whip", 
@@ -436,7 +443,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"cudgel01": {
 			"name": "a cudgel", 
@@ -457,7 +465,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"mace01": {
 			"name": "a mace", 
@@ -478,7 +487,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"morning_star01": {
 			"name": "a morning star", 
@@ -499,7 +509,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"flail01": {
 			"name": "a flail", 
@@ -520,7 +531,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"hammer01": {
 			"name": "a hammer", 
@@ -541,7 +553,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"maul01": {
 			"name": "a maul", 
@@ -562,7 +575,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"pilum01": {
 			"name": "a pilum", 
@@ -583,7 +597,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"spear01": {
 			"name": "a spear", 
@@ -604,7 +619,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"halberd01": {
 			"name": "a halberd", 
@@ -625,7 +641,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		},
 		"trident01": {
 			"name": "a trident", 
@@ -646,7 +663,8 @@
 			"rarity": "common",
 			"level": 0,
 			"loot": false,
-			"area": "Wilds"
+			"area": "Wilds",
+			"attack_round_time": 5
 		}
 	},
 	"ring": {

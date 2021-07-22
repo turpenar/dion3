@@ -171,6 +171,7 @@ class Weapon(Item):
         Item.__init__(self, item_data=item_data, **kwargs)
         
         self.classification = item_data['classification']
+        self.attack_round_time = item_data['attack_round_time']
 
 
 @Item.register_subclass('money')

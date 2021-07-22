@@ -76,6 +76,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self._health_max = self._player_data['health_max']
 
         self._attack_strength_base = 0
+        self._cast_strength_base = 0
 
         self._defense_strength_evade_base = 0
         self._defense_strength_block_base = 0
@@ -115,8 +116,10 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self._shop_item_selected = None
 
         self.target = None
-        self.rt_start = 0
-        self.rt_end = 0
+        self._rt_start = 0
+        self._rt_end = 0
+        self._cast_rt_start = 0
+        self._cast_rt_end = 0
     
     @property
     def name(self):
@@ -308,6 +311,13 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @attack_strength_base.setter
     def attack_strength_base(self, attack_strength_base):
             self._attack_strength_base = attack_strength_base
+
+    @property
+    def cast_strength_base(self):
+        return self._cast_strength_base
+    @cast_strength_base.setter
+    def cast_strength_base(self, cast_strength_base):
+        self._cast_strength_base = cast_strength_base
         
     @property
     def defense_strength_evade_base(self):
@@ -352,6 +362,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.health_max = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
 
         self.attack_strength_base = int(round(self.stats_bonus['strength'],0))
+        self.cast_strength_base = int(round(self.stats_bonus['dexterity'],0))
         self.defense_strength_evade_base = int(round(self.stats_bonus['agility'] + self.stats_bonus['intellect'] / 4 + self.skills['dodging'],0))
         self.defense_strength_block_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] /4,0))
         self.defense_strength_parry_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] / 4,0))
@@ -366,6 +377,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.health_max = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
         
         self.attack_strength_base = int(round(self.stats_bonus['strength'],0))
+        self.cast_strength_base = int(round(self.stats_bonus['dexterity']))
         self.defense_strength_evade_base = int(round(self.stats_bonus['agility'] + self.stats_bonus['intellect'] / 4 + self.skills['dodging'],0))
         self.defense_strength_block_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] /4,0))
         self.defense_strength_parry_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] / 4,0))
@@ -388,8 +400,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             self.skills_max[skill] = (self.level + 1) * skills_max_factors.loc[skill, self.profession]
 
     def check_spells_forget(self, spell_base, spell_numbers):
-        print(self.spells)
-        print(spell_numbers)
         spells_forget = list(set(self.spells[spell_base.lower()]) - set(spell_numbers))
         if len(spells_forget) > 0:
             return spells_forget
@@ -397,8 +407,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             return None
 
     def check_spells_learned(self, spell_base, spell_numbers):
-        print(self.spells)
-        print(spell_numbers)
         spells_learned = list(set(spell_numbers) - set(self.spells[spell_base.lower()]))
         if len(spells_learned) > 0:
             return spells_learned
@@ -411,7 +419,6 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
 
     def get_spell_output(self):
         spell_data_file = config.get_spell_data_file()
-        print(spell_data_file)
         spell_output = ""
         for category in self.spells:
             for spell in self.spells[category]:
@@ -439,6 +446,34 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         else:
             return "Your body falls to the ground with a *slump*. You are dead."
 
+    @property
+    def rt_start(self):
+        return self._rt_start
+    @rt_start.setter
+    def rt_start(self, rt_start):
+        self._rt_start = rt_start
+
+    @property
+    def rt_end(self):
+        return self._rt_end
+    @rt_end.setter
+    def rt_end(self, rt_end):
+        self._rt_end = rt_end
+
+    @property
+    def cast_rt_start(self):
+        return self._cast_rt_start
+    @cast_rt_start.setter
+    def cast_rt_start(self, cast_rt_start):
+        self._cast_rt_start = cast_rt_start
+
+    @property
+    def cast_rt_end(self):
+        return self._cast_rt_end
+    @cast_rt_end.setter
+    def cast_rt_end(self, cast_rt_end):
+        self._cast_rt_end = cast_rt_end
+
     def check_round_time(self):
         round_time = False
         if time.time() < self.rt_end:
@@ -451,6 +486,20 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def set_round_time(self, seconds):
         self.rt_start = time.time()
         self.rt_end = self.rt_start + seconds
+        return seconds
+
+    def check_cast_round_time(self):
+        round_time = False
+        if time.time() < self.cast_rt_end:
+            round_time = True
+        return round_time
+
+    def get_cast_round_time(self):
+            return int(self.cast_rt_end - time.time())
+
+    def set_cast_round_time(self, seconds):
+        self.cast_rt_start = time.time()
+        self.cast_rt_end = self.cast_rt_start + seconds
         return seconds
     
     @property

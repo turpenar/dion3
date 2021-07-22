@@ -138,6 +138,11 @@ def calculate_attack_strength(character, weapon):
                 attack_strength += character.skills_bonus[weapon.sub_category] 
     attack_strength = int(attack_strength * calculate_position_factor_for_attack(character) * calculate_stance_factor_for_attack(character))
     return attack_strength
+
+def calculate_cast_strength(character):
+    attack_strength = character.cast_strength_base
+    attack_strength += int(character.skills_bonus['magic_harnessing'])
+    return attack_strength
     
 def calculate_defense_strength_evade(character):
     defense_strength_evade = int(character.defense_strength_evade_base + character.skills['dodging'])
@@ -167,7 +172,7 @@ def calculate_defense_strength(character, weapon):
     defense_strength = int(defense_strength * calculate_position_factor_for_defense(character) * calculate_stance_factor_for_defense(character))
     return defense_strength
 
-def calculate_attack_factor(weapon, armor):
+def calculate_attack_factor_weapon(weapon, armor):
     try:
         armor_classification = armor['torso'].classification
     except:
@@ -182,10 +187,18 @@ def calculate_attack_factor(weapon, armor):
     attack_factor = weapon_attack_factors.loc[weapon_classification, armor_classification]
     return int(attack_factor)
 
+def calculate_attack_factor_spell(spell, armor):
+    try:
+        armor_classification = armor['torso'].classification
+    except:
+        armor_classification = "None"
+    attack_factor = weapon_attack_factors.loc[str(spell.spell_number), armor_classification]
+    return int(attack_factor)
+
 def end_roll(attack, defense, attack_factor, random):
     return int((attack - defense + attack_factor + random))
 
-def get_damage(end_roll, weapon, armor):
+def get_damage_weapon(end_roll, weapon, armor):
     try:
         armor_classification = armor['torso'].classification
     except:
@@ -201,19 +214,27 @@ def get_damage(end_roll, weapon, armor):
     damage_factor = weapon_damage_factors.loc[weapon_classification, armor_classification]
     return int(round((end_roll - 100) * damage_factor))
 
+def get_damage_spell(end_roll, spell, armor):
+    try:
+        armor_classification = armor['torso'].classification
+    except:
+        armor_classification = "None"
+    damage_factor = weapon_damage_factors.loc[str(spell.spell_number), armor_classification]
+    return int(round((end_roll - 100) * damage_factor))
+
 def get_exerience_modifier(character_level, target_level):
     level_variance = int(target_level - character_level)
     return experience_adjustment_factors.loc[level_variance, 'Adjustment_Factor']
 
-def melee_attack_enemy(character, target_file):
+def melee_attack_enemy(character_file, target_file):
     global combat_result
     reset_result()
-    attack_strength = calculate_attack_strength(character, character.get_dominant_hand_inv())
+    attack_strength = calculate_attack_strength(character_file.char, character_file.char.get_dominant_hand_inv())
     defense_strength = calculate_defense_strength(character=target_file.enemy, weapon=target_file.enemy.weapon)
-    attack_factor = calculate_attack_factor(character.get_dominant_hand_inv(), target_file.enemy.armor)
+    attack_factor = calculate_attack_factor_weapon(character_file.char.get_dominant_hand_inv(), target_file.enemy.armor)
     att_random = random.randint(0,100)
     att_end_roll = end_roll(attack=attack_strength, defense=defense_strength, attack_factor=attack_factor, random=att_random)
-    round_time = character.set_round_time(3)
+    round_time = character_file.char.set_round_time()
     
     result = None
     if att_end_roll <= 100:
@@ -222,15 +243,15 @@ def melee_attack_enemy(character, target_file):
 Round time:  {round_time} seconds\
             """
         result_room = f"""\
-{character.first_name} swings {character.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.\
+{character_file.char.first_name} swings {character_file.char.get_dominant_hand_inv().name} at {target_file.enemy.name} and misses.\
             """
     else:
-        att_damage = get_damage(att_end_roll, character.get_dominant_hand_inv(), target_file.enemy.armor)
+        att_damage = get_damage_weapon(att_end_roll, character_file.char.get_dominant_hand_inv(), target_file.enemy.armor)
         target_file.health = target_file.health - att_damage
         if target_file.enemy.is_killed(target_file):
             death_text = target_file.enemy.text_death
             target_file.enemy.replace_with_corpse(target_file)
-            character.experience += int(target_file.enemy.experience * get_exerience_modifier(character.level, target_file.enemy.level))
+            character_file.char.experience += int(target_file.enemy.experience * get_exerience_modifier(character_file.char.level, target_file.enemy.level))
         else:
             death_text = ""
         result_character = f"""\
@@ -239,12 +260,12 @@ Round time:  {round_time} seconds
 {death_text}\
             """
         result_room = f"""\
-{character.name} strikes {target_file.enemy.name} with {character.get_dominant_hand_inv().name}!
+{character_file.char.name} strikes {target_file.enemy.name} with {character_file.char.get_dominant_hand_inv().name}!
 {death_text}\
             """
 
     update_character_output(character_output_text=f"""\
-You swing {character.get_dominant_hand_inv().name} at {target_file.enemy.name}!
+You swing {character_file.char.get_dominant_hand_inv().name} at {target_file.enemy.name}!
 STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
 {result_character}\
     """)
@@ -256,7 +277,7 @@ def melee_attack_character(enemy_file, character_file, room_file):
     reset_result()
     attack_strength = calculate_attack_strength(enemy_file.enemy, enemy_file.enemy.weapon)
     defense_strength = calculate_defense_strength(character=character_file.char, weapon=character_file.char.get_dominant_hand_inv())
-    attack_factor = calculate_attack_factor(enemy_file.enemy.weapon, character_file.char.armor)
+    attack_factor = calculate_attack_factor_weapon(enemy_file.enemy.weapon, character_file.char.armor)
     att_random = random.randint(0,100)
     att_end_roll = end_roll(attack=attack_strength,defense=defense_strength, attack_factor=attack_factor, random=att_random)
 
@@ -270,7 +291,7 @@ You evade the attack.\
 {character_file.char.first_name} evades the attack.\
         """
     else:
-        att_damage = get_damage(att_end_roll, enemy_file.enemy.weapon, character_file.char.armor)
+        att_damage = get_damage_weapon(att_end_roll, enemy_file.enemy.weapon, character_file.char.armor)
         character_file.char.health = character_file.char.health - att_damage
         death_text = character_file.char.is_killed()
         result_character = f"""\
@@ -293,6 +314,54 @@ STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL 
                        room_output_number=room_file.room_number)
 
     return combat_result
+
+
+def bolt_attack_enemy(target_file, character_file, room_file):
+    global combat_result
+    reset_result()
+    attack_strength = calculate_cast_strength(character=character_file.char)
+    defense_strength = calculate_defense_strength(character=target_file.enemy, weapon=target_file.enemy.weapon)
+    attack_factor = calculate_attack_factor_spell(character_file.char.active_spell, target_file.enemy.armor)
+    att_random = random.randint(0,100)
+    att_end_roll = end_roll(attack=attack_strength, defense=defense_strength, attack_factor=attack_factor, random=att_random)
+    round_time = character_file.char.set_round_time(character_file.char.active_spell.cast_round_time)
+    
+    result = None
+    if att_end_roll <= 100:
+        result_character = f"""\
+{target_file.enemy.name} evades the attack.
+Round time:  {round_time} seconds\
+            """
+        result_room = f"""\
+{character_file.char.first_name} {character_file.char.active_spell.text_cast_room} at {target_file.enemy.name} and misses.\
+            """
+    else:
+        att_damage = get_damage_spell(att_end_roll, character_file.char.active_spell, target_file.enemy.armor)
+        target_file.health = target_file.health - att_damage
+        if target_file.enemy.is_killed(target_file):
+            death_text = target_file.enemy.text_death
+            target_file.enemy.replace_with_corpse(target_file)
+            character_file.char.experience += int(target_file.enemy.experience * get_exerience_modifier(character_file.char.level, target_file.enemy.level))
+        else:
+            death_text = ""
+        result_character = f"""\
+You damage {target_file.enemy.name} by {att_damage}.
+Round time:  {round_time} seconds
+{death_text}\
+            """
+        result_room = f"""\
+{character_file.char.name} {character_file.char.active_spell.text_cast_room} at {target_file.enemy.name}!
+{death_text}\
+            """
+
+    update_character_output(character_output_text=f"""\
+You {character_file.char.active_spell.text_cast_character} at {target_file.enemy.name}!
+STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
+{result_character}\
+    """)
+    update_room_output(room_output_text=result_room)
+    return combat_result
+
 
 
 

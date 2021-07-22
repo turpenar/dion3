@@ -1,7 +1,7 @@
 
 
 
-from app.main import mixins, config
+from app.main import mixins, config, combat
 
 
 spell_levels = config.SPELL_LEVELS
@@ -9,8 +9,6 @@ spell_levels = config.SPELL_LEVELS
 
 def get_spells_skill_level(spell_base, skill_level):
     spells = spell_levels.loc[0:skill_level][spell_base].tolist()
-    print(spells)
-    print([int(x) for x in spells if str(x) != 'nan'])
     return [int(x) for x in spells if str(x) != 'nan']
 
 
@@ -22,11 +20,15 @@ class Spell(mixins.ReprMixin, mixins.DataFileMixin):
     def __init__(self, spell_data, **kwargs):
 
         self.spell_data = spell_data
+        self.spell_number = spell_data['number']
         self.name = spell_data['name']
         self.description = spell_data['description']
         self.spell_type = spell_data['spell_type']
         self.prepare_round_time = spell_data['prepare_round_time']
         self.cast_round_time = spell_data['cast_round_time']
+
+        self.text_cast_character = spell_data['text_output']['text_cast_character']
+        self.text_cast_room = spell_data['text_output']['text_cast_room']
 
         self.spell_result = {
             "action_success": True,
@@ -126,19 +128,24 @@ class Spell(mixins.ReprMixin, mixins.DataFileMixin):
 class EnchanterSpell(Spell):
     def __init__(self, spell_number: int, **kwargs):
         category_data = self.get_spell_category_by_name('enchanter')
-        print(category_data)
         spell_data = category_data[str(spell_number)]
         Spell.__init__(self, spell_data=spell_data, **kwargs)
 
     def prepare_spell(self, character_file, room_file):
-        self.update_character_output(character_output_text="You make a brief gesture.")
+        self.reset_result()
+        self.update_character_output(character_output_text=f"""\
+You make a brief gesture.
+Casting round time is {character_file.char.get_cast_round_time()} seconds.\
+        """)
         self.update_room_output(room_output_text=f"{character_file.char.first_name} makes a brief gesture.")
-        character_file.char.set_round_time(self.prepare_round_time)
+        character_file.char.set_cast_round_time(self.prepare_round_time)
         return self.spell_result
 
-    def cast_spell(self, character_file, room_file):
-        pass
-
+    def cast_spell(self, character_file, target_file, room_file):
+        self.reset_result()
+        if self.spell_type == "bolt":
+            self.spell_result.update(combat.bolt_attack_enemy(target_file=target_file, character_file=character_file, room_file=room_file))
+            return self.spell_result
 
 @Spell.register_subclass('elemental')
 class ElementalSpell(Spell):

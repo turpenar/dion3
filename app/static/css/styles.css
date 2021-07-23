@@ -139,3 +139,62 @@ body {
     border-radius: 5px;
     width: 75%;
 }
+
+.total-training-points {
+    font-size: x-large;
+}
+
+.flex-container-skills {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: stretch;
+}
+
+.skill-name-label {
+    width: 15%;
+    display: inline-block;
+}
+
+.skill-point-costs {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    display: inline-block;
+}
+
+.physical-point-label {
+    display: inline-block;
+}
+
+.physical-point-cost {
+    display: inline-block;
+}
+
+.mental-point-label {
+    display: inline-block;
+}
+
+.mental-point-cost {
+    display: inline-block;
+}
+
+.increase-button {
+    width: 3%;
+    display: inline-block;
+}
+
+.skill-value {
+    width: 2%;
+    display: inline-block;
+}
+
+.decrease-button {
+    width: 3%;
+    display: inline-block;
+}
+
+.submit-button {
+    font-size: x-large;
+}
+

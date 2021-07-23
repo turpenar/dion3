@@ -1,27 +1,27 @@
 {
 	"Strength": {
-		"description": "Strength description. This is a more detailed description."
+		"description": "Strength is the measure of toughness in Dion. This attribute determines many factors in the game including training points, hit points, attack ability and defense."
 	}, 
 	"Constitution": {
-		"description": "Constitution description."
+		"description": "Constitution is the ability to fend off sickness and poison and to maintain high levels of stamina."
 	}, 
 	"Dexterity": {
-		"description": "Dexterity description."
+		"description": "Dexterity is the ability to perform various tasks, particularly with the hands. This attirbute contributes to spell strength as well as the ability to block and parry physical attacks."
 	}, 
 	"Agility": {
-		"description": "Agility description."
+		"description": "Agility is the ability to move about in a quick and nimble fashion. This attribute allows you to perform acrobatic feats and evade more easily."
 	}, 
 	"Intellect": {
-		"description": "Intellect description."
+		"description": "Intellect is the ability to understand complex and abstract thoughts."
 	}, 
 	"Wisdom": {
-		"description": "Wisdom description."
+		"description": "Wisdom is the ability to express good judgement and allows you to gain knowledge quickly."
 	}, 
 	"Logic": {
-		"description": "Logic description."
+		"description": "Logic is the ability to think quickly and form conclusions on the fly."
 	}, 
 	"Spirit": {
-		"description": "Spirit description."
+		"description": "Spirit is the ability to see beyond the physical plane and to gain belief in the world beyond."
 	}
 }
 

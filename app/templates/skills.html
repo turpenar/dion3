@@ -18,50 +18,78 @@
 	<form class="form" id="skills_form" action="{{ url_for('main.skills_modify') }}" method="POST">
 		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-		{{form.physical_training_points_var.label}}
-		{{form.physical_training_points_var(value=player.physical_training_points, type="hidden")}}
-		<span id="physical_training_points">{{player.physical_training_points|int}}</span>
-		<div class="error">
-			{% for error in form.physical_training_points_var.errors %}
-				{{error}}
-			{% endfor %}
-		</div>
-		
-		{{form.mental_training_points_var.label}}
-		{{form.mental_training_points_var(value=player.mental_training_points, type="hidden")}}
-		<span id="mental_training_points">{{player.mental_training_points|int}}</span>
-		<div class="error">
-			{% for error in form.mental_training_points_var.errors %}
-				{{error}}
-			{% endfor %}
+		<div class="total-training-points">
+
+			{{form.physical_training_points_var.label}}
+			{{form.physical_training_points_var(value=player.physical_training_points, type="hidden")}}
+			<span id="physical_training_points">{{player.physical_training_points|int}}</span>
+			<div class="error">
+				{% for error in form.physical_training_points_var.errors %}
+					{{error}}
+				{% endfor %}
+			</div>
+			
+			{{form.mental_training_points_var.label}}
+			{{form.mental_training_points_var(value=player.mental_training_points, type="hidden")}}
+			<span id="mental_training_points">{{player.mental_training_points|int}}</span>
+			<div class="error">
+				{% for error in form.mental_training_points_var.errors %}
+					{{error}}
+				{% endfor %}
+			</div>
+
 		</div>
 		
 		<br>
+		<br>
+
+		<div class="flex-containter-interface">
 		
 		{% for category in skillDataFile %}
 			<label for="{{category}}" class="skill_category"><strong>{{category}}</strong></label>
 			<br>
+			<br>
+			
+			<div class="flext-container-skills">
+
 			{% for skill in skillDataFile[category] %}
-				<label for="{{skill}}" class="skill_name" id="skill_name_{{skill}}">{{skill|replace("_", " ")|title}}</label>
-				<label for="{{skill}}" class="physical_points_cost_label" id="skill_physical_cost_label_{{skill}}">Physical Points Cost</label>
-				<span class="physical_points_cost" id="skill_physical_cost_{{skill}}">{{skillDataFile[category][skill]['physical_points']}}</span>
-				<label for="{{skill}}" class="mental_points_cost_label" id="skill_mental_cost_label_{{skill}}">Mental Points Cost</label>
-				<span class="mental_points_cost" id="skill_mental_cost_{{skill}}">{{skillDataFile[category][skill]['mental_points']}}</span>
-				<button type="button" id="skill_add_{{skill}}" onClick="increase_skill_value('{{skill}}', '{{skillDataFile[category][skill]['physical_points']}}', '{{skillDataFile[category][skill]['mental_points']}}', '{{player.skills_max[skill]}}')">+</button>
-				<span id="skill_value_{{skill}}">{{player.skills[skill]}}</span>
+				<div class="skill-name-label">
+					<label for="{{skill}}" class="skill_name" id="skill_name_{{skill}}">{{skill|replace("_", " ")|title}}</label>
+				</div>
+				<div class="skill-point-costs">
+					<div class="physical-point-label">
+						<label for="{{skill}}" class="physical_points_cost_label" id="skill_physical_cost_label_{{skill}}">Physical Points Cost = </label>
+					</div>
+					<div class="physical-point-cost">
+						<span class="physical_points_cost" id="skill_physical_cost_{{skill}}">{{skillDataFile[category][skill]['physical_points']}}</span>
+					</div>
+					<div class="mental-point-label">
+						<label for="{{skill}}" class="mental_points_cost_label" id="skill_mental_cost_label_{{skill}}">Mental Points Cost = </label>
+					</div>
+					<div class="mental-point-cost">
+						<span class="mental_points_cost" id="skill_mental_cost_{{skill}}">{{skillDataFile[category][skill]['mental_points']}}</span>
+					</div>
+				</div>
+				<div class="increase-button">
+					<button type="button" id="skill_add_{{skill}}" onClick="increase_skill_value('{{skill}}', '{{skillDataFile[category][skill]['physical_points']}}', '{{skillDataFile[category][skill]['mental_points']}}', '{{player.skills_max[skill]}}')">+</button>
+				</div>
+				<div class="skill-value">
+					<span id="skill_value_{{skill}}">{{player.skills[skill]}}</span>
 				{{form[skill](value=player["skills"][skill], type="hidden")}}
-				<button type="button" id="skill_subtract_{{skill}}" onClick="decrease_skill_value('{{skill}}', '{{skillDataFile[category][skill]['physical_points']}}', '{{skillDataFile[category][skill]['mental_points']}}', '{{player.skills_max[skill]}}')">-</button>
-				
+				</div>
+				<div class="decrease-button">
+					<button type="button" id="skill_subtract_{{skill}}" onClick="decrease_skill_value('{{skill}}', '{{skillDataFile[category][skill]['physical_points']}}', '{{skillDataFile[category][skill]['mental_points']}}', '{{player.skills_max[skill]}}')">-</button>
+				</div>
 				<br>
 			{% endfor %}
+			</div>
 			<br>
 		{% endfor %}
-		<br>
-		
-		<p>{{form.submit()}}<p>
-	
+		<div class="submit-button">
+			<p>{{form.submit()}}</p>
+		</div>
+		</div>
 	</form>
-
 </div>
 
 <script>

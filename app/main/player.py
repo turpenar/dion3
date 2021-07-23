@@ -393,11 +393,11 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         added_physical_points = base_training_points + ((stat_value['strength']
                                                         + stat_value['constitution']
                                                         + stat_value['dexterity']
-                                                        + stat_value['agility']) / 20)
+                                                        + stat_value['agility']) / 40)
         added_mental_points = base_training_points + ((stat_value['intellect']
                                                        + stat_value['wisdom']
                                                        + stat_value['logic']
-                                                       + stat_value['spirit']) / 20)
+                                                       + stat_value['spirit']) / 40)
         self.physical_training_points = self.physical_training_points + added_physical_points
         self.mental_training_points = self.mental_training_points + added_mental_points
         for skill in self.skills:

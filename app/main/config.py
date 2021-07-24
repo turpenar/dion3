@@ -82,7 +82,7 @@ with adjectives_path.open(mode='r') as file:
     adjectives = file.readlines()
 adjectives = [x.strip() for x in adjectives]
 
-available_stat_points = 528
+available_stat_points = 529
 base_training_points = 10
 experience_points_base = 1000
 experience_growth = 2

@@ -9,9 +9,8 @@ from app.main import main, config, player, actions, spells
 from app.main.models import User, Character, Room
 from app.main.forms import LoginForm, SignUpForm, NewCharacterForm, SkillsProfessionForm, add_skills_to_skill_form
 
-# Set this variable to "threading", "eventlet" or "gevent" to test the
-# different async modes, or leave it set to None for the application to choose
-# the best option based on installed packages.
+
+stat_training_points = config.available_stat_points
 
 @login.user_loader
 def load_user(user_id):
@@ -168,7 +167,7 @@ def new_character():
               
         return render_template('/character_created.html', response=response)
         
-    return render_template('/new_character.html', form=form, Stats=stats)
+    return render_template('/new_character.html', form=form, Stats=stats, total_stat_training_points=stat_training_points)
 
 
 @main.route('/character_created')

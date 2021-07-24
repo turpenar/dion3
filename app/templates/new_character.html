@@ -1,29 +1,8 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
 <title>Dion - New Character</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-	$(document).ready(function(){
-	  $(".stat").mouseenter(function() {
-	    $("#"+this.id).addClass('stat-mouseenter');
-	  });
-	  
-	  $(".stat").mouseout(function() {
-		$("#"+this.id).removeClass('stat-mouseenter');
-	  });
-	  
-	  $(".stat").click(function() {
-		$(".stat").removeClass('stat-click');
-		$("#"+this.id).addClass('stat-click');
-		$(".stats-description").hide();
-		$("#stats-description-"+this.id).show();
-	  });
-	  	
-	});
-</script>
-
 {% endblock %}
 
 {% block body %}
@@ -74,14 +53,20 @@
 		</div>
 		<br>
 		<div id="stats-instruction">
-			Please choose your stats. You have 528 stat points to place where you see fit. You may not have a stat lower than 20 or higher than 100.
+			Please choose your stats. You have 528 stat points to place where you see fit. 
+			You may not have a stat lower than 20 or higher than 100.
+			{{form.stat_training_points_var(value=total_stat_training_points, type="hidden")}}
+			You have <span id="training_points">{{total_stat_training_points|int}}</span> training points remaining.
 		</div>
+		<br>
 		<div class="flex-container-stats">
 			<div id="stats-left">
 				{% for stat in Stats %}
-					<div class="stat" id="{{stat}}">
+					<div class="stat-label" id="label-{{stat}}">
 					{{form[stat].label}}
-					{{form[stat](size=5)}}
+					</div>
+					<div class="stat-input" id="input-{{stat}}" onKeyup="adjust_total_stats()">
+					{{form[stat](value=20, size=5)}}
 					</div>
 					<div class="error">
 					{% for error in form[stat].errors %}
@@ -103,7 +88,7 @@
 			</div>
 	
  			{% for stat in Stats %}	
-				<div class="stats-description" id="stats-description-{{stat}}" style="display: none">
+				<div class="stats-description" id="stats-description-label-{{stat}}" style="display: none">
 				{{Stats[stat]['description']}}
 				</div>
 			{% endfor %}
@@ -116,5 +101,41 @@
 
 </div>
 
+<script>
+	var total_stat_points = parseInt(document.getElementById("stat_training_points_var").value) - 1;
+	const stats = ['Strength', 'Constitution', 'Dexterity', 'Agility', 'Intellect', 'Wisdom', 'Logic', 'Spirit'];
+
+	window.onload = function() {
+		adjust_total_stats();
+	};
+
+	function adjust_total_stats() {	
+		var available_stat_points = total_stat_points;
+		for (let i = 0; i < stats.length; i++) {
+			var stat_value = parseInt(document.getElementById("stat_value_var_" + stats[i]).value);
+			available_stat_points -= stat_value;
+		};
+		document.getElementById("training_points").innerHTML = available_stat_points;
+		return false;	
+	}
+
+	$(document).ready(function(){
+	  $(".stat-label").mouseenter(function() {
+	    $("#"+this.id).addClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat-label").mouseout(function() {
+		$("#"+this.id).removeClass('stat-mouseenter');
+	  });
+	  
+	  $(".stat-label").click(function() {
+		$(".stat-label").removeClass('stat-click');
+		$("#"+this.id).addClass('stat-click');
+		$(".stats-description").hide();
+		$("#stats-description-"+this.id).show();
+	  });
+	  	
+	});
+</script>
 
 {% endblock %}

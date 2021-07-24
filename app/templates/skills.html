@@ -2,6 +2,7 @@
 
 {% block head %}
 <title>Dion - Skills</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -75,7 +76,7 @@
 				</div>
 				<div class="skill-value">
 					<span id="skill_value_{{skill}}">{{player.skills[skill]}}</span>
-				{{form[skill](value=player["skills"][skill], type="hidden")}}
+					{{form[skill](value=player["skills"][skill], type="hidden")}}
 				</div>
 				<div class="decrease-button">
 					<button type="button" id="skill_subtract_{{skill}}" onClick="decrease_skill_value('{{skill}}', '{{skillDataFile[category][skill]['physical_points']}}', '{{skillDataFile[category][skill]['mental_points']}}', '{{player.skills_max[skill]}}')">-</button>

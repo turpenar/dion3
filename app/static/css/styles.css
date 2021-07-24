@@ -34,25 +34,30 @@ body {
     height: 20%;
 }
 
-#stats-left {
-	width: 30%;
-	float: left;
-}
-
 #stats-instruction {
-	width: 100%;
+	width: 50%;
 }
 
 .stats-description {
-	width: 70%;
+	width: 50%;
 	float: left;
 	background-color: #8FC1E3;
     padding: 2px;
 }
 
-.stat {
-	display: block;
-	width: 100%;
+#stats-left {
+    display: left;
+	width: 30%;
+}
+
+.stat-label {
+	display: inline-block;
+	width: 25%;
+}
+
+.stat-input {
+    display: inline-block;
+    width: 20%
 }
 
 .stat-mouseenter {

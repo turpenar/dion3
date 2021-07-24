@@ -302,6 +302,9 @@ def connect_room(message):
     user_file.current_sid = request.sid
     character = character_file.char
     if character:
+        emit('game_event',
+                {'data': "Welcome to Dion. To find out more about available commands, use the HELP command."}
+            )
         join_room(str(character.get_room().room_number))
         join_room(str(character.area_name))
         room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()

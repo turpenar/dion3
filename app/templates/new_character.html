@@ -8,18 +8,16 @@
 {% block body %}
 
 <div class="topnav">
-	<div class="page_title">Dion</div>
-  	<a href="logout">Log Out</a>
-	<a href="home">Home</a>
-	<a href="characters">Characters</a>
+	<div class="logo-image"><img class="title-image" src="/static/images/title.jpg"></div>
+	<div class="menu">
+		<a href="logout">Log Out</a>
+		<a href="home">Home</a>
+		<a href="characters">Characters</a>
+	</div>
 </div>
 
 <div class="title">
 <h1>New Character</h1>
-</div>
-
-<div class="menu">
-
 </div>
 
 <div class="flex-container-newcharacter">
@@ -27,30 +25,50 @@
 	<form action="{{ url_for('main.new_character') }}" method="post" role="form">
 		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 		{{ form.hidden_tag() }}
-		<div>
-			{{form.first_name.label}} <br>
-			{{form.first_name(size=30)}}
+		<div class="character-details">
+			<div class="demographics">
+				<div>
+					{{form.first_name.label}} <br>
+					{{form.first_name(size=30)}}
+				</div>
+				<br>
+				<div>
+					{{form.last_name.label}} <br>
+					{{form.last_name(size=30)}}
+				</div>
+				<br>
+				<div>
+					{{form.gender.label}} <br>
+					{{form.gender(size=1)}}
+				</div>
+				<br>
+				<div>
+					{{form.profession.label}} <br>
+					{{form.profession(size=1)}}
+				</div>
+				<br>
+				<div>
+					{{form.heritage.label}} <br>
+					{{form.heritage(size=1)}}
+				</div>
+			</div>
+			<div id="character-images">
+				<div id="character-image-male-enchanter">
+					<img class="character-image" src="/static/images/enchanter_male.png">
+				</div>
+				<div id="character-image-female-enchanter">
+					<img class="character-image" src="/static/images/enchanter_female.jpg">
+				</div>
+				<div id="character-image-male-warrior">
+					<img class="character-image" src="/static/images/warrior_male.jpg">
+				</div>
+				<div id="character-image-female-warrior">
+					<img class="character-image" src="/static/images/warrior_female.jpg">
+				</div>
+			</div>
 		</div>
-		<br>
-		<div>
-			{{form.last_name.label}} <br>
-			{{form.last_name(size=30)}}
-		</div>
-		<br>
-		<div>
-			{{form.gender.label}} <br>
-			{{form.gender(size=1)}}
-		</div>
-		<br>
-		<div>
-			{{form.profession.label}} <br>
-			{{form.profession(size=1)}}
-		</div>
-		<br>
-		<div>
-			{{form.heritage.label}} <br>
-			{{form.heritage(size=1)}}
-		</div>
+
+
 		<br>
 		<div id="stats-instruction">
 			Please choose your stats. You have 528 stat points to place where you see fit. 
@@ -119,7 +137,7 @@
 		return false;	
 	}
 
-	$(document).ready(function(){
+	$(document).ready(function() {
 	  $(".stat-label").mouseenter(function() {
 	    $("#"+this.id).addClass('stat-mouseenter');
 	  });
@@ -134,8 +152,76 @@
 		$(".stats-description").hide();
 		$("#stats-description-"+this.id).show();
 	  });
-	  	
 	});
+
+	$(function() {
+		$('#character-image-male-enchanter').hide()
+		$('#character-image-male-warrior').hide()
+		$('#character-image-female-warrior').hide()
+		$('#gender').change(function() {
+			if ($('#gender').val() == 'Male') {
+				if ($('#profession').val() == 'Enchanter') {
+					$('#character-image-male-enchanter').show()
+					$('#character-image-female-enchanter').hide()
+					$('#character-image-male-warrior').hide()
+					$('#character-image-female-warrior').hide()
+				}
+				if ($('#profession').val() == 'Warrior') {
+					$('#character-image-male-warrior').show()
+					$('#character-image-female-enchanter').hide()
+					$('#character-image-male-enchanter').hide()
+					$('#character-image-female-warrior').hide()
+				}
+			}
+			if ($('#gender').val() == 'Female') {
+				if ($('#profession').val() == 'Enchanter') {
+					$('#character-image-female-enchanter').show()
+					$('#character-image-male-enchanter').hide()
+					$('#character-image-male-warrior').hide()
+					$('#character-image-female-warrior').hide()
+				}
+				if ($('#profession').val() == 'Warrior') {
+					$('#character-image-female-warrior').show()
+					$('#character-image-female-enchanter').hide()
+					$('#character-image-male-enchanter').hide()
+					$('#character-image-male-warrior').hide()
+				}
+			}
+		});
+		$('#profession').change(function() {
+			if ($('#profession').val() == 'Enchanter') {
+				if ($('#gender').val() == 'Male') {
+					$('#character-image-male-enchanter').show()
+					$('#character-image-female-enchanter').hide()
+					$('#character-image-male-warrior').hide()
+					$('#character-image-female-warrior').hide()
+				}
+				if ($('#gender').val() == 'Female') {
+					$('#character-image-female-enchanter').show()
+					$('#character-image-male-enchanter').hide()
+					$('#character-image-male-warrior').hide()
+					$('#character-image-female-warrior').hide()
+				}
+			}
+			if ($('#profession').val() == 'Warrior') {
+				if ($('#gender').val() == 'Male') {
+					$('#character-image-male-warrior').show()
+					$('#character-image-female-enchanter').hide()
+					$('#character-image-male-enchanter').hide()
+					$('#character-image-female-warrior').hide()
+				}
+				if ($('#gender').val() == 'Female') {
+					$('#character-image-female-warrior').show()
+					$('#character-image-female-enchanter').hide()
+					$('#character-image-male-enchanter').hide()
+					$('#character-image-male-warrior').hide()
+				}
+			}
+		});
+		
+	});
+
+
 </script>
 
 {% endblock %}

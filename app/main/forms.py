@@ -22,9 +22,9 @@ class SignUpForm(FlaskForm):
 class NewCharacterForm(FlaskForm):
     first_name = StringField('First Name', [DataRequired()])
     last_name = StringField('Last Name', [DataRequired()])
-    gender = SelectField(u'Gender', choices=config.gender_choices)
-    profession = SelectField(u'Profession', choices=config.profession_choices)
-    heritage = SelectField(u'Heritage', choices=config.heritage_choices)
+    gender = SelectField(u'Gender', id='gender', choices=config.gender_choices)
+    profession = SelectField(u'Profession', id='profession', choices=config.profession_choices)
+    heritage = SelectField(u'Heritage', id='heritage', choices=config.heritage_choices)
 
     stat_training_points_var = IntegerField('Stat Training Points', id="stat_training_points_var", validators=[NumberRange(min=0, message="You do not have enough stat training points")])
     

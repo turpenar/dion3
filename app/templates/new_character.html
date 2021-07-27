@@ -131,7 +131,9 @@
 		var available_stat_points = total_stat_points;
 		for (let i = 0; i < stats.length; i++) {
 			var stat_value = parseInt(document.getElementById("stat_value_var_" + stats[i]).value);
-			available_stat_points -= stat_value;
+			if (stat_value === parseInt(stat_value, 10)) {
+				available_stat_points -= stat_value;
+			}
 		};
 		document.getElementById("training_points").innerHTML = available_stat_points;
 		return false;	

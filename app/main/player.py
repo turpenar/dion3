@@ -673,10 +673,11 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         else:
             left_hand_status = self.left_hand_inv.name
         
-        return ["Right Hand:  {}".format(right_hand_status),
-                "Left Hand:   {}".format(left_hand_status),
-                "Stance:      {}".format(self.stance),
-                "Position:    {}".format(self.position)]
+        return [f"Right Hand:  {right_hand_status}",
+                f"Left Hand:   {left_hand_status}",
+                f"Stance:      {self.stance}",
+                f"Position:    {self.position}",
+                f"Health:      {self.health}"]
 
 
 

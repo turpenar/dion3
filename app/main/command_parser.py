@@ -1,5 +1,6 @@
 
 import pathlib as pathlib
+import re
 
 from app.main import mixins, config
 
@@ -43,13 +44,14 @@ def parser(input):
 
     kwargs = {}
 
-    input = input.lower()
-    tokens = input.split()
+    input_lower = input.lower()
+    tokens = input_lower.split()
     tokens = [x for x in tokens if x not in articles]
 
     if tokens[0] == 'say':
         kwargs['action_verb'] = tokens[0]
-        kwargs['say_text'] = ' '.join(tokens[1:])
+        say_text = re.sub(kwargs['action_verb'] + ' ', '', input)
+        kwargs['say_text'] = say_text
         return kwargs
 
     relevant_verbs = set(tokens).intersection(verbs)

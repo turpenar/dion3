@@ -81,12 +81,12 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
             return cls.object_result
         return cls.object_categories[object_category](object_name, **kwargs)
 
-    def update_room(self, character, new_room_number, old_room_number):
+    def update_room(self, character, new_room_number, old_room_number, leave_text, enter_text):
         self.object_result['room_change']['room_change_flag'] = True
-        self.object_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
+        self.object_result['room_change']['leave_room_text'] = leave_text
         self.object_result['room_change']['old_room'] = old_room_number
         self.object_result['room_change']['new_room'] = new_room_number
-        self.object_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+        self.object_result['room_change']['enter_room_text'] = enter_text
         self.object_result['display_room_flag'] = True
         return
 
@@ -175,7 +175,11 @@ class Door(Object):
         new_room.characters.append(character_file)
         if new_room:
             self.object_result.update(new_room.room.intro_text(character_file=character_file, room_file=new_room))
-            self.update_room(character=character, new_room_number=new_room.room_number, old_room_number=room_file.room.room_number)
+            self.update_room(character=character, 
+                             new_room_number=new_room.room_number, 
+                             old_room_number=room_file.room.room_number,
+                             leave_text=f"{character.first_name} goes through {self.name}.",
+                             enter_text=f"{character.name} comes through {self.name}.")
             self.update_area(new_area=new_room.area, old_area=room_file.room.area)
             self.update_status(status_text=character.get_status())
             return self.object_result

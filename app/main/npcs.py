@@ -148,14 +148,14 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
             left_hand = "{} left hand is empty.".format(self.possessive_pronoun)
         if len(self.inventory) == 0:
                 inventory_clothing = "{} is not wearing anything.".format(self.object_pronoun)
-        inventory_clothing = [x.name for x in self.inventory if x.category == 'Clothing']
+        inventory_clothing = [x.name for x in self.inventory if x.category == 'clothing']
         if len(inventory_clothing) > 1:
             inventory_clothing = "{} is wearing {} and {}.".format(self.object_pronoun, ', '.join(inventory_clothing[:-1]), inventory_clothing[-1])
         elif len(inventory_clothing) == 1:
             inventory_clothing = "{} is wearing {}.".format(self.object_pronoun, inventory_clothing[0])
         else:
             inventory_clothing = "{} is wearing nothing.".format(self.object_pronoun)
-        inventory_armor = [x.name for x in self.inventory if x.category == 'Armor']
+        inventory_armor = [x.name for x in self.inventory if x.category == 'armor']
         if len(inventory_armor) > 1:
             inventory_armor ="{} is also wearing {} and {}.".format(self.object_pronoun, ', '.join(inventory_armor[:-1]), inventory_armor[-1])
         elif len(inventory_armor) == 1:

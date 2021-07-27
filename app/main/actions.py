@@ -99,12 +99,12 @@ class DoActions:
             return cls.action_result
         return cls.do_actions[action](character_file, room_file, **kwargs).action_result
     
-    def update_room(self, character, old_room_number):
+    def update_room(self, character, old_room_number, leave_text, enter_text):
         self.action_result['room_change']['room_change_flag'] = True
-        self.action_result['room_change']['leave_room_text'] = "{} left.".format(character.first_name)
+        self.action_result['room_change']['leave_room_text'] = leave_text
         self.action_result['room_change']['old_room'] = old_room_number
         self.action_result['room_change']['new_room'] = character.get_room().room.room_number
-        self.action_result['room_change']['enter_room_text'] = "{} arrived.".format(character.first_name)
+        self.action_result['room_change']['enter_room_text'] = enter_text
         self.action_result['display_room_flag'] = True
         return
 
@@ -443,8 +443,12 @@ class East(DoActions):
             character.move_east()
             room_file = character.get_room()
             room_file.characters.append(character_file)
-            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
-            self.update_room(character=character, old_room_number=old_room_number)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, 
+                                                                room_file=room_file))
+            self.update_room(character=character, 
+                             old_room_number=old_room_number,
+                             leave_text=f"{character.first_name} went east.",
+                             enter_text=f"{character.first_name} came from the west.")
             self.update_status(character.get_status())
             return
         else:
@@ -795,7 +799,7 @@ class Information(DoActions):
         self.update_character_output(f'''\
 Name:  {character.first_name} {character.last_name}
 Gender:  {character.gender}
-Race:  {character.heritage}
+Heritage:  {character.heritage}
 Profession:  {character.profession}
 Level:  {character.level}\
             ''')
@@ -1043,8 +1047,12 @@ class North(DoActions):
             character.move_north()
             room_file = character.get_room()
             room_file.characters.append(character_file)
-            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
-            self.update_room(character=character, old_room_number=old_room_number)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, 
+                                                                room_file=room_file))
+            self.update_room(character=character, 
+                             old_room_number=old_room_number,
+                             leave_text=f"{character.first_name} went north.",
+                             enter_text=f"{character.first_name} came from the south.")
             self.update_status(character.get_status())
             return
         else:
@@ -1508,8 +1516,12 @@ class South(DoActions):
             character.move_south()
             room_file = character.get_room()
             room_file.characters.append(character_file)
-            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
-            self.update_room(character=character, old_room_number=old_room_number)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, 
+                                                                room_file=room_file))
+            self.update_room(character=character, 
+                             old_room_number=old_room_number,
+                             leave_text=f"{character.first_name} went south.",
+                             enter_text=f"{character.first_name} came from the north.")
             self.update_status(character.get_status())
             return
         else:
@@ -1699,8 +1711,12 @@ class West(DoActions):
             character.move_west()
             room_file = character.get_room()
             room_file.characters.append(character_file)
-            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
-            self.update_room(character=character, old_room_number=old_room_number)
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, 
+                                                                room_file=room_file))
+            self.update_room(character=character, 
+                             old_room_number=old_room_number,
+                             leave_text=f"{character.first_name} went west.",
+                             enter_text=f"{character.first_name} came from the east.")
             self.update_status(character.get_status())
             return
         else:

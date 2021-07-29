@@ -17,7 +17,7 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object("config.DevelopmentConfig")
+    app.config.from_object("config.ProductionConfig")
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
     csrf.init_app(app)

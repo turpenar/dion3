@@ -361,6 +361,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
 
     def run(self, app, enemy_id):
         with app.app_context():
+                print(enemy_id)
                 enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
                 enemy_file.health = self._enemy_data['health']
                 actions.do_enemy_action(action_input='spawn')

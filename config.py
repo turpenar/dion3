@@ -1,22 +1,24 @@
 import os
 import psycopg2
+import dotenv as dotenv
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+dotenv.load_dotenv(os.path.join(basedir, '.env'))
+
+FLASK_ENV = os.environ.get('FLASK_ENV')
 
 class Config(object):
     DEBUG = False
     TESTING = False
 
-    print(os.environ['DATABASE_URL'])
-
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    print(DATABASE_URL)
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-    SECRET_KEY = 'Your Kung-Fu is Very Good'
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'isolation_level': 'READ UNCOMMITTED'
         }
+    SQLALCHEMY_POOL_SIZE = None
+    SQLALCHEMY_POOL_TIMEOUT = None
     SESSION_TYPE = "sqlalchemy"
     SESSION_SQLALCHEMY = 'db'
 

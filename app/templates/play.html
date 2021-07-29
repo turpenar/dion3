@@ -12,7 +12,6 @@
 
             socket.on('connect', function() {
                 socket.emit('connect_room', {first_name:  "{{character_first_name}}", last_name:  "{{character_last_name}}"})
-                socket.emit('my_event', {data:  "look", first_name:  "{{character_first_name}}", last_name:  "{{character_last_name}}"})
             });
 
             socket.on('game_action', function(msg, cb) {

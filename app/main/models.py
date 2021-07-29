@@ -153,9 +153,9 @@ class Room(db.Model):
     __tablename__ = "rooms"
     __table_args__ = {'extend_existing': True}
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer)
     room = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
-    room_number = db.Column(db.Integer)
+    room_number = db.Column(db.Integer, primary_key=True)
     x=db.Column(db.Integer)
     y=db.Column(db.Integer)
     characters = db.relationship('Character', backref='room', lazy=True)
@@ -168,9 +168,9 @@ class WorldArea(db.Model):
     __tablename__ = "areas"
     __table_args__ = {'extend_existing': True}
 
-    id = db.Column(db.Integer, autoincrement='auto', primary_key=True)
+    id = db.Column(db.Integer, autoincrement='auto')
     area = db.Column(MutableTypeWrapper.as_mutable(db.PickleType))
-    area_name = db.Column(db.String)
+    area_name = db.Column(db.String, primary_key=True)
     rooms = db.relationship('Room', backref='area', lazy=True)
 
 db.create_all()

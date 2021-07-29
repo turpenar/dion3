@@ -28,7 +28,6 @@ def index():
 @main.route('/home')
 @login_required
 def home():
-    print(current_user)
     return render_template('home.html')
 
 
@@ -310,7 +309,22 @@ def connect_room(message):
         room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
         room_file.characters.append(character_file)
         emit('game_event', 
-                {'data':  "{} arrived.".format(character.first_name)}, to=str(character.get_room().room_number), include_self=False
+                {'data':  f"{character.first_name} arrived."}, to=str(character.get_room().room_number), include_self=False
+            )
+        
+        action_result = actions.do_action(action_input='look', character_file=character_file, room_file=room_file)
+
+        if not action_result['action_success']:
+            emit('game_event',
+                {'data': action_result['action_error']}
+                )
+        else:
+            if action_result['display_room']['display_room_flag']:
+                emit('game_event',
+                    {'data': action_result['display_room']['display_room_text']}
+                    )
+        emit('status_update',
+            {'data': action_result['status_output']}
             )
         db.session.commit()
     return

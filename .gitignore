@@ -1,5 +1,9 @@
 #other
 todo.txt
+/venv
+__pycache__
+db.sqlite3          # not needed if you're using Postgres locally
+gettingstarted/static/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

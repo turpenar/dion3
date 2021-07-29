@@ -4,7 +4,6 @@ import dotenv as dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 dotenv.load_dotenv(os.path.join(basedir, '.env'))
-
 FLASK_ENV = os.environ.get('FLASK_ENV')
 
 class Config(object):

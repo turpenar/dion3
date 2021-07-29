@@ -43,7 +43,6 @@ def find_index(input_list, list_of_matches):
 def parser(input):
 
     kwargs = {}
-
     input_lower = input.lower()
     tokens = input_lower.split()
     tokens = [x for x in tokens if x not in articles]

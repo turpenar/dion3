@@ -308,6 +308,7 @@ def connect_room(message):
         join_room(str(character.area_name))
         room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
         room_file.characters.append(character_file)
+        print(room_file.characters)
         emit('game_event', 
                 {'data':  f"{character.first_name} arrived."}, to=str(character.get_room().room_number), include_self=False
             )
@@ -326,6 +327,7 @@ def connect_room(message):
         emit('status_update',
             {'data': action_result['status_output']}
             )
+        print(db.session.dirty)
         db.session.commit()
     return
 

@@ -439,6 +439,7 @@ class East(DoActions):
                     character.in_shop = False
                     room.shop.exit_shop()
             old_room_number = room_file.room.room_number 
+            print(room_file.characters)
             room_file.characters.remove(character_file)
             character.move_east()
             room_file = character.get_room()

@@ -12,7 +12,7 @@ class Config(object):
     SECRET_KEY = os.urandom(24)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'isolation_level': 'READ UNCOMMITTED'
+        'isolation_level': 'AUTOCOMMIT'
         }
     # SQLALCHEMY_POOL_SIZE = None
     # SQLALCHEMY_POOL_TIMEOUT = None

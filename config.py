@@ -22,9 +22,9 @@ class Config(object):
     SESSION_SQLALCHEMY = 'db'
 
 class ProductionConfig(Config):
-    DATABASE_URL_PRODUCTION = os.environ.get('DATABASE_URL_PRODUCTION')
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL_PRODUCTION
-    conn = psycopg2.connect(DATABASE_URL_PRODUCTION, sslmode='require')
+    DATABASE_URL = os.environ.get('DATABASE_URL_PRODUCTION')
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 class DevelopmentConfig(Config):
     ENV = 'development'

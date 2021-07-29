@@ -16,8 +16,8 @@ class Config(object):
     SQLALCHEMY_ENGINE_OPTIONS = {
         'isolation_level': 'READ UNCOMMITTED'
         }
-    SQLALCHEMY_POOL_SIZE = None
-    SQLALCHEMY_POOL_TIMEOUT = None
+    # SQLALCHEMY_POOL_SIZE = None
+    # SQLALCHEMY_POOL_TIMEOUT = None
     SESSION_TYPE = "sqlalchemy"
     SESSION_SQLALCHEMY = 'db'
 

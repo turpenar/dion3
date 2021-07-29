@@ -10,7 +10,6 @@ FLASK_ENV = os.environ.get('FLASK_ENV')
 class Config(object):
     DEBUG = False
     TESTING = False
-
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {

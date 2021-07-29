@@ -12,7 +12,6 @@ class Config(object):
     TESTING = False
 
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'isolation_level': 'READ UNCOMMITTED'
@@ -23,12 +22,13 @@ class Config(object):
     SESSION_SQLALCHEMY = 'db'
 
 class ProductionConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL_PRODUCTION')
 
 class DevelopmentConfig(Config):
     ENV = 'development'
     DEVELOPMENT = True
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL_DEVELOPMENT')
 
 class TestingConfig(Config):
     TESTING = True

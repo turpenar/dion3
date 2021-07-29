@@ -4,7 +4,6 @@ import re
 
 from app.main import mixins, config
 
-
 # importing all prepositions and prepositional phrases
 
 verbs = config.verbs

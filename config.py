@@ -9,7 +9,7 @@ FLASK_ENV = os.environ.get('FLASK_ENV')
 class Config(object):
     DEBUG = False
     TESTING = False
-    SECRET_KEY = os.environ.get('SECRET_KEY')
+    SECRET_KEY = os.urandom(24)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'isolation_level': 'READ UNCOMMITTED'

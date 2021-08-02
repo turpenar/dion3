@@ -68,7 +68,10 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
                 "area_output_flag":  False,
                 "area_output_text":  None
             },
-            "status_output":  None
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            }
         }
         self.npc_result_default = self.npc_result.copy()
 
@@ -129,7 +132,8 @@ class NPC(mixins.ReprMixin, mixins.DataFileMixin):
         return
     
     def update_status(self, status_text):
-        self.npc_result['status_output'] = status_text
+        self.npc_result['status_output']['status_output_flag'] = True
+        self.npc_result['status_output']['status_output_text'] = status_text
         return
 
     def reset_result(self):

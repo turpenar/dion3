@@ -66,7 +66,10 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
                 "area_output_flag":  False,
                 "area_output_text":  None
             },
-            "status_output":  None
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            }
         }
         self.item_result_default = self.item_result.copy()
 
@@ -100,7 +103,8 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
         return
     
     def update_status(self, status_text):
-        self.item_result['status_output'] = status_text
+        self.item_result['status_output']['status_output_flag'] = True
+        self.item_result['status_output']['status_output_text'] = status_text
         return
 
     def reset_result(self):

@@ -74,6 +74,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         
         self._health = self._player_data['health']
         self._health_max = self._player_data['health_max']
+        self._depart = False
 
         self._attack_strength_base = 0
         self._cast_strength_base = 0
@@ -301,6 +302,13 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @health.setter
     def health(self, health):
             self._health = health
+
+    @property
+    def depart(self):
+            return self._depart
+    @depart.setter
+    def depart(self, depart):
+            self._deaprt = depart
             
     @property
     def health_max(self):
@@ -454,13 +462,13 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         if self.health > 0:
             return False
         else:
-            events.game_event("You're dead! You will need to restart from your last saved point.")
             return True
         
     def is_killed(self):
         if self.health > 0:
             return ""
         else:
+            self.position = 'lying'
             return "Your body falls to the ground with a *slump*. You are dead."
 
     @property

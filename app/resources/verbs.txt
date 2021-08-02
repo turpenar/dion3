@@ -1,5 +1,7 @@
 attribute
 attack
+confirm
+depart
 drop
 east
 flee

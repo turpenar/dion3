@@ -5,6 +5,7 @@
 """
 
 import random as random
+import math as math
 
 from app import db
 from app.main import items, config
@@ -51,7 +52,10 @@ combat_result = {
                 "spawn_generator_flag":  False,
                 "spawn_generator_thread":  None
             },
-            "status_output":  None
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            }
             }
 
 combat_result_default = combat_result.copy()
@@ -100,7 +104,8 @@ def update_area_output(area_output_text):
 
 def update_status(status_text):
     global combat_result
-    combat_result['status_output'] = status_text
+    combat_result['status_output']['status_output_flag'] = True
+    combat_result['status_output']['status_output_text'] = status_text
     return
 
 def reset_result():
@@ -212,7 +217,7 @@ def get_damage_weapon(end_roll, weapon, armor):
         weapon_classification = "None"
         
     damage_factor = weapon_damage_factors.loc[weapon_classification, armor_classification]
-    return int(round((end_roll - 100) * damage_factor))
+    return int(math.ceil((end_roll - 100) * damage_factor))
 
 def get_damage_spell(end_roll, spell, armor):
     try:
@@ -220,7 +225,7 @@ def get_damage_spell(end_roll, spell, armor):
     except:
         armor_classification = "None"
     damage_factor = weapon_damage_factors.loc[str(spell.spell_number), armor_classification]
-    return int(round((end_roll - 100) * damage_factor))
+    return int(math.ceil((end_roll - 100) * damage_factor))
 
 def get_exerience_modifier(character_level, target_level):
     level_variance = int(target_level - character_level)
@@ -243,7 +248,7 @@ def melee_attack_enemy(character_file, target_file):
     result = None
     if att_end_roll <= 100:
         result_character = f"""\
-{target_file.enemy.name} evades the attack.
+{target_file.enemy.name.capitalize()} evades the attack.
 Round time:  {round_time} seconds\
             """
         result_room = f"""\
@@ -299,15 +304,15 @@ You evade the attack.\
         character_file.char.health = character_file.char.health - att_damage
         death_text = character_file.char.is_killed()
         result_character = f"""\
-{enemy_file.enemy.name} damages you by {att_damage}.
+{enemy_file.enemy.name.capitalize()} damages you by {att_damage}.
 {death_text}\
             """
         result_room = f"""\
-{enemy_file.enemy.name} hits {character_file.char.first_name} with a {enemy_file.enemy.weapon}\
+{enemy_file.enemy.name.capitalize()} hits {character_file.char.first_name} with a {enemy_file.enemy.weapon}\
         """
 
     update_character_output(character_output_text=f"""\
-{enemy_file.enemy.name} {enemy_file.enemy.text_attack} you!
+{enemy_file.enemy.name.capitalize()} {enemy_file.enemy.text_attack} you!
 STR {attack_strength} - DEF {defense_strength} + AF {attack_factor} + D100 ROLL {att_random} = {att_end_roll}
 {result_character}\
     """)
@@ -333,7 +338,7 @@ def bolt_attack_enemy(target_file, character_file, room_file):
     result = None
     if att_end_roll <= 100:
         result_character = f"""\
-{target_file.enemy.name} evades the attack.
+{target_file.enemy.name.capitalize()} evades the attack.
 Round time:  {round_time} seconds\
             """
         result_room = f"""\

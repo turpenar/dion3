@@ -47,6 +47,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         self._text_move_out = self._enemy_data['text']['move_out_text']
         self._text_engage = self._enemy_data['text']['engage_text']
         self._text_attack = self._enemy_data['text']['attack_text']
+        self._text_guard_kill = self._enemy_data['text']['guard_kill_text']
         self._text_death = self._enemy_data['text']['death_text']
         self._text_leave = self._enemy_data['text']['leave_text']
         
@@ -106,7 +107,10 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                                     "area_output_flag":  False,
                                     "area_output_text":  None
                                 },
-                                "status_output":  None
+                                "status_output": {
+                                        "status_output_flag": False,
+                                        "status_output_text": None
+                                }
         }
         self.enemy_result_default = self.enemy_result.copy()   
 
@@ -141,7 +145,8 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         return
     
     def update_status(self, status_text):
-        self.enemy_result['status_output'] = status_text
+        self.enemy_result['status_output']['status_output_flag'] = True
+        self.enemy_result['status_output']['status_output_text'] = status_text
         return
 
     def reset_result(self):
@@ -284,6 +289,10 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @property
     def text_attack(self):
             return self._text_attack
+
+    @property
+    def text_guard_kill(self):
+            return self._text_guard_kill
             
     @property
     def text_death(self):
@@ -361,7 +370,6 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
 
     def run(self, app, enemy_id):
         with app.app_context():
-                print(enemy_id)
                 enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
                 enemy_file.health = self._enemy_data['health']
                 actions.do_enemy_action(action_input='spawn')
@@ -369,6 +377,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                 eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
                 db.session.commit()
                 enemy_file = db.session.query(EnemySpawn).filter_by(id=enemy_id).first()
+                print(f"Enemy {enemy_file.id} ready to decide what to do.")
                 while True:
                         if enemy_file.health <= 0:
                                 break 
@@ -376,11 +385,20 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                                 break
                         room_file = db.session.query(Room).filter_by(x=enemy_file.enemy.location_x, y=enemy_file.enemy.location_y, area_name=enemy_file.enemy.area).first()
                         if len(room_file.characters) > 0:
-                                actions.do_enemy_action('attack', enemy_file=enemy_file, character_file=room_file.characters[0], room_file=room_file)
-                                db.session.commit()
-                                eventlet.sleep(seconds=enemy_file.enemy.round_time_attack)
-                                db.session.commit()
+                                character_to_attack = False
+                                for character_file in room_file.characters:
+                                        if character_file.char.health > 0:
+                                                character_to_attack = True
+                                                print(f"Enemy {enemy_file.id} is attacking.")
+                                                actions.do_enemy_action('attack', enemy_file=enemy_file, character_file=character_file, room_file=room_file)
+                                                db.session.commit()
+                                                eventlet.sleep(seconds=enemy_file.enemy.round_time_attack)
+                                                db.session.commit()
+                                                break
+                                if character_to_attack == False:
+                                        actions.do_enemy_action('guard', enemy_file=enemy_file, room_file=room_file)
                         else:
+                                print(f"Enemy {enemy_file.id} is moving.")
                                 available_movement_actions = []
                                 available_movement_actions = enemy_file.enemy.adjacent_moves()
                                 action = random.choice(available_movement_actions)

@@ -40,7 +40,10 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
                 "area_output_flag":  False,
                 "area_output_text":  None
             },
-            "status_output":  None,
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            },
             "shop_item":  {
                 "shop_item_flag":  False,
                 "shop_item": None
@@ -72,7 +75,8 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
         self.shop_result['area_output']['area_output_text'] = area_output_text
     
     def update_status(self, status_text):
-        self.shop_result['status_output'] = status_text
+        self.shop_result['status_output']['status_output_flag'] = True
+        self.shop_result['status_output']['status_output_text'] = status_text
 
     def update_shop_item(self, shop_item):
         self.shop_result['shop_item']['shop_item_flag'] = True

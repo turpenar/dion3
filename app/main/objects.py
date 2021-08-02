@@ -49,7 +49,10 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
                                 "spawn_generator":  {
                                     "spawn_generator_flag":  False
                                 },
-                                "status_output":  None
+                                "status_output": {
+                                    "status_output_flag": False,
+                                    "status_output_text": None
+                                }
         }
         self.object_result_default = self.object_result.copy()
 
@@ -117,7 +120,8 @@ class Object(mixins.ReprMixin, mixins.DataFileMixin):
         return
     
     def update_status(self, status_text):
-        self.object_result['status_output'] = status_text
+        self.object_result['status_output']['status_output_flag'] = True
+        self.object_result['status_output']['status_output_text'] = status_text
         return
 
     def reset_result(self):

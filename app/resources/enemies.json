@@ -36,6 +36,7 @@
 			"move_in_text": "A wild boar rushes into the area.",
 			"engage_text": "A wild boar stamps its feet.",
 			"attack_text": "charges",
+			"guard_kill_text": "A wild boar darts its eyes around the area, waiting for its next victim.",
 			"death_text": "A wild boar staggers and eventually slumps to the ground, motionless.",
 			"leave_text": "A wild boar rushes off through the trees."
 			},

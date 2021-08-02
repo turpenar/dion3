@@ -28,6 +28,34 @@
 				"text": ""
 			}
 		}, 
+		"dochas_alcove": {
+			"name": "a small alcove", 
+			"description": "Hidden behind a few trees, you see a small alcove.", 
+			"handle": ["alcove"],
+			"adjectives": [],
+			"visibility": 100,
+			"location_1": {
+				"name": "Walkway",
+				"area": "Dochas",
+				"x": 6,
+				"y": 5
+			},
+			"location_2": {
+				"name": "Sacellum",
+				"area": "Dochas",
+				"x": 8,
+				"y": 5
+			},
+			"container": {
+				"flag": false,
+				"open": false,
+				"items": []
+			},
+			"read": {
+				"flag": false,
+				"text": ""
+			}
+		}, 
 		"dochas_smallhouse_gate": {
 			"name": "a gate", 
 			"description": "You see a small gate leading to the doorstep of the house.", 

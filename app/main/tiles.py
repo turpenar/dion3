@@ -79,7 +79,10 @@ class MapTile(mixins.DataFileMixin):
                 "spawn_generator_flag":  False,
                 "spawn_generator_thread":  None
             },
-            "status_output":  None
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            }
         }
         self.room_result_default = self.room_result.copy()
 
@@ -130,7 +133,8 @@ class MapTile(mixins.DataFileMixin):
         return
     
     def update_status(self, status_text):
-        self.room_result['status_output'] = status_text
+        self.room_result['status_output']['status_output_flag'] = True
+        self.room_result['status_output']['status_output_text'] = status_text
         return
 
     def reset_result(self):
@@ -153,28 +157,68 @@ class MapTile(mixins.DataFileMixin):
         obvious = []
         if len(moves) == 0:
             obvious = 'None'
-            return "Obvious exits:  {}".format(obvious)
-        for move in moves:
-            obvious.append(move)
-        obvious = ', '.join(obvious)
-        return "Obvious exits:  {}".format(obvious)
-
-    def all_objects(self):
-        all_objects = []
-        if len(self.items) + len(self.npcs) + len(self.objects) + len(self.enemies) == 0:
-            return ""
-        for char in self.npcs:
-            all_objects.append(char.name)
-        for item in self.items:
-            all_objects.append(item.name)
-        for object in self.objects:
-            all_objects.append(object.name)
-        if len(all_objects) > 1:
-            all_objects_output = ', '.join(all_objects[:-1])
-            all_objects_output = all_objects_output + ', and ' + all_objects[-1]
         else:
-            all_objects_output = all_objects[0]
-        return "You also see {}.".format(all_objects_output)
+            for move in moves:
+                obvious.append(move)
+            obvious = ', '.join(obvious)
+        return f"Obvious exits:  {obvious}"
+
+    def all_objects(self, room_file, character_file):
+        all_objects = []
+        if len(self.items) + len(self.npcs) + len(self.objects) + len(room_file.enemies) == 0:
+            all_objects_output = None
+        else:
+            for char in self.npcs:
+                all_objects.append(char.name)
+            for item in self.items:
+                all_objects.append(item.name)
+            for object in self.objects:
+                all_objects.append(object.name)
+            for enemy_file in room_file.enemies:
+                if enemy_file.enemy.position != 'standing':
+                    all_objects.append(f"<b>{enemy_file.enemy.name}</b> who is {enemy_file.enemy.position}")
+                else:
+                    all_objects.append(enemy_file.enemy.name)
+            if len(all_objects) > 1:
+                all_objects_output = ', '.join(all_objects[:-1])
+                all_objects_output = f"You see {all_objects_output}, and {all_objects[-1]}."
+            else:
+                all_objects_output = f"You see {all_objects[0]}."
+
+        character_names = []
+        for character_file_list in room_file.characters:
+            if character_file_list.first_name == character_file.first_name:
+                pass
+            elif character_file_list.char.health < 0:
+                character_names.append(f"the body of {character_file_list.first_name} who is lying down")
+            elif character_file_list.char.position != "standing":
+                character_names.append(f"{character_file_list.first_name} who is {character_file_list.char.position}")
+            else:
+                character_names.append(character_file_list.first_name)
+        if len(character_names) > 1:
+            all_characters_output = ', '.join(character_names[:-1])
+            all_characters_output = f"You also see {all_characters_output}, and {character_names[-1]}."
+        elif len(character_names) == 1:
+            all_characters_output = f"You also see {character_names[0]}."
+        else:
+            all_characters_output = None
+
+        if all_objects_output and all_characters_output:
+            all_object_and_character_output = f"""\
+{all_objects_output}
+{all_characters_output}\
+                """
+        elif all_characters_output:
+            all_object_and_character_output = f"""\
+{all_characters_output}\
+                """
+        elif all_objects_output:
+            all_object_and_character_output = f"""\
+{all_objects_output}\
+                """
+        else:
+            all_object_and_character_output = ""
+        return all_object_and_character_output
         
     def all_object_handles(self):
         all_object_handles = []
@@ -320,26 +364,17 @@ class MapTile(mixins.DataFileMixin):
         self.enemies.remove(enemy)
         return
 
-    def get_enemies(self, room_file):
-        enemy_names = []
-        for enemy_file in room_file.enemies:
-            enemy_names.append(enemy_file.enemy.name)
-        if len(enemy_names) > 1:
-            all_enemies_output = ', '.join(enemy_names[:-1])
-            all_enemies_output = all_enemies_output + ', and ' + enemy_names[-1]
-            return all_enemies_output
-        if len(enemy_names) == 1:
-            all_enemies_output = enemy_names[0]
-            return all_enemies_output
-        else:
-            all_enemies_output = "None"
-            return all_enemies_output
-
     def get_characters(self, character_file, room_file):
         character_names = []
         for character_file_list in room_file.characters:
-            character_names.append(character_file_list.first_name)
-        character_names.remove(character_file.first_name)
+            if character_file_list.first_name == character_file.first_name:
+                pass
+            elif character_file_list.char.health < 0:
+                character_names.append(f"the body of {character_file_list.first_name} who is lying down")
+            elif character_file_list.char.position != "standing":
+                character_names.append(f"{character_file_list.first_name} who is {character_file_list.char.position}")
+            else:
+                character_names.append(character_file_list.first_name)
         if len(character_names) > 1:
             all_characters_output = ', '.join(character_names[:-1])
             all_characters_output = all_characters_output + ', and ' + character_names[-1]
@@ -353,20 +388,12 @@ class MapTile(mixins.DataFileMixin):
 
     def intro_text(self, character_file, room_file):
         self.reset_result()
-        intro_text = """\
-<b>{}, {}</b>
-{}
-{}
-{}
-{}
-{}
-""".format(self.area,
-                   self.room_name,
-                   wrapper.fill(text=self.description),
-                   self.obvious_exits(),
-                   self.all_objects(),
-                   "Enemies:  " + self.get_enemies(room_file),
-                   "Others:  " + self.get_characters(character_file, room_file)),
+        intro_text = f"""\
+<b>{self.area}, {self.room_name}</b>
+{self.description}
+{self.obvious_exits()}
+{self.all_objects(room_file=room_file, character_file=character_file)}\
+""",
         self.update_display_room(display_room_text=intro_text)
         return self.room_result
 

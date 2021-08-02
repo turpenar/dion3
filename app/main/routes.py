@@ -153,9 +153,6 @@ def new_character():
         new_character.char.set_gender(new_character.char.gender)
         new_character.char.level_up_skill_points()
 
-        print(new_character.char)
-        print(current_user.username)
-
         user = db.session.query(User).filter_by(username=current_user.username).first()
         user.characters.append(new_character)
         
@@ -287,9 +284,10 @@ def my_event(message):
             emit('game_event',
                 {'data': action_result['room_output']['room_output_text']}, to=str(character.get_room().room_number), include_self=False
                 )
-        emit('status_update',
-            {'data': action_result['status_output']}
-            )
+        if action_result['status_output']['status_output_flag'] == True:
+            emit('status_update',
+                {'data': action_result['status_output']['status_output_text']}
+                )
         db.session.commit()
     return
 
@@ -308,7 +306,6 @@ def connect_room(message):
         join_room(str(character.area_name))
         room_file = db.session.query(Room).filter_by(room_number=character.get_room().room_number).first()
         room_file.characters.append(character_file)
-        print(room_file.characters)
         emit('game_event', 
                 {'data':  f"{character.first_name} arrived."}, to=str(character.get_room().room_number), include_self=False
             )
@@ -324,10 +321,10 @@ def connect_room(message):
                 emit('game_event',
                     {'data': action_result['display_room']['display_room_text']}
                     )
-        emit('status_update',
-            {'data': action_result['status_output']}
-            )
-        print(db.session.dirty)
+            if action_result['status_output']['status_output_flag'] == True:
+                emit('status_update',
+                    {'data': action_result['status_output']['status_output_text']}
+                    )
         db.session.commit()
     return
 
@@ -357,7 +354,7 @@ def disconnect_request():
     def can_disconnect():
         disconnect()
         return
-
+        
     session['receive_count'] = session.get('receive_count', 0) + 1
     # for this emit we use a callback function
     # when the callback function is invoked we know that the message has been
@@ -385,17 +382,21 @@ def test_disconnect():
 def enemy_event(action_result, character_file=None):
     if character_file:
         user_file = db.session.query(User).filter_by(id=character_file.user_id).first()
+        if action_result['room_output']['room_output_flag'] == True:
+            socketio.emit('game_event',
+                {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), skip_sid=user_file.current_sid)
+        if action_result['character_output']['character_output_flag'] == True:
+            socketio.emit('game_event',
+                {'data': action_result['character_output']['character_output_text']}, to=str(user_file.current_sid))
+        if action_result['status_output']['status_output_flag'] == True:
+            socketio.emit('status_update',
+                {'data': action_result['status_output']['status_output_text']}, to=str(user_file.current_sid)
+                )
     if action_result['room_change']['room_change_flag'] == True:
         socketio.emit('game_event',
             {'data': action_result['room_change']['leave_room_text']}, to=str(action_result['room_change']['old_room']))
         socketio.emit('game_event',
             {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']))
-    if action_result['character_output']['character_output_flag'] == True:
-        socketio.emit('game_event',
-            {'data': action_result['character_output']['character_output_text']}, to=str(user_file.current_sid))
-    if action_result['room_output']['room_output_flag'] == True:
-        socketio.emit('game_event',
-            {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), skip_sid=user_file.current_sid)
     return
 
 def character_announcement(announcement):

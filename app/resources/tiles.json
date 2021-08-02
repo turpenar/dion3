@@ -370,6 +370,98 @@
 						}
 					},
 				"exit": false
+			}, 
+			"dochas_north_end_outfitters": {
+				"name": "The North End Outfitters", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "The clanging of metal and smells of production are not far off. You see couriers rush by with raw materials and finsihed goods alike, moving in and out of stores with hurried looks on their faces.  To the south, the wall of shops is broken by a large opening. Inside, you see a few hand-crafted weapons on the wall.",
+				"objects": {
+					"doors": ["dochas_weaponsmith_opening"],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
+			},
+			"dochas_sacellum": {
+				"name": "Sacellum", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "You step into a small alcove almost hidden from the street by several thick trees. The alcove is only large enough for a few people. On the far wall, which you realize is also the exterior wall to the city, there is a small, square shrine carved into the stone. Several ornate paintings decorate the shrine depicting what appears to be the afterlife.",
+				"objects": {
+					"doors": ["dochas_alcove"],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"npcs": [],
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": false
 			},
 			"dochas_south_gate": {
 				"name": "South Gate", 
@@ -470,6 +562,52 @@
 				"description": "The streets wind their way through town, just wide enough for a carraige. They have seen many weary travelers throughout their existence.",
 				"objects": {
 					"doors": [],
+					"furniture": [],
+					"miscellaneous": []
+					},
+				"shop": false,
+				"shop_items":  {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"items": {
+					"clothing": [],
+					"armor": [],
+					"weapon": [],
+					"ring": [],
+					"neck": [],
+					"skin": [],
+					"miscellaneous": []
+					},
+				"npcs": [],
+				"spawn": [],
+				"hidden": {
+					"doors": [],
+					"npcs": [],
+					"items": {
+						"clothing": [],
+						"armor": [],
+						"weapon": [],
+						"ring": [],
+						"neck": [],
+						"skin": [],
+						"miscellaneous": []
+						}
+					},
+				"exit": true
+			},
+			"dochas_walkway": {
+				"name": "Walkway", 
+				"area": "Dochas",
+				"class": "Dochas",
+				"description": "This portion of the city perimeter is less traveled than most, providing a reprieve from the chaotic nature of the town.",
+				"objects": {
+					"doors": ["dochas_alcove"],
 					"furniture": [],
 					"miscellaneous": []
 					},

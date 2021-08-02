@@ -12,7 +12,7 @@ class Config(object):
     SECRET_KEY = os.urandom(24)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'isolation_level': 'AUTOCOMMIT'
+        'isolation_level': 'READ UNCOMMITTED'
         }
     # SQLALCHEMY_POOL_SIZE = None
     # SQLALCHEMY_POOL_TIMEOUT = None
@@ -29,10 +29,10 @@ class DevelopmentConfig(Config):
     ENV = 'development'
     DEVELOPMENT = True
     DEBUG = True
-    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASE_URL = os.environ.get('DATABASE_URL_SQLITE')
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
-    conn = psycopg2.connect(DATABASE_URL,
-                            sslmode="require")
+    # conn = psycopg2.connect(DATABASE_URL,
+    #                         sslmode="require")
 
 class TestingConfig(Config):
     TESTING = True

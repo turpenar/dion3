@@ -56,7 +56,10 @@ class Spell(mixins.ReprMixin, mixins.DataFileMixin):
                 "area_output_flag":  False,
                 "area_output_text":  None
             },
-            "status_output":  None
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            }
         }
         self.spell_result_default = self.spell_result.copy()
 
@@ -90,7 +93,8 @@ class Spell(mixins.ReprMixin, mixins.DataFileMixin):
         return
     
     def update_status(self, status_text):
-        self.spell_result['status_output'] = status_text
+        self.spell_result['status_output']['status_output_flag'] = True
+        self.spell_result['status_output']['status_output_text'] = status_text
         return
 
     def reset_result(self):

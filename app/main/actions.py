@@ -75,7 +75,10 @@ class DoActions:
                 "spawn_generator_flag":  False,
                 "spawn_generator_thread":  None
             },
-            "status_output":  None
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            }
         }
         self.action_result_default = self.action_result.copy()
 
@@ -135,7 +138,8 @@ class DoActions:
         return
     
     def update_status(self, status_text):
-        self.action_result['status_output'] = status_text
+        self.action_result['status_output']['status_output_flag'] = True
+        self.action_result['status_output']['status_output_text'] = status_text
         return
 
     def reset_result(self):
@@ -359,6 +363,51 @@ class Cast(DoActions):
             self.update_status(status_text=character.get_status())
             return
 
+        
+@DoActions.register_subclass('depart')
+class Depart(DoActions):
+    """\
+
+    """
+
+    def __init__(self, character_file, room_file, **kwargs):
+        DoActions.__init__(self, character_file, room_file, **kwargs)
+
+        character = character_file.char
+        room = room_file.room
+
+        if not character.is_dead():
+            self.update_character_output(character_output_text="You have nothing to depart from.")
+            self.update_status(character.get_status())
+            return
+        if character.depart == False:
+            character.depart = True
+            self.update_character_output(character_output_text="Are you sure you want to depart? If so, please type DEPART CONFIRM.")
+            self.update_status(character.get_status())
+            return
+        if character.depart == True:
+            if kwargs['subject_verb'] == 'confirm':
+                character.depart = False
+                character.health = character.health_max
+                old_room_number = room_file.room.room_number
+                room_file.characters.remove(character_file)
+                character.change_room(x=8, y=5, area='Dochas')
+                room_file = character.get_room()
+                room_file.characters.append(character_file)
+                self.action_result.update(room_file.room.intro_text(character_file=character_file, 
+                                                                    room_file=room_file))
+                self.update_character_output("You have departed. The world swirls around you and your body. You feel yourself depart from reality and you begin falling. After some time, you find the world around you materialize into a small shrine in front of you.")
+                self.update_room(character=character, 
+                                old_room_number=old_room_number,
+                                leave_text=f"The body of {character.first_name} slowly fades into nothing.",
+                                enter_text=f"{character.first_name} slowly fades into view, appearing relieved and confused.")
+                self.update_status(character.get_status())
+                return
+            else:
+                self.update_character_output("I'm sorry, I did not understand. Would you like to depart? If so, type DEPART CONFIRM.")
+                self.update_status(character.get_status())  
+                return 
+
 
 @DoActions.register_subclass('drop')
 class Drop(DoActions):
@@ -439,7 +488,6 @@ class East(DoActions):
                     character.in_shop = False
                     room.shop.exit_shop()
             old_room_number = room_file.room.room_number 
-            print(room_file.characters)
             room_file.characters.remove(character_file)
             character.move_east()
             room_file = character.get_room()
@@ -950,7 +998,8 @@ class Look(DoActions):
             self.update_status(character.get_status())
             return
         if character.is_dead():
-            self.update_character_output(character_output_text="You're dead!")
+            self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
+            self.update_character_output(character_output_text="You're dead! Your actions will be limited until you can revive yourself.")
             self.update_status(character.get_status())
             return
         if kwargs['preposition'] == None:
@@ -1777,7 +1826,10 @@ class EnemyAction:
                 "spawn_generator_flag":  False,
                 "spawn_generator_thread":  None
             },
-            "status_output":  None
+            "status_output": {
+                "status_output_flag": False,
+                "status_output_text": None
+            }
         }
 
     do_enemy_actions = {}
@@ -1830,6 +1882,11 @@ class EnemyAction:
         self.action_result['area_output']['area_output_text'] = area_output_text
         return
 
+    def update_status(self, status_text):
+        self.action_result['status_output']['status_output_flag'] = True
+        self.action_result['status_output']['status_output_text'] = status_text
+        return
+
 
     def __str__(self):
         return "{}: {}".format(self.action, self.name)
@@ -1845,6 +1902,7 @@ class Attack(EnemyAction):
 
         if character_file:
             self.action_result.update(combat.melee_attack_character(enemy_file=enemy_file, character_file=character_file, room_file=room_file))
+            self.update_status(status_text=character_file.char.get_status())
             routes.enemy_event(action_result=self.action_result, character_file=character_file)
             return
 
@@ -1858,8 +1916,23 @@ class Leave(EnemyAction):
                          kwargs=kwargs)
         enemy = enemy_file.enemy
 
-        if world.tile_exists(x=enemy.location_x + 1, y=enemy.location_y, area=enemy.area):
+        if world.tile_exists(x=enemy.location_x, y=enemy.location_y, area=enemy.area):
             self.update_room_output(room_output_text=enemy.text_leave, room_output_number=enemy.get_room().room.room_number)
+            routes.enemy_event(action_result=self.action_result)
+            return
+
+
+@EnemyAction.register_subclass('guard')
+class Guard(EnemyAction):
+    def __init__(self, enemy_file, character_file, room_file, **kwargs):
+        super().__init__(enemy=enemy_file,
+                         character_file=character_file,
+                         room_file=room_file,
+                         kwargs=kwargs)
+        enemy = enemy_file.enemy
+
+        if world.tile_exists(x=enemy.location_x, y=enemy.location_y, area=enemy.area):
+            self.update_room_output(room_output_text=enemy.text_guard_kill, room_output_number=enemy.get_room().room.room_number)
             routes.enemy_event(action_result=self.action_result)
             return
 

@@ -380,12 +380,14 @@ class Depart(DoActions):
             self.update_character_output(character_output_text="You have nothing to depart from.")
             self.update_status(character.get_status())
             return
+        print("character depart flag:  " + str(character.depart))
         if character.depart == False:
             character.depart = True
             self.update_character_output(character_output_text="Are you sure you want to depart? If so, please type DEPART CONFIRM.")
             self.update_status(character.get_status())
             return
         if character.depart == True:
+            print("character is separating")
             if kwargs['subject_verb'] == 'confirm':
                 character.depart = False
                 character.health = character.health_max
@@ -396,7 +398,7 @@ class Depart(DoActions):
                 room_file.characters.append(character_file)
                 self.action_result.update(room_file.room.intro_text(character_file=character_file, 
                                                                     room_file=room_file))
-                self.update_character_output("You have departed. The world swirls around you and your body. You feel yourself depart from reality and you begin falling. After some time, you find the world around you materialize into a small shrine in front of you.")
+                self.update_character_output("The world swirls around you and your body. You feel yourself depart from reality and you begin falling. After some time, you find the world around you materialize into a small shrine in front of you.")
                 self.update_room(character=character, 
                                 old_room_number=old_room_number,
                                 leave_text=f"The body of {character.first_name} slowly fades into nothing.",
@@ -1932,8 +1934,11 @@ class Guard(EnemyAction):
         enemy = enemy_file.enemy
 
         if world.tile_exists(x=enemy.location_x, y=enemy.location_y, area=enemy.area):
-            self.update_room_output(room_output_text=enemy.text_guard_kill, room_output_number=enemy.get_room().room.room_number)
+            print("enemy is about to guard.")
+            self.update_room_output(room_output_text=enemy.text_guard_kill_room, room_output_number=enemy.get_room().room_number)
+            self.update_character_output(character_output_text=enemy.text_guard_kill_character)
             routes.enemy_event(action_result=self.action_result)
+            print("enemy has guarded.")
             return
 
 

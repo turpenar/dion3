@@ -47,7 +47,8 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         self._text_move_out = self._enemy_data['text']['move_out_text']
         self._text_engage = self._enemy_data['text']['engage_text']
         self._text_attack = self._enemy_data['text']['attack_text']
-        self._text_guard_kill = self._enemy_data['text']['guard_kill_text']
+        self._text_guard_kill_room = self._enemy_data['text']['guard_kill_text_room']
+        self._text_guard_kill_character = self._enemy_data['text']['guard_kill_text_character']
         self._text_death = self._enemy_data['text']['death_text']
         self._text_leave = self._enemy_data['text']['leave_text']
         
@@ -291,8 +292,12 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
             return self._text_attack
 
     @property
-    def text_guard_kill(self):
-            return self._text_guard_kill
+    def text_guard_kill_room(self):
+            return self._text_guard_kill_room
+
+    @property
+    def text_guard_kill_character(self):
+            return self._text_guard_kill_character
             
     @property
     def text_death(self):
@@ -397,6 +402,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                                                 break
                                 if character_to_attack == False:
                                         actions.do_enemy_action('guard', enemy_file=enemy_file, room_file=room_file)
+                                        eventlet.sleep(seconds=enemy_file.enemy.round_time_move)
                         else:
                                 print(f"Enemy {enemy_file.id} is moving.")
                                 available_movement_actions = []
@@ -415,7 +421,7 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
                 db.session.commit()
                 print(f"enemy {enemy_file.id} has been stopped.")
         return
-
+        
     def view_description(self):
         self.update_character_output(character_output_text=self.description)
         return self.enemy_result

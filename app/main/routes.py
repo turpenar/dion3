@@ -384,7 +384,8 @@ def enemy_event(action_result, character_file=None):
         user_file = db.session.query(User).filter_by(id=character_file.user_id).first()
         if action_result['room_output']['room_output_flag'] == True:
             socketio.emit('game_event',
-                {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), skip_sid=user_file.current_sid)
+                {'data': action_result['room_output']['room_output_text']}, to=str(action_result['room_output']['room_output_number']), skip_sid=str(user_file.current_sid)
+                )
         if action_result['character_output']['character_output_flag'] == True:
             socketio.emit('game_event',
                 {'data': action_result['character_output']['character_output_text']}, to=str(user_file.current_sid))

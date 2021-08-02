@@ -289,6 +289,10 @@ def melee_attack_character(enemy_file, character_file, room_file):
     attack_factor = calculate_attack_factor_weapon(enemy_file.enemy.weapon, character_file.char.armor)
     att_random = random.randint(0,100)
     att_end_roll = end_roll(attack=attack_strength,defense=defense_strength, attack_factor=attack_factor, random=att_random)
+    try:
+        weapon_name = character_file.char.get_dominant_hand_inv().name
+    except:
+        weapon_name = "a closed fist"
 
     result = None
     death_text = None

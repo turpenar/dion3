@@ -308,7 +308,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             return self._depart
     @depart.setter
     def depart(self, depart):
-            self._deaprt = depart
+            self._depart = depart
             
     @property
     def health_max(self):

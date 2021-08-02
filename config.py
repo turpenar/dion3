@@ -29,10 +29,10 @@ class DevelopmentConfig(Config):
     ENV = 'development'
     DEVELOPMENT = True
     DEBUG = True
-    DATABASE_URL = os.environ.get('DATABASE_URL_SQLITE')
+    DATABASE_URL = os.environ.get('DATABASE_URL')
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
-    # conn = psycopg2.connect(DATABASE_URL,
-    #                         sslmode="require")
+    conn = psycopg2.connect(DATABASE_URL,
+                            sslmode="require")
 
 class TestingConfig(Config):
     TESTING = True

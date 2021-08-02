@@ -380,14 +380,12 @@ class Depart(DoActions):
             self.update_character_output(character_output_text="You have nothing to depart from.")
             self.update_status(character.get_status())
             return
-        print("character depart flag:  " + str(character.depart))
         if character.depart == False:
             character.depart = True
             self.update_character_output(character_output_text="Are you sure you want to depart? If so, please type DEPART CONFIRM.")
             self.update_status(character.get_status())
             return
         if character.depart == True:
-            print("character is separating")
             if kwargs['subject_verb'] == 'confirm':
                 character.depart = False
                 character.health = character.health_max

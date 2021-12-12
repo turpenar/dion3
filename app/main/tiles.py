@@ -176,7 +176,7 @@ class MapTile(mixins.DataFileMixin):
                 all_objects.append(object.name)
             for enemy_file in room_file.enemies:
                 if enemy_file.enemy.position != 'standing':
-                    all_objects.append(f"<b>{enemy_file.enemy.name}</b> who is {enemy_file.enemy.position}")
+                    all_objects.append(f"<b>{enemy_file.enemy.name}</b> who is {enemy_file.enemy.position.name}")
                 else:
                     all_objects.append(enemy_file.enemy.name)
             if len(all_objects) > 1:

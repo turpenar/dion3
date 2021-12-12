@@ -23,6 +23,7 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
         self.name = item_data['name']
         self.description = item_data['description']
         self.value = item_data['value']
+        self.cost = item_data['cost']
         self.handle = item_data['handle']
         self.adjectives = item_data['adjectives']
         self.material = item_data['material']
@@ -111,7 +112,7 @@ class Item(mixins.ReprMixin, mixins.DataFileMixin):
         self.item_result = self.item_result_default.copy()
         return
 
-    def contents(self):
+    def get_contents(self):
         self.reset_result()
         if self.container == False:
             self.update_character_output(character_output_text="A {} cannot hold anything".format(self.handle[0]))

@@ -15,12 +15,10 @@ from app.main import mixins, actions, combat, objects, world, config, items
 from app.main.models import Room, EnemySpawn
 
 
-enemy_level_base = config.enemy_level_base
-enemy_growth = config.enemy_growth
-experience_points_base = config.experience_points_base
-experience_growth = config.experience_growth
-positions = config.positions
-stances = config.stances
+enemy_level_base = config.ENEMY_LEVEL_BASE
+enemy_growth = config.ENEMY_GROWTH
+experience_points_base = config.EXPERIENCE_POINTS_BASE
+experience_growth = config.EXPERIENCE_GROWTH
 
 
 class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
@@ -39,8 +37,8 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         self._health_max = self._enemy_data['health_max']
         self._attack_strength_base = self._enemy_data['attack_strength_base']
         self._defense_strength_base = self._enemy_data['defense_strength_base']
-        self._position = self._enemy_data['position']
-        self._stance = self._enemy_data['stance']
+        self._position: config.Position = config.Position[self._enemy_data['position']]
+        self._stance: config.Stance = config.Stance[self._enemy_data['stance']]
         
         self._text_entrance = self._enemy_data['text']['entrance_text']
         self._text_move_in = self._enemy_data['text']['move_in_text']
@@ -58,13 +56,21 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
         
         self._corpse = self._enemy_data['corpse']
     
-        self._armor = {}
+        self._armor = self._enemy_data['armor']
         
         for category in self._enemy_data['armor']:
             for item in self._enemy_data['armor'][category]:
                 self._armor[category] = items.create_item('armor', item_name=item)
                 
-        self._weapon = self._enemy_data['weapon']
+        if self._enemy_data['weapon'] == "None":
+                self._weapon = None 
+        else:       
+                self._weapon = items.create_item(item_category='weapon', item_name=self._enemy_data['weapon'])
+
+        self._skills_bonus = {}
+
+        for skill in self._enemy_data['skills_bonus']:
+                self._skills_bonus[skill] = self._enemy_data['skills_bonus'][skill]
 
         self.spawn_location = self._enemy_data['spawn_location']
         self.location_x = location_x
@@ -229,31 +235,36 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @property
     def attack_strength_base(self):
             return self._attack_strength_base
+
+    def calculate_attack_strength(self):
+        return self.attack_strength_base
         
     @property
     def defense_strength_base(self):
             return self._defense_strength_base
+
+    def calculate_defense_strength(self):
+        return self.defense_strength_base
         
     @property
     def position(self):
-            return self._position[0]
+            return self._position
     @position.setter
     def position(self, position):
-            self._position = [position]
+            self._position = position
             
     def check_position_to_move(self):
-        non_moving_positions = [x for x in positions if x != 'standing']
-        if set(self.position) & set(non_moving_positions):
-            return False
-        else:
+        if self.position == config.Position.standing:
             return True
+        else:
+            return False
         
     @property
     def stance(self):
-            return self._stance[0]
+            return self._stance
     @stance.setter
     def stance(self, stance):
-            self._stance = [stance]
+            self._stance = stance
     
     @property
     def armor(self):
@@ -262,14 +273,25 @@ class Enemy(mixins.ReprMixin, mixins.DataFileMixin):
     @armor.setter
     def armor(self, armor):
             self._armor = armor
+
+    def get_armor_classification(self):
+        if self.armor['torso']:
+            return self.armor['torso'].classification
+        else:
+            return "None"
             
     @property
     def weapon(self):
-            return self._weapon
+        return self._weapon
         
     @weapon.setter
     def weapon(self, weapon):
-            self._weapon = weapon
+        self._weapon = weapon
+
+    def get_weapon_classification(self):
+        if self.weapon:
+                return self.weapon.classification
+        return "None"
 
     @property
     def text_entrance(self):

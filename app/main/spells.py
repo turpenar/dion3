@@ -24,6 +24,7 @@ class Spell(mixins.ReprMixin, mixins.DataFileMixin):
         self.name = spell_data['name']
         self.description = spell_data['description']
         self.spell_type = spell_data['spell_type']
+        self.mana_cost = spell_data['mana_cost']
         self.prepare_round_time = spell_data['prepare_round_time']
         self.cast_round_time = spell_data['cast_round_time']
 
@@ -137,18 +138,19 @@ class EnchanterSpell(Spell):
 
     def prepare_spell(self, character_file, room_file):
         self.reset_result()
+        character_file.char.set_cast_round_time(self.prepare_round_time)
         self.update_character_output(character_output_text=f"""\
 You make a brief gesture.
 Casting round time is {character_file.char.get_cast_round_time()} seconds.\
         """)
         self.update_room_output(room_output_text=f"{character_file.char.first_name} makes a brief gesture.")
-        character_file.char.set_cast_round_time(self.prepare_round_time)
         return self.spell_result
 
     def cast_spell(self, character_file, target_file, room_file):
         self.reset_result()
         if self.spell_type == "bolt":
-            self.spell_result.update(combat.bolt_attack_enemy(target_file=target_file, character_file=character_file, room_file=room_file))
+            self.spell_result.update(combat.do_combat_action(aggressor='character', combat_action='bolt', character_file=character_file, enemy_file=target_file, room_file=room_file))
+            character_file.char.mana = character_file.char.mana - self.mana_cost
             return self.spell_result
 
 @Spell.register_subclass('elemental')

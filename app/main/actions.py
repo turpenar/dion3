@@ -16,7 +16,6 @@ from app.main.models import EnemySpawn, Room
 
 
 verbs = config.verbs
-stances = config.stances
 action_history = []
 wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
 
@@ -30,7 +29,7 @@ def do_action(action_input, character_file=None, room_file=None):
         return action_result
     if len(action_input) == 0:
         action_result = {"action_success": False,
-                         "action_error":  ""
+                         "action_error":  "No action submitted."
         }
         return action_result
     kwargs = command_parser.parser(action_input)
@@ -82,25 +81,25 @@ class DoActions:
         }
         self.action_result_default = self.action_result.copy()
 
-    do_actions = {}
+    _do_actions = {}
 
     @classmethod
     def register_subclass(cls, action):
         """Catalogues actions in a dictionary for reference purposes"""
         def decorator(subclass):
-            cls.do_actions[action] = subclass
+            cls._do_actions[action] = subclass
             return subclass
         return decorator
 
     @classmethod
-    def do_action(cls, action, character_file, room_file, **kwargs):
+    def do_action(cls, action, character_file, room_file, **kwargs) -> dict:
         """Method used to initiate an action"""
-        if action not in cls.do_actions:
+        if action not in cls._do_actions:
             cls.action_result = {"action_success":  False,
                              "action_error":  "I am sorry, I did not understand."
             }
             return cls.action_result
-        return cls.do_actions[action](character_file, room_file, **kwargs).action_result
+        return cls._do_actions[action](character_file, room_file, **kwargs).action_result
     
     def update_room(self, character, old_room_number, leave_text, enter_text):
         self.action_result['room_change']['room_change_flag'] = True
@@ -214,7 +213,8 @@ class Attack(DoActions):
                 if set(enemy_file.enemy.handle) & set(kwargs['direct_object']):
                     target_file = db.session.query(EnemySpawn).filter_by(id=enemy_file.id).first()
                     character.target = target_file.id
-                    self.action_result.update(combat.melee_attack_enemy(character_file=character_file, target_file=target_file))
+                    combat_action = combat.do_combat_action(aggressor='character', combat_action='melee', character_file=character_file, enemy_file=target_file, room_file=room_file)
+                    self.action_result.update(combat_action.attack())
                     self.update_status(status_text=character.get_status())
                     db.session.commit()
                     return
@@ -235,7 +235,10 @@ class Attack(DoActions):
 @DoActions.register_subclass('attribute')
 class Attributes(DoActions):
     """\
-    ATTRIBUTES allows you to view various attributes\
+    ATTRIBUTES allows you to view various attributes
+    
+    Usage:
+    ATTRIBUTE <attirbute name>\
     """
 
     def __init__(self, character_file, room_file, **kwargs):
@@ -293,9 +296,9 @@ class Buy(DoActions):
             self.update_status(character.get_status())
             return
         if not kwargs['number_1']:
-            self.action_result.update(room.shop.buy_item(number=character.shop_item_selected))
+            self.action_result.update(room.shop.buy_item(number=character.shop_item_selected, character=character))
         else:
-            self.action_result.update(room.shop.buy_item(number=kwargs['number_1']))
+            self.action_result.update(room.shop.buy_item(number=kwargs['number_1'], character=character))
         if self.action_result['shop_item']['shop_item_flag']:
             try:
                 character.set_dominant_hand_inv(self.action_result['shop_item']['shop_item'])
@@ -471,7 +474,7 @@ class East(DoActions):
         room = room_file.room
         
         if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
+            self.update_character_output(character_output_text=f"Round time remaining... {character.get_round_time()} seconds.")
             self.update_status(character.get_status())
             return
         if character.is_dead():
@@ -479,7 +482,7 @@ class East(DoActions):
             self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
-            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_character_output(f"You cannot move.  You are {character.position.name}.")
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x + 1, y=character.location_y, area=character.area_name):
@@ -578,7 +581,7 @@ class Flee(DoActions):
             self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
-            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_character_output("You cannot move.  You are {}.".format(character.position.name))
             self.update_status(character.get_status())
             return
         if room.shop_filled == True:
@@ -732,7 +735,7 @@ class Go(DoActions):
             self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
-            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_character_output("You cannot move.  You are {}.".format(character.position.name))
             self.update_status(character.get_status())
             return
         if not kwargs['direct_object']:
@@ -823,8 +826,8 @@ Type HELP <verb> for more information about that specific verb.
             """.format(verb_list))
             self.update_status(character.get_status())
             return
-        elif kwargs['subject_verb'] in DoActions.do_actions:
-            self.update_character_output(DoActions.do_actions[kwargs['subject_verb']].__doc__)
+        elif kwargs['subject_verb'] in DoActions._do_actions:
+            self.update_character_output(DoActions._do_actions[kwargs['subject_verb']].__doc__)
             self.update_status(character.get_status())
             return
         else:
@@ -847,9 +850,9 @@ class Information(DoActions):
         
         self.update_character_output(f'''\
 Name:  {character.first_name} {character.last_name}
-Gender:  {character.gender}
-Heritage:  {character.heritage}
-Profession:  {character.profession}
+Gender:  {character.gender.name}
+Heritage:  {character.heritage.name}
+Profession:  {character.profession.name}
 Level:  {character.level}\
             ''')
         self.update_status(character.get_status())
@@ -931,14 +934,14 @@ class Kneel(DoActions):
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(character.get_status())
             return
-        if character.position == 'kneeling':
+        if character.position == config.Position.kneeling:
             self.update_character_output('You seem to already be kneeling.')
             self.update_status(character.get_status())
             return 
         else:
-            character.position = 'kneeling'
-            self.update_character_output(character_output_text="You move yourself to a kneeling position.")
-            self.update_room_output(room_output_text="{} move {}self to a kneeling position.".format(character.first_name, character.possessive_pronoun))
+            character.position = config.Position.kneeling
+            self.update_character_output(character_output_text=f"You move yourself to a {character.position.name} position.")
+            self.update_room_output(room_output_text=f"{character.first_name} move {character.possessive_pronoun}self to a kneeling position.")
             self.update_status(status_text=character.get_status())
             return
         
@@ -964,12 +967,12 @@ class Lie(DoActions):
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(character.get_status())
             return
-        if character.position == 'lying':
+        if character.position == config.Position.lying:
             self.update_character_output('You seem to already be lying down.')
             self.update_status(character.get_status())
             return 
         else:
-            character.position = 'lying'
+            character.position = config.Position.lying
             self.update_character_output(character_output_text="You lower yourself to the ground and lie down.")
             self.update_room_output(room_output_text="{} lowers {}self to a laying position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
@@ -993,10 +996,6 @@ class Look(DoActions):
 
         character = character_file.char
 
-        if character.check_round_time():
-            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
-            self.update_status(character.get_status())
-            return
         if character.is_dead():
             self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
             self.update_character_output(character_output_text="You're dead! Your actions will be limited until you can revive yourself.")
@@ -1004,6 +1003,10 @@ class Look(DoActions):
             return
         if kwargs['preposition'] == None:
             self.action_result.update(room_file.room.intro_text(character_file=character_file, room_file=room_file))
+            self.update_status(character.get_status())
+            return
+        if character.check_round_time():
+            self.update_character_output(character_output_text="Round time remaining... {} seconds.".format(character.get_round_time()))
             self.update_status(character.get_status())
             return
         if kwargs['preposition'][0] == 'in':
@@ -1018,7 +1021,7 @@ class Look(DoActions):
                     self.update_status(character.get_status())
                     return
                 if set(item.handle) & set(kwargs['indirect_object']):
-                    self.action_result.update(item.contents())
+                    self.action_result.update(item.get_contents())
                     self.update_status(character.get_status())
                     return
             for enemy_file in room_file.enemies:
@@ -1084,7 +1087,7 @@ class North(DoActions):
             self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
-            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_character_output("You cannot move.  You are {}.".format(character.position.name))
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x, y=character.location_y - 1, area=character.area_name):
@@ -1167,7 +1170,7 @@ class Position(DoActions):
         character = character_file.char
         room = room_file.room
         
-        self.update_character_output('''You are currently in the {} position.'''.format(character.position))
+        self.update_character_output('''You are currently in the {} position.'''.format(character.position.name))
         self.update_status(character.get_status())
 
 
@@ -1446,12 +1449,12 @@ class Sit(DoActions):
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(character.get_status())
             return
-        if character.position == 'sitting':
+        if character.position == config.Position.sitting:
             self.update_character_output(character_output_text="You seem to already be sitting.")
             self.update_status(status_text=character.get_status())
             return
         else:
-            character.position = 'sitting'
+            character.position = config.Position.sitting
             self.update_character_output(character_output_text="You move yourself to a sitting position.")
             self.update_room_output(room_output_text="{} moves {}self to a sitting position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
@@ -1509,7 +1512,7 @@ class Skin(DoActions):
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(character.get_status())
             return
-        if character.position == 'sitting':
+        if character.position == config.Position.sitting:
             self.update_character_output(character_output_text="You seem to already be sitting.")
             self.update_status(status_text=character.get_status())
             return
@@ -1553,7 +1556,7 @@ class South(DoActions):
             self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
-            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_character_output("You cannot move.  You are {}.".format(character.position.name))
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x, y=character.location_y + 1, area=character.area_name):
@@ -1624,15 +1627,15 @@ class Stance(DoActions):
         character = character_file.char
         room = room_file.room
         
-        desired_stance=kwargs['adjective_1']
+        desired_stance = kwargs['adjective_1']
 
         if not desired_stance:
-            self.update_character_output('''You are currently in the {} stance.'''.format(character.stance))
+            self.update_character_output(f'''You are currently in the {character.stance.name} stance.''')
             self.update_status(character.get_status())
             return
-        if set(desired_stance) & set(stances):
-            character.stance = desired_stance[0]
-            self.update_character_output('''You are now in {} stance.'''.format(desired_stance[0]))
+        if config.Stance.check_for_name_match(desired_stance[0]):
+            character.stance = config.Stance[desired_stance[0]]
+            self.update_character_output(f'''You are now in {character.stance.name} stance.''')
             self.update_status(character.get_status())
             return
         else:
@@ -1661,12 +1664,12 @@ class Stand(DoActions):
             self.update_character_output(character_output_text="You're dead!")
             self.update_status(character.get_status())
             return
-        if character.position == 'standing':
+        if character.position == config.Position.standing:
             self.update_character_output(character_output_text="You seem to already be standing.")
             self.update_status(status_text=character.get_status())
             return
         else:
-            character.position = 'standing'
+            character.position = config.Position.standing
             self.update_character_output(character_output_text="You raise yourself to a standing position.")
             self.update_room_output(room_output_text="{} raises {}self to a standing position.".format(character.first_name, character.possessive_pronoun))
             self.update_status(status_text=character.get_status())
@@ -1748,7 +1751,7 @@ class West(DoActions):
             self.update_status(character.get_status())
             return
         if not character.check_position_to_move():
-            self.update_character_output("You cannot move.  You are {}.".format(character.position))
+            self.update_character_output("You cannot move.  You are {}.".format(character.position.name))
             self.update_status(character.get_status())
             return
         if world.tile_exists(x=character.location_x - 1, y=character.location_y, area=character.area_name):
@@ -1898,10 +1901,10 @@ class Attack(EnemyAction):
                          character_file=character_file,
                          room_file=room_file,
                          kwargs=kwargs)
-        enemy = enemy_file.enemy
 
         if character_file:
-            self.action_result.update(combat.melee_attack_character(enemy_file=enemy_file, character_file=character_file, room_file=room_file))
+            combat_action = combat.do_combat_action(aggressor='enemy', combat_action='melee', enemy_file=enemy_file, character_file=character_file, room_file=room_file)
+            self.action_result.update(combat_action.attack())
             self.update_status(status_text=character_file.char.get_status())
             routes.enemy_event(action_result=self.action_result, character_file=character_file)
             return

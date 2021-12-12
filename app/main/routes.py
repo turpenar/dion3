@@ -5,12 +5,12 @@ from flask_socketio import emit, join_room, leave_room, disconnect
 from flask_login import current_user, login_user, logout_user, login_required
 
 from app import socketio, login, db
-from app.main import main, config, player, actions, spells
+from app.main import main, config, player, actions, spells, skills
 from app.main.models import User, Character, Room
 from app.main.forms import LoginForm, SignUpForm, NewCharacterForm, SkillsProfessionForm, add_skills_to_skill_form
 
 
-stat_training_points = config.available_stat_points
+stat_training_points = config.AVAILABLE_STAT_POINTS
 
 @login.user_loader
 def load_user(user_id):
@@ -127,9 +127,11 @@ def new_character():
         result = request.form
         first_name = result['first_name']
         last_name = result['last_name']
-        gender = result['gender']
-        profession = result['profession']
-        heritage = result['heritage']
+        gender = config.Gender(int(result['gender']))
+        profession = config.Profession(int(result['profession']))
+        heritage = config.Heritage(int(result['heritage']))
+        position = config.Position.starting_position()
+        stance = config.Stance.starting_stance()
         
         for stat in stats:
             stats_initial[stat.lower()] = int(result[stat])
@@ -145,13 +147,15 @@ def new_character():
         new_character.char.gender = gender
         new_character.char.profession = profession
         new_character.char.heritage = heritage
+        new_character.char.position = position
+        new_character.char.stance = stance
         
         for stat in new_character.char.stats:
             new_character.char.stats[stat] = stats_initial[stat]
             
         new_character.char.set_character_attributes()    
         new_character.char.set_gender(new_character.char.gender)
-        new_character.char.level_up_skill_points()
+        skills.level_up_skill_points(character=new_character.char)
 
         user = db.session.query(User).filter_by(username=current_user.username).first()
         user.characters.append(new_character)
@@ -181,52 +185,22 @@ def skills_modify():
         return '<h1>You do not yet have a character. Please create a new character or load a character.</h1>'
 
     character_file = db.session.query(Character).filter_by(first_name=user.current_character_first_name, last_name=user.current_character_last_name).first()
-    add_skills_to_skill_form(profession=character_file.char.profession)
+    add_skills_to_skill_form(profession=character_file.char.profession.name)
     form = SkillsProfessionForm()
-    skill_data_file = config.get_skill_data_file(profession=character_file.char.profession)
-    
+    skill_data_file = config.get_skill_data_file(profession=character_file.char.profession.name)
+
     if form.validate_on_submit():
         result = request.form
-        character_file.char.physical_training_points = result['physical_training_points_var']
-        character_file.char.mental_training_points = result['mental_training_points_var']
-        for skill in character_file.char.skills:
-            character_file.char.skills[skill] = int(result[skill])
-            if character_file.char.skills[skill] > 40:
-                character_file.char.skills_bonus[skill] = 140 + character_file.char.skills[skill] - 40
-            elif character_file.char.skills[skill] > 30:
-                character_file.char.skills_bonus[skill] = 120 + (character_file.char.skills[skill] - 30) * 2
-            elif character_file.char.skills[skill] > 20:
-                character_file.char.skills_bonus[skill] = 90 + (character_file.char.skills[skill] - 20) * 3
-            elif character_file.char.skills[skill] > 10:
-                character_file.char.skills_bonus[skill] = 50 + (character_file.char.skills[skill] - 10) * 4
-            else:
-                character_file.char.skills_bonus[skill] = character_file.char.skills[skill] * 5
-            if skill == "spell_research":
-                all_base_spells = spells.get_spells_skill_level(spell_base=character_file.char.profession, skill_level=int(result[skill]))
-                spells_forget = character_file.char.check_spells_forget(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
-                spells_learned = character_file.char.check_spells_learned(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
-                character_file.char.learn_spells(spell_base=character_file.char.profession, spell_numbers=all_base_spells)
-                if spells_forget:
-                    spell_message = f""""\
-You unlearned the following spells:
-{spells_forget}\
-                    """
-                elif spells_learned:
-                    spell_message = f"""\
-You learned new spells! Type SPELLS to access a list of all spells you know.
-{spells_learned}\
-                    """
-                else:
-                    spell_message = """"""
+        spell_message = skills.update_skills(result=result, character_file=character_file)      
         db.session.commit()
         character_announcement(announcement=f"""\
 You have updated your skills! Type SKILLS to see your new skill values and bonuses.
-
 {spell_message}\
-        """)
+        """,
+        character_file=character_file)
         response = "Skills updated! Please close the window and return to the game window."
         return render_template('/skills_updated.html', response=response)
-    
+        
     return render_template('/skills.html', form=form, player=character_file.char, skillDataFile=skill_data_file)
 
 
@@ -352,6 +326,7 @@ def disconnect_room(message):
 def disconnect_request():
     @copy_current_request_context
     def can_disconnect():
+        print("about to disconnect")
         disconnect()
         return
         
@@ -381,6 +356,8 @@ def test_disconnect():
 
 def enemy_event(action_result, character_file=None):
     if character_file:
+        print(character_file.char.name)
+        print(action_result)
         user_file = db.session.query(User).filter_by(id=character_file.user_id).first()
         if action_result['room_output']['room_output_flag'] == True:
             socketio.emit('game_event',
@@ -400,10 +377,14 @@ def enemy_event(action_result, character_file=None):
             {'data': action_result['room_change']['enter_room_text']}, to=str(action_result['room_change']['new_room']))
     return
 
-def character_announcement(announcement):
+def character_announcement(announcement, character_file=None):
+    user_file = db.session.query(User).filter_by(id=character_file.user_id).first()
     socketio.emit('game_event',
             {'data': announcement}
             )
+    socketio.emit('status_update',
+                {'data': character_file.char.get_status()}, to=str(user_file.current_sid)
+                )
     return
 
 

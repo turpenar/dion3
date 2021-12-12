@@ -10,8 +10,8 @@
 		"health_max": 10,
 		"attack_strength_base": 50,
 		"defense_strength_base": 5,
-		"position": ["standing"],
-		"stance": ["offense"],
+		"position": "standing",
+		"stance": "offense",
 		"armor": {
 			"torso": [],
 			"head": [],
@@ -22,6 +22,11 @@
 			"left_leg": []
 			},
 		"weapon": "None",
+		"skills_bonus": {
+			"edged_weapons": 0,
+			"blunt_weapons": 0,
+			"polearm_weapons": 0
+		},
 		"right_hand": "",
 		"left_hand": "",
 		"round_time": {

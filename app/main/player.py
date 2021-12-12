@@ -17,15 +17,14 @@ from app.main import config, world, mixins, items, skills, routes
 
 wrapper = textwrap.TextWrapper(width=config.TEXT_WRAPPER_WIDTH)
 commands = {}
-available_stat_points = config.available_stat_points
-experience_points_base = config.experience_points_base
-experience_growth = config.experience_growth
+available_stat_points = config.AVAILABLE_STAT_POINTS
+stat_bonus_denominator = config.STAT_BONUS_DENOMINATOR
+experience_points_base = config.EXPERIENCE_POINTS_BASE
+experience_growth = config.EXPERIENCE_POINTS_BASE
 profession_stats_growth_file = config.PROFESSION_STATS_GROWTH_FILE
 heritage_stats_file = config.HERITAGE_STATS_FILE
 profession_skillpoint_bonus_file = config.PROFESSION_SKILLPOINT_BONUS_FILE
-base_training_points = config.base_training_points
-positions = config.positions
-stances = config.stances
+base_training_points = config.BASE_TRAINING_POINTS
 skills_max_factors = config.SKILLS_MAX_FACTORS
 all_items = mixins.all_items
 all_items_categories = mixins.items
@@ -41,17 +40,16 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
 
         self._player_data = self.get_player_by_name(name=player_name)
 
-        self._name = self._player_data['first_name']    
-        self._first_name = self._player_data['first_name']
-        self._last_name = self._player_data['last_name']
-        self._gender = self._player_data['gender']
-        self._object_pronoun = None
-        self._possessive_pronoun = None
-        self._heritage = self._player_data['heritage']
-        self._profession = self._player_data['profession']
-        self._category = self._player_data['category']
-        self._position = self._player_data['position']
-        self._stance = self._player_data['stance']
+        self._name: str = None
+        self._first_name: str = None
+        self._last_name: str = None
+        self._gender: config.Gender = None
+        self._profession : config.Profession = None
+        self._heritage: config.Heritage = None
+        self._object_pronoun: str = None
+        self._possessive_pronoun: str = None
+        self._position: config.Position =  None
+        self._stance: config.Stance = None
         
         self._level = self._player_data['level']
         self._experience = self._player_data['experience']
@@ -83,7 +81,8 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self._defense_strength_block_base = 0
         self._defense_strength_parry_base = 0
         
-        self.mana = self._player_data['mana']
+        self._mana_base = self._player_data['mana']
+        self._mana = self._player_data['mana']
 
         self.money = self._player_data['money']
         
@@ -159,10 +158,10 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def possessive_pronoun(self):
             return self._possessive_pronoun
     def set_gender(self, gender):
-            if gender.lower() == "female":
+            if gender == config.Gender.Female:
                 self._object_pronoun = "she"
                 self._possessive_pronoun = "her"
-            if gender.lower() == "male":
+            if gender == config.Gender.Male:
                 self._object_pronoun = "he"
                 self._possessive_pronoun = "him"
                 
@@ -186,24 +185,23 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
 
     @property
     def position(self):
-            return self._position[0]
+            return self._position
     @position.setter
     def position(self, position):
-            self._position = [position]
+            self._position = position
             
     def check_position_to_move(self):
-        non_moving_positions = [x for x in positions if x != 'standing']
-        if set([self.position]) & set(non_moving_positions):
-            return False
-        else:
+        if self.position == config.Position.standing:
             return True
-        
+        else:
+            return False
+
     @property
     def stance(self):
-            return self._stance[0]
+            return self._stance
     @stance.setter
     def stance(self, stance):
-            self._stance = [stance]
+            self._stance = stance
     
     @property
     def level(self):
@@ -270,7 +268,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     
     @property        
     def skills_bonus(self):
-            return self._skills_bonus 
+            return self._skills_bonus
     @skills_bonus.setter
     def skills_bonus(self):
             self._skills_bonus
@@ -324,6 +322,14 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def attack_strength_base(self, attack_strength_base):
             self._attack_strength_base = attack_strength_base
 
+    def calculate_attack_strength(self):
+        attack_strength = self.attack_strength_base
+        if self.get_dominant_hand_inv():
+            if self.get_dominant_hand_inv().category == 'weapon':
+                weapon_bonus = self.skills_bonus[self.get_dominant_hand_inv().sub_category] 
+                attack_strength += weapon_bonus
+        return attack_strength
+
     @property
     def cast_strength_base(self):
         return self._cast_strength_base
@@ -337,6 +343,23 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @defense_strength_evade_base.setter
     def defense_strength_evade_base(self, defense_strength_evade_base):
             self._defense_strength_evade_base = defense_strength_evade_base
+
+    def calculate_defense_strength_evade(self):
+        return int(self.defense_strength_evade_base + self.skills['dodging'])
+
+    def calculate_defense_strength_block(self):
+        return int(self.defense_strength_evade_base + self.skills['shield'])
+
+    def calculate_defense_strength_parry(self):
+        defense_strength_parry = int(self.defense_strength_evade_base + self.skills['dodging'])
+        if self.get_dominant_hand_inv():
+            if self.get_dominant_hand_inv().category == 'weapon':
+                weapon_ranks = self.skills[self.get_dominant_hand_inv().sub_category]
+                defense_strength_parry += int(weapon_ranks)
+        return defense_strength_parry
+
+    def calculate_defense_strength(self):
+        return self.calculate_defense_strength_evade() + self.calculate_defense_strength_block() + self.calculate_defense_strength_parry()
             
     @property        
     def defense_strength_block_base(self):
@@ -351,6 +374,23 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @defense_strength_parry_base.setter
     def defense_strength_parry_base(self, defense_strength_parry_base):
             self._defense_strength_parry_base = defense_strength_parry_base
+
+    @property
+    def mana_base(self):
+        return self._mana_base
+    @mana_base.setter
+    def mana_base(self, mana_base):
+        self._mana_base = mana_base
+
+    @property
+    def mana(self):
+        return self._mana
+    @mana.setter
+    def mana(self, mana):
+        self._mana = mana
+
+    def pulse_attributes():
+        pass
             
     def check_level_up(self):
         experience_next_level = int(math.floor(experience_points_base * math.pow(self.level + 1, experience_growth)))
@@ -364,12 +404,14 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.level += 1
         
         for stat in self.stats:
-            self.stats[stat] = self.stats[stat] + 1 / (self.stats[stat] / int(profession_stats_growth_file.loc[self.profession][stat]))
+            self.stats[stat] = self.stats[stat] + 1 / (self.stats[stat] / int(profession_stats_growth_file.loc[self.profession.name][stat]))
             if self.stats[stat] > 100:
                 self.stats[stat] = 100
         
-            self.stats_bonus[stat] = ((self.stats[stat] - available_stat_points / 8) / 2 + int(heritage_stats_file.loc[self.heritage][stat]))
-        self.level_up_skill_points()
+            self.stats_bonus[stat] = int((self.stats[stat] - stat_bonus_denominator) / 2 + int(heritage_stats_file.loc[self.heritage.name][stat]))
+        
+        skills.level_up_skill_points(character=self)
+
         self.health = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
         self.health_max = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
 
@@ -383,7 +425,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
 
     def set_character_attributes(self):
         for stat in self.stats:
-            self.stats_bonus[stat] = ((self.stats[stat] - 50 / 8) / 2 + int(heritage_stats_file.loc[self.heritage][stat]))
+            self.stats_bonus[stat] = int((self.stats[stat] - stat_bonus_denominator) / 2 + int(heritage_stats_file.loc[self.heritage.name][stat]))
 
         self.health = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
         self.health_max = int(math.floor((self.stats['strength'] + self.stats['constitution']) / 10))
@@ -393,24 +435,10 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         self.defense_strength_evade_base = int(round(self.stats_bonus['agility'] + self.stats_bonus['intellect'] / 4 + self.skills['dodging'],0))
         self.defense_strength_block_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] /4,0))
         self.defense_strength_parry_base = int(round(self.stats_bonus['strength'] / 4 + self.stats_bonus['dexterity'] / 4,0))
-
-    def level_up_skill_points(self):
-        stat_value = {}
-        for stat in self.stats:
-            stat_value[stat] = int(round(float(self.stats[stat]))) * int(profession_skillpoint_bonus_file.loc[self.profession, stat])
-        added_physical_points = base_training_points + ((stat_value['strength']
-                                                        + stat_value['constitution']
-                                                        + stat_value['dexterity']
-                                                        + stat_value['agility']) / 40)
-        added_mental_points = base_training_points + ((stat_value['intellect']
-                                                       + stat_value['wisdom']
-                                                       + stat_value['logic']
-                                                       + stat_value['spirit']) / 40)
-        self.physical_training_points = self.physical_training_points + added_physical_points
-        self.mental_training_points = self.mental_training_points + added_mental_points
-        for skill in self.skills:
-            self.skills_max[skill] = (self.level + 1) * skills_max_factors.loc[skill, self.profession]
-        return
+ 
+        if self.stats_bonus['intellect'] + self.stats_bonus['wisdom'] > 0:
+            self.mana_base = int((self.stats_bonus['intellect'] + self.stats_bonus['wisdom']) / 4)
+            self.mana = int((self.stats_bonus['intellect'] + self.stats_bonus['wisdom']) / 4)
 
     def check_spells_forget(self, spell_base, spell_numbers):
         spells_forget = list(set(self.spells[spell_base.lower()]) - set(spell_numbers))
@@ -468,7 +496,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         if self.health > 0:
             return ""
         else:
-            self.position = 'lying'
+            self.position = config.Position.lying
             return "Your body falls to the ground with a *slump*. You are dead."
 
     @property
@@ -610,6 +638,12 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
             self.left_hand_inv = item
         if self.dominance == 'left':
             self.right_hand_inv = item
+
+    def get_weapon_classification(self):
+        if self.get_dominant_hand_inv():
+            if self.get_dominant_hand_inv().category == 'weapon':
+                return self.get_dominant_hand_inv().classification
+        return "None"        
             
     @property
     def armor(self):
@@ -617,6 +651,11 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @armor.setter
     def armor(self, armor):
         self._armor = armor
+
+    def get_armor_classification(self):
+        if self.armor['torso']:
+            return self.armor['torso'].classification
+        return "None"
 
     @property
     def in_shop(self):
@@ -683,9 +722,10 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         
         return [f"Right Hand:  {right_hand_status}",
                 f"Left Hand:   {left_hand_status}",
-                f"Stance:      {self.stance}",
-                f"Position:    {self.position}",
-                f"Health:      {self.health}"]
+                f"Stance:      {self.stance.name}",
+                f"Position:    {self.position.name}",
+                f"Health:      {self.health}",
+                f"Mana:        {self.mana}"]
 
 
 

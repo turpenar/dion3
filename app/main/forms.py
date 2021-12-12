@@ -22,9 +22,9 @@ class SignUpForm(FlaskForm):
 class NewCharacterForm(FlaskForm):
     first_name = StringField('First Name', [DataRequired()])
     last_name = StringField('Last Name', [DataRequired()])
-    gender = SelectField(u'Gender', id='gender', choices=config.gender_choices)
-    profession = SelectField(u'Profession', id='profession', choices=config.profession_choices)
-    heritage = SelectField(u'Heritage', id='heritage', choices=config.heritage_choices)
+    gender = SelectField(u'Gender', id='gender', choices=config.Gender.choices(), coerce=config.Gender.coerce)
+    profession = SelectField(u'Profession', id='profession', choices=config.Profession.choices(), coerce=config.Profession.coerce)
+    heritage = SelectField(u'Heritage', id='heritage', choices=config.Heritage.choices(), coerce=config.Heritage.coerce)
 
     stat_training_points_var = IntegerField('Stat Training Points', id="stat_training_points_var", validators=[NumberRange(min=0, message="You do not have enough stat training points")])
     
@@ -42,8 +42,8 @@ class NewCharacterForm(FlaskForm):
         for stat in stats_list:
             stat_total += int(getattr(self, stat).data)
             
-        if stat_total >= config.available_stat_points:
-            self.stat_total_validation.errors.append('Total stats cannot exceed ' + str(config.available_stat_points - 1))
+        if stat_total >= config.AVAILABLE_STAT_POINTS:
+            self.stat_total_validation.errors.append('Total stats cannot exceed ' + str(config.AVAILABLE_STAT_POINTS - 1))
             return False
         return True
     

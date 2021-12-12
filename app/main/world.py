@@ -1,7 +1,6 @@
 
 import pathlib as pathlib
 import imp as imp
-import random as random
 import eventlet
 
 from app import db
@@ -78,13 +77,12 @@ def initiate_enemies(app):
             eventlet.spawn(area_file.area.spawn_enemies, app)
     return
 
-def clear_enemies(app):
+def clear_enemies():
     all_enemies = db.session.query(EnemySpawn).all()
     for enemy_file in all_enemies:
         enemy_file.stop = True
     db.session.commit()
     return
-    
 
 def tile_exists(x, y, area):
     room = db.session.query(Room).filter_by(x=x, y=y, area_name=area).first()
@@ -92,6 +90,12 @@ def tile_exists(x, y, area):
         return room
     else:
         return None
+
+def initiate_pulse(app):
+    areas = db.session.query(WorldArea).all()
+    for area_file in areas:
+        eventlet.spawn(area_file.area.start_pulse, app)
+    return
     
 
 

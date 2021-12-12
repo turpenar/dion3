@@ -1,5 +1,5 @@
 import os
-import psycopg2
+# import psycopg2
 import dotenv as dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -20,19 +20,21 @@ class Config(object):
     SESSION_SQLALCHEMY = 'db'
 
 class ProductionConfig(Config):
+    ENV = 'production'
     DATABASE_URL = os.environ.get('DATABASE_URL')
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
-    conn = psycopg2.connect(DATABASE_URL,
-                            sslmode="require")
+    # conn = psycopg2.connect(DATABASE_URL,
+    #                         sslmode="require")
 
 class DevelopmentConfig(Config):
     ENV = 'development'
     DEVELOPMENT = True
     DEBUG = True
-    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASE_URL = os.environ.get('DATABASE_URL_SQLITE')
     SQLALCHEMY_DATABASE_URI = DATABASE_URL
-    conn = psycopg2.connect(DATABASE_URL,
-                            sslmode="require")
+    # conn = psycopg2.connect(DATABASE_URL,
+    #                         sslmode="require")
 
 class TestingConfig(Config):
+    ENV = 'testing'
     TESTING = True

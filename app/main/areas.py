@@ -3,6 +3,7 @@
 import pathlib as pathlib
 import imp as imp
 import random as random
+import datetime as datetime
 
 from flask import current_app
 
@@ -55,6 +56,17 @@ class Area(mixins.DataFileMixin):
                     new_enemy.enemy.enemy_id = new_enemy.id
                     eventlet.spawn(new_enemy.enemy.run, app, new_enemy.id)
                     print(f"enemy {new_enemy.id} created in {self.area_name}")
+                db.session.commit()
+                eventlet.sleep(10)
+                db.session.commit()
+
+    def start_pulse(self, app):
+        with app.app_context():
+            while True:
+                area_file = db.session.query(WorldArea).filter_by(area_name=self.area_name).first()
+                for room_file in area_file.rooms:
+                    for character_file in room_file.characters:
+                        print(f"Updating stats for {character_file.first_name} {character_file.last_name}")
                 db.session.commit()
                 eventlet.sleep(10)
                 db.session.commit()

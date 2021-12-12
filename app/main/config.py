@@ -1,6 +1,7 @@
 import pathlib as pathlib
 import pandas as pd
 import json as json
+from enum import Enum, auto
 
 DATA_DIR = pathlib.Path(__file__).parents[1] / "resources"
 DATA_FORMAT = "json"
@@ -48,53 +49,39 @@ SKILLS_MAX_FACTORS.set_index('skills', inplace=True)
 SPELL_LEVELS = pd.read_csv(DATA_DIR / "Spell_Levels.csv")
 SPELL_LEVELS.set_index('skill_level', inplace=True)
 
-verbs_path = DATA_DIR / 'verbs.txt'
-with verbs_path.open(mode='r') as file:
+VERBS_PATH = DATA_DIR / 'verbs.txt'
+with VERBS_PATH.open(mode='r') as file:
     verbs = file.readlines()
 verbs = [x.strip() for x in verbs]
 
-prepositions_path = DATA_DIR / 'prepositions.txt'
-with prepositions_path.open(mode='r') as file:
+PREPOSITIONS_PATH = DATA_DIR / 'prepositions.txt'
+with PREPOSITIONS_PATH.open(mode='r') as file:
     prepositions = file.readlines()
 prepositions = [x.strip() for x in prepositions]
 
 # importing all articles
-articles_path = DATA_DIR / 'articles.txt'
-with articles_path.open(mode='r') as file:
+ARTICLES_PATH = DATA_DIR / 'articles.txt'
+with ARTICLES_PATH.open(mode='r') as file:
     articles = file.readlines()
 articles = [x.strip() for x in articles]
 
 # importing all determiners
-determiners_path = DATA_DIR / 'determiners.txt'
-with determiners_path.open(mode='r') as file:
+DETERMINERS_PATH = DATA_DIR / 'determiners.txt'
+with DETERMINERS_PATH.open(mode='r') as file:
     determiners = file.readlines()
 determiners = [x.strip() for x in determiners]
 
 # importing all nouns
-nouns_path = DATA_DIR / 'nouns.txt'
-with nouns_path.open(mode='r') as file:
+NOUNS_PATH = DATA_DIR / 'nouns.txt'
+with NOUNS_PATH.open(mode='r') as file:
     nouns = file.readlines()
 nouns = [x.strip() for x in nouns]
 
 #import all adjectives
-adjectives_path = DATA_DIR / 'adjectives.txt'
-with adjectives_path.open(mode='r') as file:
+ADJECTIVES_PATH = DATA_DIR / 'adjectives.txt'
+with ADJECTIVES_PATH.open(mode='r') as file:
     adjectives = file.readlines()
 adjectives = [x.strip() for x in adjectives]
-
-available_stat_points = 529
-base_training_points = 10
-experience_points_base = 1000
-experience_growth = 2
-enemy_level_base = 10
-enemy_growth = 1
-profession_choices = ['Enchanter', 'Warrior']
-future_profession_choices = ['Clairvoyant', 'Illusionist', 'Paladin', 'Ranger', 'Rogue', 'Inyanga']
-heritage_choices = ['Human', 'Elf']
-stats = ['Strength', 'Constitution', 'Dexterity', 'Agility', 'Intellect', 'Wisdom', 'Logic', 'Spirit']
-gender_choices = ['Female', 'Male']
-positions = ['standing', 'kneeling', 'sitting', 'lying']
-stances = ['offense', 'forward', 'neutral', 'guarded', 'defense']
 
 def get_skill_data_file(profession: str, file=SKILLS_FILE, file_format=DATA_FORMAT) -> dict:
     with open(file) as fl:
@@ -119,3 +106,104 @@ def get_stats_data_file(file=STATS_FILE, file_format=DATA_FORMAT) -> dict:
         else:
             raise NotImplementedError(fl, "Missing support for opening files of type: {file_format}")
     return data
+
+
+class FormEnum(Enum):
+    @classmethod
+    def choices(cls):
+        return [(choice, choice.name) for choice in cls]
+
+    @classmethod
+    def coerce(cls, item):
+        return cls(int(item)) if not isinstance(item, cls) else item
+
+    @classmethod
+    def check_for_name_match(cls, item):
+        for choice in cls:
+            if choice.name == item:
+                return True
+        return False
+
+    def __str__(self):
+        return str(self.value)
+
+
+class Profession(FormEnum):
+    """Profession choices"""
+
+    Enchanter = 1
+    Warrior = 2
+    # Clairvoyant = auto()
+    # Illusionist = auto()
+    # Paladin = auto()
+    # Ranger = auto()
+    # Rogue = auto()
+    # Inyanga = auto()
+
+
+class Heritage(FormEnum):
+    """Heritage choices"""
+
+    Human = 1
+    Elf = 2
+
+
+class Stats(FormEnum):
+    """Stats for character"""
+
+    Strength = 1
+    Constitution = 2
+    Dexterity = 3
+    Agility = 4
+    Intellect = 5
+    Wisdom = 6
+    Logic = 7
+    Spririt = 8
+
+
+class Gender(FormEnum):
+    """Gender choices"""
+
+    Female = 1
+    Male = 2
+
+
+class Position(FormEnum):
+    """Position choices"""
+
+    standing = 1
+    kneeling = 2
+    sitting = 3
+    lying = 4
+
+    @classmethod
+    def starting_position(cls):
+        return cls.lying
+
+
+class Stance(FormEnum):
+    """Stance choices"""
+
+    offense = 1
+    forward = 2
+    neutral = 3
+    guarded = 4
+    defense = 5
+
+    @classmethod
+    def starting_stance(cls):
+        return cls.neutral
+
+class CombatAction(FormEnum):
+    """Combat action choices"""
+
+    melee = 1
+    range = 2
+
+AVAILABLE_STAT_POINTS = 529
+STAT_BONUS_DENOMINATOR = AVAILABLE_STAT_POINTS / len(Stats)
+BASE_TRAINING_POINTS = 10
+EXPERIENCE_POINTS_BASE = 1000
+EXPERIENCE_GROWTH = 2
+ENEMY_LEVEL_BASE = 10
+ENEMY_GROWTH = 1

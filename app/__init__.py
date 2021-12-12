@@ -29,7 +29,8 @@ def create_app():
         from app.main import main as main_blueprint
         from app.main import world
         app.register_blueprint(main_blueprint)
-        world.clear_enemies(app=app)
+        world.clear_enemies()
         world.load_world()
         world.initiate_enemies(app=app)
+        world.initiate_pulse(app=app)
     return app

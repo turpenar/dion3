@@ -101,7 +101,7 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
         self.shop_menu = []
         self.shop_menu.append("<b>" + self._shop_name + "</b>")
         for item in self._shop_items:
-            self.shop_menu.append("{}.  {}".format(item_number, item.name))
+            self.shop_menu.append(f"{item_number}.  {item.name}")
             item_number += 1
         self.shop_menu.append("")
         self.shop_menu.append("To order, ORDER <#>.")
@@ -129,10 +129,10 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
             self.update_character_output(character_output_text="That is an improper selection. Choose again.")
             return self.shop_result
         else:
-            self.update_character_output(character_output_text="You have selected {}.  If you would like to buy this item, please respond BUY.".format(self._shop_items[number[0] - 1].name))
+            self.update_character_output(character_output_text=f"You have selected {self._shop_items[number[0] - 1].name}. That will cost you {self._shop_items[number[0] - 1].cost} gulden.  If you would like to buy this item, please respond BUY.")
             return self.shop_result
         
-    def buy_item(self, number):
+    def buy_item(self, number, character):
         if number is None:
             self.update_character_output(character_output_text="You need to specify an item to buy or EXIT.")
             return self.shop_result
@@ -140,8 +140,11 @@ class Shop(mixins.ReprMixin, mixins.DataFileMixin):
             if number[0] > len(self._shop_items) or number[0] <= 0:
                 self.update_character_output(character_output_text="That is an improper selection. Choose again.")
                 return self.shop_result
+            elif self._shop_items[number[0] - 1].cost > character.money:
+                self.update_character_output(character_output_text=f"You do not have enough gulden to purchase {self._shop_items[number[0] - 1].name}")
+                return self.shop_result
             else:
-                self.update_character_output(character_output_text="Congratulations! You have purchased {}.".format(self._shop_items[number[0] - 1].name))
+                self.update_character_output(character_output_text=f"Congratulations! You have purchased {self._shop_items[number[0] - 1].name}.")
                 self.update_shop_item(shop_item=self._shop_items[number[0] - 1])
                 return self.shop_result
         

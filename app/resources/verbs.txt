@@ -1,5 +1,6 @@
 attribute
 attack
+cast
 confirm
 depart
 drop

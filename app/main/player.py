@@ -28,6 +28,7 @@ base_training_points = config.BASE_TRAINING_POINTS
 skills_max_factors = config.SKILLS_MAX_FACTORS
 all_items = mixins.all_items
 all_items_categories = mixins.items
+mana_regeneration_base_percentage = config.MANA_REGENERATION_BASE_PERCENTAGE
 
 
 def create_character(character_name=None):
@@ -83,6 +84,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         
         self._mana_base = self._player_data['mana']
         self._mana = self._player_data['mana']
+        self._mana_max = 0
 
         self.money = self._player_data['money']
         
@@ -314,6 +316,13 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     @health_max.setter
     def health_max(self, health_max):
             self._health_max = health_max
+
+    def regenerate_health(self):
+        if self.health_max - self.health < 2:
+            self.health = self.health_max
+        elif self.health < self.health_max:
+            self.health += 2
+        return
             
     @property
     def attack_strength_base(self):
@@ -389,8 +398,25 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
     def mana(self, mana):
         self._mana = mana
 
-    def pulse_attributes():
-        pass
+    @property
+    def mana_max(self):
+        return self._mana_max
+    @mana_max.setter
+    def mana_max(self, mana_max):
+        self._mana_max = mana_max
+
+    def regenerate_mana(self):
+        if self.mana_max - self.mana < int(self.mana_max * mana_regeneration_base_percentage):
+            self.mana = self.mana_max
+        elif self.mana < self.mana_max:
+            self.mana += int(self.mana_max * mana_regeneration_base_percentage)
+        return
+
+    def pulse_attributes(self):
+        self.regenerate_health()
+        self.regenerate_mana()
+        return
+
             
     def check_level_up(self):
         experience_next_level = int(math.floor(experience_points_base * math.pow(self.level + 1, experience_growth)))
@@ -439,6 +465,7 @@ class Player(mixins.ReprMixin, mixins.DataFileMixin):
         if self.stats_bonus['intellect'] + self.stats_bonus['wisdom'] > 0:
             self.mana_base = int((self.stats_bonus['intellect'] + self.stats_bonus['wisdom']) / 4)
             self.mana = int((self.stats_bonus['intellect'] + self.stats_bonus['wisdom']) / 4)
+            self.mana_max = int((self.stats_bonus['intellect'] + self.stats_bonus['wisdom']) / 4)
 
     def check_spells_forget(self, spell_base, spell_numbers):
         spells_forget = list(set(self.spells[spell_base.lower()]) - set(spell_numbers))

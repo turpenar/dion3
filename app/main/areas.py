@@ -3,20 +3,23 @@
 import pathlib as pathlib
 import imp as imp
 import random as random
-import datetime as datetime
 
 from flask import current_app
 
 import eventlet
 
 from app import db
-from app.main import enemies, mixins
+from app.main import enemies, mixins, config
 from app.main.models import WorldArea, EnemySpawn
 
 
 path_maps = pathlib.Path.cwd() / "app" / "resources" / "maps"
 map_list = path_maps.glob('*.txt')
 module = imp.load_source('tiles', 'app/main/tiles.py')
+
+pulse_min_seconds = config.PULSE_MIN_SECONDS
+pulse_max_seconds = config.PULSE_MAX_SECONDS
+pulse_interval_seconds = config.PULSE_INTERVAL_SECONDS
 
 
 class Area(mixins.DataFileMixin):
@@ -66,7 +69,7 @@ class Area(mixins.DataFileMixin):
                 area_file = db.session.query(WorldArea).filter_by(area_name=self.area_name).first()
                 for room_file in area_file.rooms:
                     for character_file in room_file.characters:
-                        print(f"Updating stats for {character_file.first_name} {character_file.last_name}")
+                        character_file.char.pulse_attributes()
                 db.session.commit()
-                eventlet.sleep(10)
+                eventlet.sleep(random.randrange(pulse_min_seconds, pulse_max_seconds, pulse_interval_seconds))
                 db.session.commit()
